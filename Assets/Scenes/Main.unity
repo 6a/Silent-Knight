@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.8107935, g: 0.85152173, b: 0.9839403, a: 1}
+  m_IndirectSpecularColor: {r: 0.80788606, g: 0.85405964, b: 0.9856768, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -260,7 +260,12 @@ Prefab:
     - target: {fileID: 54803346942438752, guid: d1e3d53ad119cc5468f6bd68071c8486,
         type: 2}
       propertyPath: m_UseGravity
-      value: 0
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114875963438871586, guid: d1e3d53ad119cc5468f6bd68071c8486,
+        type: 2}
+      propertyPath: m_jumpForce
+      value: 150
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: d1e3d53ad119cc5468f6bd68071c8486, type: 2}
@@ -297,7 +302,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 10303, guid: 0000000000000000f000000000000000, type: 0}
+  - {fileID: 2100000, guid: 32a2bea3dbc0ed84c82ce3c46a1f1e32, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -431,7 +436,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2079430501
 MonoBehaviour:
   m_ObjectHideFlags: 0

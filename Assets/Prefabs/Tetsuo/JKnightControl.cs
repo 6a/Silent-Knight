@@ -42,7 +42,7 @@ public class JKnightControl : MonoBehaviour
 
     void ManualInput()
     {
-        // Taking the input variables from universal input.
+        // Take the input variables from universal input.
         var linearValue = Input.GetAxis("Vertical");
         var lateralValue = Input.GetAxis("Horizontal");
 
@@ -59,18 +59,17 @@ public class JKnightControl : MonoBehaviour
             transform.position += movementVec;
             lookPoint = transform.position + movementVec.normalized;
             m_animator.SetFloat("MovementBlend", 0);
+
+            // Using LookAt is an easy way to maintain the correct visual orientation of the knight.
+            transform.LookAt(lookPoint);
         }
         else
         {
             Moving = false;
             m_animator.SetFloat("MovementBlend", 1);
-            lookPoint = transform.position + transform.forward;
         }
 
-        // Using LookAt is an easy way to maintain the correct visual orientation of the knight.
-        transform.LookAt(lookPoint);
-
-        // Take current inputs and handle
+        // Take current inputs and handle behaviour
         InputHandler();
     }
 
