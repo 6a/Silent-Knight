@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.80788606, g: 0.85405964, b: 0.9856768, a: 1}
+  m_IndirectSpecularColor: {r: 0.8107935, g: 0.85152173, b: 0.9839403, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -436,7 +436,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &2079430501
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -451,16 +451,16 @@ MonoBehaviour:
   m_maxDungeonWidth: 32
   m_maxDungeonHeight: 32
   m_minWidth: 4
-  m_maxWidth: 10
+  m_maxWidth: 8
   m_minHeight: 4
-  m_maxHeight: 10
-  m_cycles: 100
-  m_padding: 2
+  m_maxHeight: 8
+  m_cycles: 10000
+  m_padding: 1
   m_minPlatforms: 10
   m_emptyChar: 46
   m_platformChar: 35
   m_pathChar: 37
-  m_levelSeeds: 070000008c16307da9f6fd0aebdc737e72fb0500
+  m_levelSeeds: 040000008c16307da9f6fd0aebdc737e72fb0500
   m_testPlatform: {fileID: 1274328326}
 --- !u!4 &2079430502
 Transform:

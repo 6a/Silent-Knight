@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
+using Delaunay;
 
 namespace DungeonGeneration
 {
@@ -15,6 +16,7 @@ namespace DungeonGeneration
         static char m_platformChar;
         static char m_pathChar;
         static List<Platform> m_platforms;
+        static List<Path> m_paths;
 
         public static Dungeon CurrentDungeon { get; set; }
         public static Texture CurrentDungeonTexture
@@ -36,6 +38,7 @@ namespace DungeonGeneration
             m_platformChar = platformChar;
             m_pathChar = pathChar;
             m_platforms = new List<Platform>();
+            m_paths = new List<Path>();
         }
 
         public static void GenerateNewDungeon(int seed = 0)
@@ -47,11 +50,13 @@ namespace DungeonGeneration
 
         private static void Generate ()
         {
+            // Platforms
+
             m_platforms.Clear();
 
             for (int i = 0; i < m_cycles; i++)
             {
-                var platform = GeneratePlatform();
+                var platform = GeneratePlatform(i);
 
                 bool isValid = true;
 
@@ -69,20 +74,50 @@ namespace DungeonGeneration
                 }
             }
 
+            List<Vector2> centers = new List<Vector2>();
+            List<uint> colors = new List<uint>();
+            foreach (var platform in m_platforms)
+            {
+                colors.Add(0);
+                centers.Add(platform.Center);
+            }
+
+            // Paths
+            Voronoi voronoi = new Voronoi(centers, colors, new Rect(0, 0, m_width, m_height));
+
+            var minSpanningTree = voronoi.SpanningTree(KruskalType.MINIMUM);
+
+            m_paths.Clear();
+
+            foreach (var line in minSpanningTree)
+            {
+                var platform0 = m_platforms.Find(i => i.Center == line.p0.Value);
+                var platform1 = m_platforms.Find(i => i.Center == line.p1.Value);
+
+                // if a straigth path can be found, add that to the list.
+
+                // if no straight path is found, create a bendy path
+
+                // m_paths.Add(new Path())
+                Debug.DrawLine(new Vector3(line.p0.Value.x, 0, line.p0.Value.y), new Vector3(line.p1.Value.x, 0, line.p1.Value.y), Color.green, 1000);
+            }   
+
             var map = Serialise();
 
             CurrentDungeon = new Dungeon(map);
         }
 
-        private static Platform GeneratePlatform()
+        private static Platform GeneratePlatform(int id)
         {
             int w, h, x, y;
+            Vector2 center;
 
             w = Random.Range(m_platformProperties.MinX, m_platformProperties.MaxX);
             h = Random.Range(m_platformProperties.MinY, m_platformProperties.MaxY);
             x = Random.Range(0, m_width - w);
             y = Random.Range(0, m_height - h);
-            var platform = new Platform(x, y, w, h);
+            center = new Vector2(x + (w / 2), y + (h / 2));
+            var platform = new Platform(x, y, w, h, center, id);
 
             return platform;
         }
@@ -129,7 +164,7 @@ namespace DungeonGeneration
             {
                 for (int j = 0; j < CurrentDungeon[0].Length; j++)
                 {
-                    texture.SetPixel(i, j, CharToColor(CurrentDungeon[i][j]));
+                    texture.SetPixel(CurrentDungeon[0].Length - j, CurrentDungeon.Count - i, CharToColor(CurrentDungeon[i][j]));
                 }
             }
             texture.Apply();
