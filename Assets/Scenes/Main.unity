@@ -227,7 +227,7 @@ Prefab:
     m_Modifications:
     - target: {fileID: 4502321395975748, guid: d1e3d53ad119cc5468f6bd68071c8486, type: 2}
       propertyPath: m_LocalPosition.x
-      value: 0.55
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 4502321395975748, guid: d1e3d53ad119cc5468f6bd68071c8486, type: 2}
       propertyPath: m_LocalPosition.y
@@ -235,7 +235,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 4502321395975748, guid: d1e3d53ad119cc5468f6bd68071c8486, type: 2}
       propertyPath: m_LocalPosition.z
-      value: 0.02
+      value: 16
       objectReference: {fileID: 0}
     - target: {fileID: 4502321395975748, guid: d1e3d53ad119cc5468f6bd68071c8486, type: 2}
       propertyPath: m_LocalRotation.x
@@ -350,8 +350,8 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1274328326}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalPosition: {x: 16, y: 0, z: 16}
+  m_LocalScale: {x: 3.2, y: 3.2, z: 3.2}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
@@ -454,13 +454,13 @@ MonoBehaviour:
   m_maxWidth: 8
   m_minHeight: 4
   m_maxHeight: 8
-  m_cycles: 10000
+  m_cycles: 1000
   m_padding: 1
   m_minPlatforms: 10
   m_emptyChar: 46
   m_platformChar: 35
   m_pathChar: 37
-  m_levelSeeds: 040000008c16307da9f6fd0aebdc737e72fb0500
+  m_levelSeeds: 020000008c16307da9f6fd0aebdc737e72fb0500
   m_testPlatform: {fileID: 1274328326}
 --- !u!4 &2079430502
 Transform:
