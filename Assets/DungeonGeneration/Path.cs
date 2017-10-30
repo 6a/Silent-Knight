@@ -4,17 +4,30 @@ namespace DungeonGeneration
 {
     public struct Path
     {
-        public Vector2 Origin1 { get; set; }
-        public Vector2 Path1 { get; set; }
-        public Vector2 Origin2 { get; set; }
-        public Vector2 Path2 { get; set; }
+        public Vector2 Origin { get; set; }
+        public Vector2 Branch { get; set; }
 
-        public Path(Vector2 origin1, Vector2 path1, Vector2 origin2, Vector2 path2)
+        public Vector2 StartVector { get; set; }
+        public Vector2 BranchVector { get; set; }
+
+        public bool IsStraight { get; set; }
+
+        public Path(Vector2 start, Vector2 end)
         {
-            Origin1 = origin1;
-            Path1 = path1;
-            Origin2 = origin2;
-            Path2 = path2;
+            Origin = start;
+            Branch = end;
+            StartVector = Branch - Origin;
+            BranchVector = Vector2.zero;
+            IsStraight = true;
+        }
+
+        public Path(Vector2 start, Vector2 branch, Vector2 startVector, Vector2 branchVector)
+        {
+            Origin = start;
+            Branch = branch;
+            StartVector = startVector;
+            BranchVector = branchVector;
+            IsStraight = false;
         }
     }
 

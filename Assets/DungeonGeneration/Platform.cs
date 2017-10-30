@@ -10,6 +10,7 @@ namespace DungeonGeneration
         public int Height { get; set; }
         public Vector2 Center { get; set; }
         public int ID { get; private set; }
+        public int Connections { get; set; }
 
         public Platform(int x, int y, int width, int height, Vector2 center, int id)
         {
@@ -19,6 +20,7 @@ namespace DungeonGeneration
             Height = height;
             Center = center;
             ID = id;
+            Connections = 0;
         }
 
         public bool Intersects (Platform r, int padding)
@@ -30,6 +32,11 @@ namespace DungeonGeneration
             }
 
             return false;
+        }
+
+        public bool IsNode()
+        {
+            return (Connections == 1);
         }
     }
 }
