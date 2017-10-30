@@ -64,17 +64,6 @@ namespace Delaunay
 			_sitesIndexedByLocation = null;
 		}
 
-        public Voronoi(List<Platform> platforms, List<uint> colors, Rect plotBounds)
-        {
-            _sites = new SiteList();
-            _sitesIndexedByLocation = new Dictionary<Vector2, Site>(); // XXX: Used to be Dictionary(true) -- weak refs. 
-            AddSites(platforms, colors);
-            _plotBounds = plotBounds;
-            _triangles = new List<Triangle>();
-            _edges = new List<Edge>();
-            FortunesAlgorithm();
-        }
-
         public Voronoi (List<Vector2> points, List<uint> colors, Rect plotBounds)
 		{
 			_sites = new SiteList ();
@@ -93,15 +82,6 @@ namespace Delaunay
 				AddSite (points [i], (colors != null) ? colors [i] : 0, i);
 			}
 		}
-
-        private void AddSites(List<Platform> platforms, List<uint> colors)
-        {
-            int length = platforms.Count;
-            for (int i = 0; i < length; ++i)
-            {
-                AddSite(platforms[i], (colors != null) ? colors[i] : 0, i);
-            }
-        }
 
         private void AddSite (Vector2 p, uint color, int index)
 		{
