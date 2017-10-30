@@ -164,9 +164,11 @@ namespace DungeonGeneration
             {
                 for (int j = 0; j < CurrentDungeon[0].Length; j++)
                 {
-                    texture.SetPixel(CurrentDungeon[0].Length - j, CurrentDungeon.Count - i, CharToColor(CurrentDungeon[i][j]));
+                    Debug.Log((CurrentDungeon.Count - i - 1) + " | " + (CurrentDungeon[0].Length - j - 1));
+                    texture.SetPixel(CurrentDungeon[0].Length - j - 1, CurrentDungeon.Count - i - 1, CharToColor(CurrentDungeon[i][j]));
                 }
             }
+            texture.filterMode = FilterMode.Point;
             texture.Apply();
             return texture;
         }
