@@ -19,14 +19,8 @@ namespace DungeonGeneration
 
         static List<Platform> m_platforms;
         static List<Path> m_paths;
-        static List<Platform> m_entryPoints;
 
         public static Dungeon CurrentDungeon { get; set; }
-        public static Texture CurrentDungeonTexture
-        {
-            get { return DungeonToTexture(); }
-            set { }
-        }
 
         public static void Init(int width, int height, PlatformProperties platformProperties, 
             int cycles, int padding, int minPlatforms, char emptyChar, char platformChar, char nodeChar, char pathChar)
@@ -55,7 +49,6 @@ namespace DungeonGeneration
         private static void Generate ()
         {
             // Platforms
-
             m_platforms.Clear();
 
             for (int i = 0; i < m_cycles; i++)
@@ -206,13 +199,8 @@ namespace DungeonGeneration
                         m_paths.Add(new Path(pathStart, branchStart, startVec, branchVec));
                     }
                 }
-
-                //Debug.DrawLine(new Vector3(line.p0.Value.x, 0, line.p0.Value.y), new Vector3(line.p1.Value.x, 0, line.p1.Value.y), Color.green, 1000);
-            }   
-
-            var map = Serialise();
-
-            CurrentDungeon = new Dungeon(map);
+            }
+            CurrentDungeon = new Dungeon(m_platforms, m_paths, m_width, m_height, m_emptyChar, m_platformChar, m_nodeChar, m_pathChar);
         }
 
         private static Platform GeneratePlatform(int id)
@@ -228,96 +216,6 @@ namespace DungeonGeneration
             var platform = new Platform(x, y, w, h, center, id);
 
             return platform;
-        }
-
-        private static Dungeon Serialise()
-        {
-            var map = new List<string>();
-
-            string line = string.Empty;
-
-            for (int i = 0; i < m_width; i++)
-            {
-                line += m_emptyChar;
-            }
-
-            for (int i = 0; i < m_height; i++)
-            {
-                map.Add(line);
-            }
-
-            foreach (var platform in m_platforms)
-            {
-                for (int i = 0; i < platform.Height; i++)
-                {
-                    string str = map[i + platform.Y];
-                    for (int j = 0; j < platform.Width; j++)
-                    {
-                        var c = platform.IsNode() ? m_nodeChar.ToString() : m_platformChar.ToString();
-
-                        str = str.Remove(j + platform.X, 1).Insert(j + platform.X, c);
-                    }
-
-                    map[i + platform.Y] = str;
-                }
-            }
-
-            foreach (var path in m_paths)
-            {
-                if (path.IsStraight)
-                {
-                    for (int i = 0; i < path.StartVector.magnitude; i++)
-                    {
-                        var coord = path.Origin + path.StartVector.normalized * i;
-
-                        map[(int)coord.y] = map[(int)coord.y].Remove((int)coord.x, 1).Insert((int)coord.x, m_pathChar.ToString());
-                    }
-                }
-                else
-                {
-                    for (int i = 0; i < path.StartVector.magnitude; i++)
-                    {
-                        var coord = path.Origin + path.StartVector.normalized * i;
-
-                        map[(int)coord.y] = map[(int)coord.y].Remove((int)coord.x, 1).Insert((int)coord.x, m_pathChar.ToString());
-                    }
-
-                    for (int i = 0; i < Mathf.Abs(path.BranchVector.magnitude); i++)
-                    {
-                        var coord = path.Branch + path.BranchVector.normalized * i;
-                        map[(int)coord.y] = map[(int)coord.y].Remove((int)coord.x, 1).Insert((int)coord.x, m_pathChar.ToString());
-                    }
-                }
-            }
-            
-            // Create new dungeon object and return
-            return new Dungeon(map);
-        }
-
-        private static Texture DungeonToTexture()
-        {
-            var texture = new Texture2D(CurrentDungeon[0].Length, CurrentDungeon.Count, TextureFormat.ARGB32, false, false);
-
-            for (int i = 0; i < CurrentDungeon.Count; i++)
-            {
-                for (int j = 0; j < CurrentDungeon[0].Length; j++)
-                {
-                    texture.SetPixel(CurrentDungeon[0].Length - j - 1, CurrentDungeon.Count - i - 1, CharToColor(CurrentDungeon[i][j]));
-                }
-            }
-            texture.filterMode = FilterMode.Point;
-            texture.Apply();
-            return texture;
-        }
-
-        private static Color CharToColor(char c)
-        {
-            if (c == m_emptyChar) return Color.gray;
-            if (c == m_platformChar) return Color.black;
-            if (c == m_pathChar) return Color.blue;
-            if (c == m_nodeChar) return Color.red;
-
-            return new Color(1, 0, 1);
         }
 
         // Takes a direction vector and snaps it to NESorW

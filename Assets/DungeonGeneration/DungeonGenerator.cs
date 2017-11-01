@@ -41,7 +41,7 @@ public class DungeonGenerator : MonoBehaviour
     private void UpdateTexturePreview()
     {
         Generator.GenerateNewDungeon(m_levelSeeds[0]);
-        var t = Generator.CurrentDungeonTexture;
+        var t = Generator.CurrentDungeon.Texture;
 
         m_testPlatform.GetComponent<MeshRenderer>().material.mainTexture = t;
     }

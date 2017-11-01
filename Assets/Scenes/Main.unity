@@ -459,9 +459,9 @@ MonoBehaviour:
   m_minPlatforms: 10
   m_emptyChar: 46
   m_platformChar: 35
-  m_nodeChar: 0
+  m_nodeChar: 88
   m_pathChar: 37
-  m_levelSeeds: bc0100000100000001000000bc01000001000000
+  m_levelSeeds: f17a12000100000001000000bc01000001000000
   m_testPlatform: {fileID: 1274328326}
 --- !u!4 &2079430502
 Transform:
