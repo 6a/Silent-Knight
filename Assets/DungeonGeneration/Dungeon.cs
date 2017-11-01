@@ -11,6 +11,11 @@ namespace DungeonGeneration
         public int Width { get; private set; }
         public int Height { get; private set; }
 
+        public char EmptyChar { get; private set; }
+        public char PlatformChar { get; private set; }
+        public char NodeChar { get; private set; }
+        public char PathChar { get; private set; }
+
         public Texture Texture
         {
             get { return DungeonToTexture(); }
@@ -23,10 +28,7 @@ namespace DungeonGeneration
             private set { }
         }
 
-        char m_emptyChar;
-        char m_platformChar;
-        char m_nodeChar;
-        char m_pathChar;
+
 
         public Dungeon(List<Platform> platforms, List<Path> paths, int width, int height, char emptyChar, char platChar, char nodeChar, char pathChar)
         {
@@ -34,10 +36,10 @@ namespace DungeonGeneration
             Paths = paths;
             Height = height;
             Width = width;
-            m_emptyChar = emptyChar;
-            m_platformChar = platChar;
-            m_nodeChar = nodeChar;
-            m_pathChar = pathChar;
+            EmptyChar = emptyChar;
+            PlatformChar = platChar;
+            NodeChar = nodeChar;
+            PathChar = pathChar;
             Serialise();
         }
 
@@ -64,10 +66,10 @@ namespace DungeonGeneration
 
         private Color CharToColor(char c)
         {
-            if (c == m_emptyChar) return Color.gray;
-            if (c == m_platformChar) return Color.black;
-            if (c == m_pathChar) return Color.blue;
-            if (c == m_nodeChar) return Color.red;
+            if (c == EmptyChar) return Color.gray;
+            if (c == PlatformChar) return Color.black;
+            if (c == PathChar) return Color.blue;
+            if (c == NodeChar) return Color.red;
 
             return new Color(1, 0, 1);
         }
@@ -80,7 +82,7 @@ namespace DungeonGeneration
 
             for (int i = 0; i < Width; i++)
             {
-                line += m_emptyChar;
+                line += EmptyChar;
             }
 
             for (int i = 0; i < Height; i++)
@@ -95,7 +97,7 @@ namespace DungeonGeneration
                     string str = map[i + platform.Y];
                     for (int j = 0; j < platform.Width; j++)
                     {
-                        var c = platform.IsNode() ? m_nodeChar.ToString() : m_platformChar.ToString();
+                        var c = platform.IsNode() ? NodeChar.ToString() : PlatformChar.ToString();
                         str = str.Remove(j + platform.X, 1).Insert(j + platform.X, c);
                     }
 
@@ -111,7 +113,7 @@ namespace DungeonGeneration
                     {
                         var coord = path.Origin + path.StartVector.normalized * i;
 
-                        map[(int)coord.y] = map[(int)coord.y].Remove((int)coord.x, 1).Insert((int)coord.x, m_pathChar.ToString());
+                        map[(int)coord.y] = map[(int)coord.y].Remove((int)coord.x, 1).Insert((int)coord.x, PathChar.ToString());
                     }
                 }
                 else
@@ -120,13 +122,13 @@ namespace DungeonGeneration
                     {
                         var coord = path.Origin + path.StartVector.normalized * i;
 
-                        map[(int)coord.y] = map[(int)coord.y].Remove((int)coord.x, 1).Insert((int)coord.x, m_pathChar.ToString());
+                        map[(int)coord.y] = map[(int)coord.y].Remove((int)coord.x, 1).Insert((int)coord.x, PathChar.ToString());
                     }
 
                     for (int i = 0; i < UnityEngine.Mathf.Abs(path.BranchVector.magnitude); i++)
                     {
                         var coord = path.Branch + path.BranchVector.normalized * i;
-                        map[(int)coord.y] = map[(int)coord.y].Remove((int)coord.x, 1).Insert((int)coord.x, m_pathChar.ToString());
+                        map[(int)coord.y] = map[(int)coord.y].Remove((int)coord.x, 1).Insert((int)coord.x, PathChar.ToString());
                     }
                 }
             }

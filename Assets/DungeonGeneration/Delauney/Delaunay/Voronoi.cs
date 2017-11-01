@@ -28,7 +28,6 @@ namespace Delaunay
 		private Dictionary <Vector2,Site> _sitesIndexedByLocation;
 		private List<Triangle> _triangles;
 		private List<Edge> _edges;
-        private List<Platform> _sitesPlatforms;
 		
 		// TODO generalize this so it doesn't have to be a rectangle;
 		// then we can make the fractal voronois-within-voronois
