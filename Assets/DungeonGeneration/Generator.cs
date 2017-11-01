@@ -17,9 +17,6 @@ namespace DungeonGeneration
         static char m_nodeChar;
         static char m_pathChar;
 
-        static List<Platform> m_platforms;
-        static List<Path> m_paths;
-
         public static Dungeon CurrentDungeon { get; set; }
 
         public static void Init(int width, int height, PlatformProperties platformProperties, 
@@ -35,8 +32,6 @@ namespace DungeonGeneration
             m_platformChar = platformChar;
             m_nodeChar = nodeChar;
             m_pathChar = pathChar;
-            m_platforms = new List<Platform>();
-            m_paths = new List<Path>();
         }
 
         public static void GenerateNewDungeon(int seed = 0)
@@ -48,16 +43,17 @@ namespace DungeonGeneration
 
         private static void Generate ()
         {
-            // Platforms
-            m_platforms.Clear();
+            List<Platform> platforms = new List<Platform>();
+            List<Path> paths = new List<Path>();
 
+            // Platforms
             for (int i = 0; i < m_cycles; i++)
             {
                 var platform = GeneratePlatform(i);
 
                 bool isValid = true;
 
-                foreach (var p in m_platforms)
+                foreach (var p in platforms)
                 {
                     if (p.Intersects(platform, m_padding))
                     {
@@ -67,13 +63,13 @@ namespace DungeonGeneration
 
                 if (isValid)
                 {
-                    m_platforms.Add(platform);
+                    platforms.Add(platform);
                 }
             }
 
             List<Vector2> centers = new List<Vector2>();
             List<uint> colors = new List<uint>();
-            foreach (var platform in m_platforms)
+            foreach (var platform in platforms)
             {
                 colors.Add(0);
                 centers.Add(platform.Center);
@@ -84,14 +80,12 @@ namespace DungeonGeneration
 
             var minSpanningTree = voronoi.SpanningTree(KruskalType.MINIMUM);
 
-            m_paths.Clear();
-
             foreach (var line in minSpanningTree)
             {
-                var platform0 = m_platforms.Find(i => i.Center == line.p0.Value);
+                var platform0 = platforms.Find(i => i.Center == line.p0.Value);
                 platform0.Connections++;
 
-                var platform1 = m_platforms.Find(i => i.Center == line.p1.Value);
+                var platform1 = platforms.Find(i => i.Center == line.p1.Value);
                 platform1.Connections++;
 
                 var dir = new Vector2(platform1.X, platform1.Y) - new Vector2(platform0.X, platform0.Y);
@@ -110,7 +104,7 @@ namespace DungeonGeneration
 
                         var pathEnd = new Vector2(randX, platform1.Y);
 
-                        m_paths.Add(new Path(pathStart, pathEnd));
+                        paths.Add(new Path(pathStart, pathEnd));
                     }
                     else
                     {
@@ -133,7 +127,7 @@ namespace DungeonGeneration
 
                         startVec = new Vector2(0, branchStart.y - pathStart.y);
 
-                        m_paths.Add(new Path(pathStart, branchStart, startVec, branchVec));
+                        paths.Add(new Path(pathStart, branchStart, startVec, branchVec));
                     }
                 }
                 else if (dir == Vector2.down)
@@ -153,7 +147,7 @@ namespace DungeonGeneration
 
                         var pathEnd = new Vector2(platform1.X + platform1.Width - 1, randY);
 
-                        m_paths.Add(new Path(pathStart, pathEnd));
+                        paths.Add(new Path(pathStart, pathEnd));
                     }
                     else
                     {
@@ -166,7 +160,7 @@ namespace DungeonGeneration
 
                         startVec = new Vector2(branchStart.x - pathStart.x - 1, 0);
 
-                        m_paths.Add(new Path(pathStart, branchStart, startVec, branchVec));
+                        paths.Add(new Path(pathStart, branchStart, startVec, branchVec));
                     }
 
                 }
@@ -183,7 +177,7 @@ namespace DungeonGeneration
 
                         var pathEnd = new Vector2(platform1.X, randY);
 
-                        m_paths.Add(new Path(pathStart, pathEnd));
+                        paths.Add(new Path(pathStart, pathEnd));
                     }
                     else
                     {
@@ -196,11 +190,15 @@ namespace DungeonGeneration
 
                         startVec = new Vector2(branchStart.x - pathStart.x, 0);
 
-                        m_paths.Add(new Path(pathStart, branchStart, startVec, branchVec));
+                        paths.Add(new Path(pathStart, branchStart, startVec, branchVec));
                     }
                 }
             }
-            CurrentDungeon = new Dungeon(m_platforms, m_paths, m_width, m_height, m_emptyChar, m_platformChar, m_nodeChar, m_pathChar);
+
+            CurrentDungeon = new Dungeon(platforms, paths, m_width, m_height, m_emptyChar, m_platformChar, m_nodeChar, m_pathChar);
+
+            platforms = new List<Platform>();
+            paths = new List<Path>();
         }
 
         private static Platform GeneratePlatform(int id)

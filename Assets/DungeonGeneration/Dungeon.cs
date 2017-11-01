@@ -1,19 +1,26 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace DungeonGeneration
 {
     public class Dungeon : List<string>
     {
-        public List<Platform> Platforms { get; set; }
-        public List<Path> Paths { get; set; }
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public List<Platform> Platforms { get; private set; }
+        public List<Path> Paths { get; private set; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
 
         public Texture Texture
         {
             get { return DungeonToTexture(); }
-            set { }
+            private set { }
+        }
+
+        public List<Platform> Nodes
+        {
+            get { return GetNodes(); }
+            private set { }
         }
 
         char m_emptyChar;
@@ -32,6 +39,11 @@ namespace DungeonGeneration
             m_nodeChar = nodeChar;
             m_pathChar = pathChar;
             Serialise();
+        }
+
+        private List<Platform> GetNodes()
+        {
+            return Platforms.FindAll(i => i.IsNode());
         }
 
         private Texture DungeonToTexture()
