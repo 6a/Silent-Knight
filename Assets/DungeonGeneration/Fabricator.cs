@@ -13,6 +13,7 @@ namespace DungeonGeneration
         const int m_offset = 32;
 
         Vector2? m_startNode, m_endNode;
+
         GameObject m_playerCharacter;
 
         public Fabricator(Dungeon d)
