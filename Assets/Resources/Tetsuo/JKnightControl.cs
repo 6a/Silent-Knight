@@ -19,18 +19,17 @@ public class JKnightControl : MonoBehaviour
     Animator m_animator;
     Rigidbody m_rb;
 
-    // Public property used to check whether knight is moving.
-    public bool Moving { get; set; }
+    // Public property used to check knight focus point
+    public Vector3 FocusPoint
+    {
+        get { return transform.position + m_rb.velocity.normalized; }
+        set { FocusPoint = value; }
+    }
 
     void Awake()
     {
         m_animator = GetComponent<Animator>();
         m_rb = GetComponent<Rigidbody>();
-    }
-
-    void Start ()
-    {
-        Moving = false;
     }
 
     void Update()
@@ -55,7 +54,6 @@ public class JKnightControl : MonoBehaviour
         // Apply movement appropriately and also update the animator and LookAt target.
         if (movementVec != Vector3.zero)
         {
-            Moving = true;
             transform.position += movementVec;
             lookPoint = transform.position + movementVec.normalized;
             m_animator.SetFloat("MovementBlend", 0);
@@ -65,7 +63,6 @@ public class JKnightControl : MonoBehaviour
         }
         else
         {
-            Moving = false;
             m_animator.SetFloat("MovementBlend", 1);
         }
 

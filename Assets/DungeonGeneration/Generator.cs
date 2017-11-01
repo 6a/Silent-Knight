@@ -41,6 +41,8 @@ namespace DungeonGeneration
             fabricator.Fabricate();
 
             fabricator.PlacePlayerAtStartNode();
+
+            fabricator.PlaceChestAtEndNode();
         }
 
         public static void GenerateNewDungeon(int seed = 0)
