@@ -267,10 +267,6 @@ Prefab:
       propertyPath: m_jumpForce
       value: 150
       objectReference: {fileID: 0}
-    - target: {fileID: 1647453438317208, guid: d1e3d53ad119cc5468f6bd68071c8486, type: 2}
-      propertyPath: m_TagString
-      value: Player
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: d1e3d53ad119cc5468f6bd68071c8486, type: 2}
   m_IsPrefabParent: 0
@@ -354,8 +350,8 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1274328326}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 6.4, y: 6.4, z: 6.4}
+  m_LocalPosition: {x: 16, y: 0, z: 16}
+  m_LocalScale: {x: 3.2, y: 3.2, z: 3.2}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 4
@@ -419,7 +415,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1435179652}
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
-  m_LocalPosition: {x: -36.8, y: 3, z: -1.4}
+  m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -465,10 +461,10 @@ MonoBehaviour:
   m_platformChar: 35
   m_nodeChar: 88
   m_pathChar: 37
-  m_levelSeeds: 070000000602000091020000e002000001000000
+  m_levelSeeds: e00200000602000091020000e002000001000000
   m_iterations: 1
   m_generate: 0
-  m_previewPlane: {fileID: 1274328326}
+  m_testPlatform: {fileID: 1274328326}
 --- !u!4 &2079430502
 Transform:
   m_ObjectHideFlags: 0

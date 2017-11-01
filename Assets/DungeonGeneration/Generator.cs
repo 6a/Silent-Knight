@@ -34,15 +34,6 @@ namespace DungeonGeneration
             m_pathChar = pathChar;
         }
 
-        public static void Fabricate()
-        {
-            var fabricator = new Fabricator(CurrentDungeon);
-
-            fabricator.Fabricate();
-
-            fabricator.PlacePlayerAtStartNode();
-        }
-
         public static void GenerateNewDungeon(int seed = 0)
         {
             m_seed = seed;
