@@ -17,18 +17,27 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] int [] m_levelSeeds;
 
     [SerializeField] int m_iterations;
-    [SerializeField] bool m_generate;
 
     [SerializeField] GameObject m_previewPlane;
 
-    void Start ()
+    private int m_currentLevel;
+
+    void Awake ()
     {
-        m_generate = false;
+        m_currentLevel = 0;
 
         Generator.Init(m_maxDungeonWidth, m_maxDungeonHeight,
         new PlatformProperties(m_minWidth, m_maxWidth, m_minHeight, m_maxHeight),
         m_cycles, m_padding, m_minPlatforms, m_emptyChar, m_platformChar, m_nodeChar, m_pathChar);
+    }
 
+    void Update ()
+    {
+
+    }
+
+    public void LoadNext()
+    {
         for (int i = 0; i < m_iterations; i++)
         {
             if (i > 0) m_levelSeeds[0]++;
@@ -38,29 +47,20 @@ public class DungeonGenerator : MonoBehaviour
 
             if (i > 0 && Generator.CurrentDungeon.Nodes.Count == 2 && Generator.CurrentDungeon.Platforms.Count == 10)
             {
-                Debug.Log("Suitable dungeon: " + m_levelSeeds[0]);
+                Debug.Log("Suitable dungeon: " + m_levelSeeds[m_currentLevel]);
             }
         }
 
         Generator.Fabricate();
+        Generator.BuildNavMesh();
     }
 
-    void Update ()
+    void UpdateDungeon()
     {
-        if (m_generate)
-        {
-            m_generate = false;
-            UpdateDungeon();
-            UpdatePreviewTexture();
-        }
-	}
-
-    private void UpdateDungeon()
-    {
-        Generator.GenerateNewDungeon(m_levelSeeds[0]);
+        Generator.GenerateNewDungeon(m_levelSeeds[m_currentLevel]);
     }
     
-    private void UpdatePreviewTexture()
+    void UpdatePreviewTexture()
     {
         var t = Generator.CurrentDungeon.Texture;
         m_previewPlane.GetComponent<MeshRenderer>().material.mainTexture = t;

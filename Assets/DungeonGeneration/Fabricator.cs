@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 
 namespace DungeonGeneration
 {
@@ -28,6 +29,17 @@ namespace DungeonGeneration
 
         public void Fabricate()
         {
+            var oldObjects = new List<GameObject>();
+
+            oldObjects.Add(GameObject.Find("Tiles"));
+            oldObjects.Add(GameObject.FindGameObjectWithTag("Player"));
+            oldObjects.Add(GameObject.FindGameObjectWithTag("Chest"));
+
+            foreach (var ob in oldObjects)
+            {
+                if (ob != null) Object.Destroy(ob);
+            }
+
             var container = new GameObject("Tiles");
 
             for (int i = 0; i < m_dungeon.Count; i++)
@@ -54,7 +66,7 @@ namespace DungeonGeneration
 
         public void PlacePlayerAtStartNode()
         {
-            Object.Instantiate(m_playerCharacter, new Vector3(Scale((int)m_startNode.Value.x), 2, Scale((int)m_startNode.Value.y)), Quaternion.identity);
+            Object.Instantiate(m_playerCharacter, new Vector3(Scale((int)m_startNode.Value.x), 1, Scale((int)m_startNode.Value.y)), Quaternion.identity);
         }
 
         private int Scale(int i)

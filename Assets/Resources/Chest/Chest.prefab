@@ -35,6 +35,8 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4711674705736404}
+  - component: {fileID: 114514722960490636}
+  - component: {fileID: 114735048950831402}
   m_Layer: 0
   m_Name: Chest
   m_TagString: Chest
@@ -275,3 +277,61 @@ Light:
   m_UseColorTemperature: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &114514722960490636
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1946144836885372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1728340906, guid: 9fa2ecd1ff2ad394281dd3bf72c5b76e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _dataSerializer:
+    _preferredSerialization: 2
+    _serializedData: 
+    _serializedMetaData: <meta></meta>
+    _serializedGameObjects: []
+    _serializedCustomData: []
+  _serializer:
+    _preferredSerialization: 1
+    _includeCustomData: 0
+    _serializedDocument: <component version="1.8" type="RAIN.Navigation.Targets.NavigationTargetRig"
+      reference="0" includecustomdata="False"><_visualMode>AlwaysOn</_visualMode><_target
+      reference="1"><_targetName>Chest</_targetName><_targetColor>0,1,0,1</_targetColor><_outlineColorOffset>-0.5</_outlineColorOffset><_selectionColorOffset>0.4</_selectionColorOffset><_mountPoint
+      sceneobject="a56834b2-049f-46be-b1f7-6dc1f18c8b16" component="0"></_mountPoint><_positionOffset>0,0,0</_positionOffset><_angleOffset>0,0,0</_angleOffset><_range>0.5</_range></_target></component>
+    _serializedMetaDocument: <meta></meta>
+    _serializedObjects: []
+    _serializedCustomData: []
+--- !u!114 &114735048950831402
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1946144836885372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 220721487, guid: 9fa2ecd1ff2ad394281dd3bf72c5b76e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _dataSerializer:
+    _preferredSerialization: 2
+    _serializedData: 
+    _serializedMetaData: <meta></meta>
+    _serializedGameObjects: []
+    _serializedCustomData: []
+  _serializer:
+    _preferredSerialization: 1
+    _includeCustomData: 0
+    _serializedDocument: <component version="1.8" type="RAIN.Entities.EntityRig" reference="0"
+      includecustomdata="False"><_visualMode>OnWhenSelected</_visualMode><_useUnityMessages>True</_useUnityMessages><_entity
+      reference="1"><_entityName></_entityName><_isActive>True</_isActive><_form sceneobject=""
+      object="0"></_form><_aspects><element0 type="RAIN.Entities.Aspects.VisualAspect"
+      reference="2"><_showVisual>True</_showVisual><_aspectName>Chest</_aspectName><_isActive>True</_isActive><_aspectColor>0.6,0.5529412,0.009411765,1</_aspectColor><_outlineColorOffset>-0.5</_outlineColorOffset><_selectionColorOffset>0.4</_selectionColorOffset><_visualSize>0.1</_visualSize><_mountPoint
+      object="1"></_mountPoint><_positionOffset>0,0,0</_positionOffset><_angleOffset>0,0,0</_angleOffset></element0></_aspects></_entity></component>
+    _serializedMetaDocument: <meta></meta>
+    _serializedObjects:
+    - {fileID: 1946144836885372}
+    - {fileID: 4711674705736404}
+    _serializedCustomData: []

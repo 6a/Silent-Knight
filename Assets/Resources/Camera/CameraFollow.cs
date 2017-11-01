@@ -24,9 +24,9 @@ public class CameraFollow : MonoBehaviour
 
         var focus = m_knight.FocusPoint;
 
-        focus.x -= 1;
-        focus.y += 4;
-        focus.z -= 1;
+        focus.x -= 1f;
+        focus.y += 3;
+        focus.z -= 1f;
 
         // Using SmoothDamp this gameobject will lerp towards the target position, producing a smooth
         // camera follow effect.

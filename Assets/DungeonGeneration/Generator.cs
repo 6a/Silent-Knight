@@ -16,6 +16,7 @@ namespace DungeonGeneration
         static char m_platformChar;
         static char m_nodeChar;
         static char m_pathChar;
+        static NavManager m_navManager;
 
         public static Dungeon CurrentDungeon { get; set; }
 
@@ -32,6 +33,12 @@ namespace DungeonGeneration
             m_platformChar = platformChar;
             m_nodeChar = nodeChar;
             m_pathChar = pathChar;
+            m_navManager = Object.FindObjectOfType<NavManager>();
+        }
+
+        public static void BuildNavMesh()
+        {
+            m_navManager.UpdateNavMesh();
         }
 
         public static void Fabricate()
