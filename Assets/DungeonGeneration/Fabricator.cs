@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace DungeonGeneration
@@ -13,7 +14,8 @@ namespace DungeonGeneration
         const int m_scale = 2;
         const int m_offset = 32;
 
-        Vector2? m_startNode, m_endNode;
+        Vector2 m_startNode, m_endNode;
+        Vector2? m_chestDirection;
         GameObject m_playerCharacter;
         GameObject m_chest;
 
@@ -61,12 +63,21 @@ namespace DungeonGeneration
 
         public void PlaceChestAtEndNode()
         {
-            Object.Instantiate(m_chest, new Vector3(Scale((int)m_endNode.Value.x), 1, Scale((int)m_endNode.Value.y)), Quaternion.identity);
+            GameObject chest = Object.Instantiate(m_chest, new Vector3(Scale((int)m_endNode.x), 1, Scale((int)m_endNode.y)), Quaternion.identity);
+
+            var closestPathBlock = GameObject.FindGameObjectsWithTag("Path").OrderBy(i => (i.transform.position - chest.transform.position).sqrMagnitude).FirstOrDefault();
+
+            var closestPathTileV2 = new Vector2(closestPathBlock.transform.position.x, closestPathBlock.transform.position.z);
+            var chestTileV2 = new Vector2(chest.transform.position.x, chest.transform.position.z);
+
+            Vector2 facingDir = (chestTileV2 - closestPathTileV2).Snap();   
+
+            chest.transform.LookAt(chest.transform.position + new Vector3(facingDir.x, 0, facingDir.y));
         }
 
         public void PlacePlayerAtStartNode()
         {
-            Object.Instantiate(m_playerCharacter, new Vector3(Scale((int)m_startNode.Value.x), 1, Scale((int)m_startNode.Value.y)), Quaternion.identity);
+            Object.Instantiate(m_playerCharacter, new Vector3(Scale((int)m_startNode.x), 1, Scale((int)m_startNode.y)), Quaternion.identity);
         }
 
         private int Scale(int i)
@@ -95,38 +106,6 @@ namespace DungeonGeneration
                 return null;
             }
             return Resources.Load(name) as GameObject;
-        }
-
-        // Takes a direction vector and snaps it to NESorW
-        private static Vector2 Snap(Vector2 v)
-        {
-            v = v.normalized;
-
-            var Y = v.y;
-            var X = v.x;
-
-            if (Mathf.Abs(Y) >= Mathf.Abs(X))
-            {
-                if (Y > 0)
-                {
-                    return Vector2.up;
-                }
-                else
-                {
-                    return Vector2.down;
-                }
-            }
-            else
-            {
-                if (X > 0)
-                {
-                    return Vector2.right;
-                }
-                else
-                {
-                    return Vector2.left;
-                }
-            }
         }
     }
 }

@@ -4,10 +4,10 @@ namespace DungeonGeneration
 {
     public class Platform
     {
-        public int X { get; set; }
-        public int Y { get; set; }
-        public int Width { get; set; }
-        public int Height { get; set; }
+        public int X { get; private set; }
+        public int Y { get; private set; }
+        public int Width { get; private set; }
+        public int Height { get; private set; }
         public Vector2 Center { get; set; }
         public int ID { get; private set; }
         public int Connections { get; set; }

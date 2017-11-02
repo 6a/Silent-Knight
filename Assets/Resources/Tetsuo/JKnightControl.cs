@@ -1,5 +1,4 @@
-﻿using RAIN.Core;
-using UnityEngine;
+﻿using UnityEngine;
 
 /// <summary>
 /// Handles control behaviour for player character.
@@ -19,7 +18,6 @@ public class JKnightControl : MonoBehaviour
     // References to attached components.
     Animator m_animator;
     Rigidbody m_rb;
-    AIRig m_rainRig;
 
     // Public property used to check knight focus point
     public Vector3 FocusPoint
@@ -32,16 +30,12 @@ public class JKnightControl : MonoBehaviour
     {
         m_animator = GetComponent<Animator>();
         m_rb = GetComponent<Rigidbody>();
-        m_rainRig = GetComponent<AIRig>();
     }
 
     void Update()
     {
         // Check for level end trigger
-        if (m_rainRig.AI.WorkingMemory.GetItem<bool>("levelComplete"))
-        {
-            GameManager.TriggerLevelLoad();
-        }
+        // GameManager.TriggerLevelLoad();
         //ManualInput();
 
         // Take current inputs and handle behaviour

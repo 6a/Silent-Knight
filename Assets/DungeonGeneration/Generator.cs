@@ -106,9 +106,7 @@ namespace DungeonGeneration
                 var platform1 = platforms.Find(i => i.Center == line.p1.Value);
                 platform1.Connections++;
 
-                var dir = new Vector2(platform1.X, platform1.Y) - new Vector2(platform0.X, platform0.Y);
-
-                dir = Snap(dir);
+                var dir = (new Vector2(platform1.X, platform1.Y) - new Vector2(platform0.X, platform0.Y)).Snap();
 
                 if (dir == Vector2.up)
                 {
@@ -232,38 +230,6 @@ namespace DungeonGeneration
             var platform = new Platform(x, y, w, h, center, id);
 
             return platform;
-        }
-
-        // Takes a direction vector and snaps it to NESorW
-        private static Vector2 Snap(Vector2 v)
-        {
-            v = v.normalized;
-
-            var Y = v.y;
-            var X = v.x;
-
-            if (Mathf.Abs(Y) >= Mathf.Abs(X))
-            {
-                if (Y > 0)
-                {
-                    return Vector2.up;
-                }
-                else
-                {
-                    return Vector2.down;
-                }
-            }
-            else
-            {
-                if (X > 0)
-                {
-                    return Vector2.right;
-                }
-                else
-                {
-                    return Vector2.left;
-                }
-            }
         }
 
         private static bool IsWithinBounds(Platform platform0, Platform platform1, bool horizontal)
