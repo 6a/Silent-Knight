@@ -23,11 +23,11 @@ public class DungeonGenerator : MonoBehaviour
 
     int m_currentLevel;
 
-    PathFinder m_pathFinder;
+    ASGrid m_grid;
 
     void Awake ()
     {
-        m_pathFinder = FindObjectOfType<PathFinder>();
+        m_grid = FindObjectOfType<ASGrid>();
 
         m_currentLevel = 0;
 
@@ -57,7 +57,7 @@ public class DungeonGenerator : MonoBehaviour
         }
 
         Generator.Fabricate();
-        m_pathFinder.CreateGrid();
+        m_grid.CreateGrid();
     }
 
     void UpdateDungeon()

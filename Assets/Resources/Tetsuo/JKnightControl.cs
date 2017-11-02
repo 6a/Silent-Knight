@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using PathFinding;
+using UnityEngine;
 
 /// <summary>
 /// Handles control behaviour for player character.
@@ -19,6 +20,15 @@ public class JKnightControl : MonoBehaviour
     Animator m_animator;
     Rigidbody m_rb;
 
+    // Refernce to pathfinder
+    ASPathFinder m_pathFinder;
+
+    // Current target location
+    Transform m_currentTarget;
+
+    // MainPath ID
+    int m_mainPathID;
+
     // Public property used to check knight focus point
     public Vector3 FocusPoint
     {
@@ -30,6 +40,13 @@ public class JKnightControl : MonoBehaviour
     {
         m_animator = GetComponent<Animator>();
         m_rb = GetComponent<Rigidbody>();
+    }
+
+    void Start()
+    {
+        m_pathFinder = FindObjectOfType<ASPathFinder>();
+        m_currentTarget = FindObjectOfType<Chest>().transform;
+        m_mainPathID = m_pathFinder.Register(transform, m_currentTarget);
     }
 
     void Update()

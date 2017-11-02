@@ -35,6 +35,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4711674705736404}
+  - component: {fileID: 114360761133136258}
   m_Layer: 0
   m_Name: Chest
   m_TagString: Chest
@@ -275,3 +276,14 @@ Light:
   m_UseColorTemperature: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+--- !u!114 &114360761133136258
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1946144836885372}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: faeabf3ac38c21c4898240de337d26f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
