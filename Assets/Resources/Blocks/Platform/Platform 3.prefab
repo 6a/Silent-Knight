@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 33244862592519486}
   - component: {fileID: 65070604400438008}
   - component: {fileID: 23446329399483178}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Platform 3
   m_TagString: Path
   m_Icon: {fileID: 0}

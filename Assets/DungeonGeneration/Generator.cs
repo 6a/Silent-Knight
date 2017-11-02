@@ -16,12 +16,11 @@ namespace DungeonGeneration
         static char m_platformChar;
         static char m_nodeChar;
         static char m_pathChar;
-        static NavManager m_navManager;
 
         public static Dungeon CurrentDungeon { get; set; }
 
         public static void Init(int width, int height, PlatformProperties platformProperties, 
-            int cycles, int padding, int minPlatforms, char emptyChar, char platformChar, char nodeChar, char pathChar)
+        int cycles, int padding, int minPlatforms, char emptyChar, char platformChar, char nodeChar, char pathChar)
         {
             m_width = width;
             m_height = height;
@@ -33,12 +32,6 @@ namespace DungeonGeneration
             m_platformChar = platformChar;
             m_nodeChar = nodeChar;
             m_pathChar = pathChar;
-            m_navManager = Object.FindObjectOfType<NavManager>();
-        }
-
-        public static void BuildNavMesh()
-        {
-            m_navManager.UpdateNavMesh();
         }
 
         public static void Fabricate()
@@ -182,7 +175,6 @@ namespace DungeonGeneration
                 }
                 else if (dir == Vector2.right)
                 {
-
                     if (IsWithinBounds(platform0, platform1, false))
                     {
                         var miny = (platform0.Y >= platform1.Y) ? platform0.Y : platform1.Y;

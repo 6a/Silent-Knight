@@ -141,9 +141,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _serializedTags:
   - _guid: 843682e6-2b54-4fba-909d-e700113e4c56
-    _sceneObject: {fileID: 677466869}
+    _sceneObject: {fileID: 0}
     _sceneComponents:
-    - {fileID: 677466871}
+    - {fileID: 0}
 --- !u!4 &455860094
 Transform:
   m_ObjectHideFlags: 1
@@ -157,78 +157,51 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &677466869
+--- !u!1 &828336543
 GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   serializedVersion: 5
   m_Component:
-  - component: {fileID: 677466871}
-  - component: {fileID: 677466870}
-  - component: {fileID: 677466872}
+  - component: {fileID: 828336545}
+  - component: {fileID: 828336544}
   m_Layer: 0
-  m_Name: Nav
+  m_Name: A*Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &677466870
+--- !u!114 &828336544
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 677466869}
+  m_GameObject: {fileID: 828336543}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: b571eb87282791d42980b5ea4f01504b, type: 3}
+  m_Script: {fileID: 11500000, guid: 4f02c7368ab55144ba097cf911d1d3ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!4 &677466871
+  m_gridSize: {x: 64, y: 64}
+  m_nodeRadius: 1
+  m_walkableMask:
+    serializedVersion: 2
+    m_Bits: 256
+--- !u!4 &828336545
 Transform:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 677466869}
+  m_GameObject: {fileID: 828336543}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &677466872
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 677466869}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 354912517, guid: 9fa2ecd1ff2ad394281dd3bf72c5b76e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  _dataSerializer:
-    _preferredSerialization: 2
-    _serializedData: 
-    _serializedMetaData: <meta></meta>
-    _serializedGameObjects: []
-    _serializedCustomData: []
-  _serializer:
-    _preferredSerialization: 1
-    _includeCustomData: 0
-    _serializedDocument: <component version="1.8" type="RAIN.Navigation.NavMesh.NavMeshRig"
-      reference="0" includecustomdata="False"><_visualMode>OnWhenSelected</_visualMode><_navMesh
-      reference="1"><_mountPoint sceneobject="843682e6-2b54-4fba-909d-e700113e4c56"
-      component="0"></_mountPoint><_graphName>Nav</_graphName><_size>64</_size><_automaticGridSize>True</_automaticGridSize><_gridSize>2</_gridSize><_meshColor>0,1,0,1</_meshColor><_outlineColorOffset>-0.5</_outlineColorOffset><_visualHeightOffset>0.25</_visualHeightOffset><_previewColliders>True</_previewColliders><_displayMode>NavigationMesh</_displayMode><_includedLayers>-1</_includedLayers><_ignoredTags></_ignoredTags><_unwalkableTags></_unwalkableTags><_graphTags></_graphTags><_maxSlope>44.6</_maxSlope><_walkableHeight>2</_walkableHeight><_walkableRadius>0.7</_walkableRadius><_stepHeight>0.75</_stepHeight><_cellSize>0.1</_cellSize><_maxVertexError>0.2</_maxVertexError><_maxSegmentLength>5</_maxSegmentLength><_graph
-      reference="2" customdata="0"></_graph></_navMesh></component>
-    _serializedMetaDocument: <meta><element0><key>/component/_navMesh/_ignoredTags+_foldout</key><value
-      type="System.Boolean">False</value></element0><element1><key>/component/_navMesh/_unwalkableTags+_foldout</key><value
-      type="System.Boolean">False</value></element1></meta>
-    _serializedObjects: []
-    _serializedCustomData:
-    - BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADTmF2AAAAAG8SgzoAAAAA
 --- !u!1 &1045097027
 GameObject:
   m_ObjectHideFlags: 0
@@ -316,7 +289,7 @@ RectTransform:
   m_Children:
   - {fileID: 1763434106}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -469,7 +442,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 6
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1435179652
 GameObject:
@@ -642,7 +615,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 7
+  m_RootOrder: 6
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &2079430500
 GameObject:

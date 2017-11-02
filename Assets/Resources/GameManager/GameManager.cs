@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 
+
 public delegate void LevelLoadTrigger();
 
 public class GameManager : MonoBehaviour
@@ -21,7 +22,6 @@ public class GameManager : MonoBehaviour
     {
         // Startup sequence
         GameState = GAMESTATE.GAMEPLAY;
-
 
         LoadNext();
 	}

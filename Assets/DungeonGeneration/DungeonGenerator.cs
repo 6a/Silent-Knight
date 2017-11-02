@@ -1,5 +1,6 @@
 ﻿using DungeonGeneration;
 using UnityEngine;
+using PathFinding;
 
 public class DungeonGenerator : MonoBehaviour
 {
@@ -20,10 +21,14 @@ public class DungeonGenerator : MonoBehaviour
 
     [SerializeField] GameObject m_previewPlane;
 
-    private int m_currentLevel;
+    int m_currentLevel;
+
+    PathFinder m_pathFinder;
 
     void Awake ()
     {
+        m_pathFinder = FindObjectOfType<PathFinder>();
+
         m_currentLevel = 0;
 
         Generator.Init(m_maxDungeonWidth, m_maxDungeonHeight,
@@ -52,7 +57,7 @@ public class DungeonGenerator : MonoBehaviour
         }
 
         Generator.Fabricate();
-        Generator.BuildNavMesh();
+        m_pathFinder.CreateGrid();
     }
 
     void UpdateDungeon()
