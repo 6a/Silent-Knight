@@ -1,6 +1,7 @@
 ﻿using System;
 using PathFinding;
 using UnityEngine;
+using Entities;
 
 /// <summary>
 /// Handles control behaviour for player character.
@@ -25,7 +26,7 @@ public class JKnightControl : PathFindingObject
     ASPathFinder m_pathFinder;
 
     // Current target location
-    Transform m_currentTarget;
+    ITargetable m_currentTarget;
 
     // Public property used to check knight focus point
     public Vector3 FocusPoint
@@ -43,8 +44,8 @@ public class JKnightControl : PathFindingObject
     void Start()
     {
         m_pathFinder = FindObjectOfType<ASPathFinder>();
-        m_currentTarget = FindObjectOfType<Chest>().TargetTransform;
-        RegisterPathID(m_pathFinder, m_currentTarget);
+        m_currentTarget = FindObjectOfType<Chest>();
+        RegisterPathID(m_pathFinder, m_currentTarget.TargetTransform);
     }
 
     void Update()
