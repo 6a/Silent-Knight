@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Chest
   - Path
+  - TargetTransform
   layers:
   - Default
   - TransparentFX

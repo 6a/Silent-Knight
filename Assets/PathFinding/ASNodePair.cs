@@ -16,7 +16,7 @@ namespace PathFinding
         public bool Equals(ASNodePair comparison)
         {
             if (Seeker == comparison.Seeker && Target == comparison.Target) return true;
-
+        
             return false;
         }
     }

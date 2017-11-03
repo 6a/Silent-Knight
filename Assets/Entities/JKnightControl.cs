@@ -1,11 +1,12 @@
-﻿using PathFinding;
+﻿using System;
+using PathFinding;
 using UnityEngine;
 
 /// <summary>
 /// Handles control behaviour for player character.
 /// Properties: Moving
 /// </summary>
-public class JKnightControl : MonoBehaviour
+public class JKnightControl : PathFindingObject
 {
     // Enumerated animation states for easy referencing
     private enum ANIMATION
@@ -26,9 +27,6 @@ public class JKnightControl : MonoBehaviour
     // Current target location
     Transform m_currentTarget;
 
-    // MainPath ID
-    int m_mainPathID;
-
     // Public property used to check knight focus point
     public Vector3 FocusPoint
     {
@@ -45,8 +43,8 @@ public class JKnightControl : MonoBehaviour
     void Start()
     {
         m_pathFinder = FindObjectOfType<ASPathFinder>();
-        m_currentTarget = FindObjectOfType<Chest>().transform;
-        m_mainPathID = m_pathFinder.Register(transform, m_currentTarget);
+        m_currentTarget = FindObjectOfType<Chest>().TargetTransform;
+        RegisterPathID(m_pathFinder, m_currentTarget);
     }
 
     void Update()
@@ -54,6 +52,12 @@ public class JKnightControl : MonoBehaviour
         // Check for level end trigger
         // GameManager.TriggerLevelLoad();
         //ManualInput();
+
+        // Update the path for this object
+        UpdatePath(m_pathFinder);
+
+        // When the target changes:
+        // SetNewTarget(m_pathFinder, /* NEW TARGET TRANSFORM */);
 
         // Take current inputs and handle behaviour
         InputHandler();

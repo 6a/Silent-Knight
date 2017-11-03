@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace PathFinding
 {
-    class ASNode : IHeapable<ASNode>
+    public class ASNode : IHeapable<ASNode>
     {
         public bool Walkable { get; set; }
         public Vector3 Position { get; set; }
@@ -36,7 +36,7 @@ namespace PathFinding
             int xDistance = Mathf.Abs(target.X - X);
             int yDistance = Mathf.Abs(target.Y - Y);
 
-            if (xDistance > yDistance)
+            if (xDistance >= yDistance)
             {
                 return (DIAGCOST * yDistance) + (LINEARCOST * (xDistance - yDistance));
             }

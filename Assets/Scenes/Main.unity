@@ -139,11 +139,6 @@ MonoBehaviour:
   m_Script: {fileID: -25400194, guid: 9fa2ecd1ff2ad394281dd3bf72c5b76e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _serializedTags:
-  - _guid: 843682e6-2b54-4fba-909d-e700113e4c56
-    _sceneObject: {fileID: 0}
-    _sceneComponents:
-    - {fileID: 0}
 --- !u!4 &455860094
 Transform:
   m_ObjectHideFlags: 1
@@ -186,7 +181,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_gridSize: {x: 64, y: 64}
-  m_nodeRadius: 1
+  m_nodeRadius: 0.33333334
   m_walkableMask:
     serializedVersion: 2
     m_Bits: 256

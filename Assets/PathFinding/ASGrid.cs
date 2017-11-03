@@ -30,6 +30,12 @@ namespace PathFinding
             m_gridY = Mathf.RoundToInt(m_gridSize.y / m_nodeDiameter);
         }
 
+        public List<ASNode> GetPath(int id)
+        {
+            if (!Paths.ContainsKey(id)) return null;
+            return Paths[id];
+        }
+
         public void RegisterPath (int id, List<ASNode> path)
         {
             Paths[id] = path;
@@ -63,14 +69,18 @@ namespace PathFinding
 
         public ASNode GetNearestNode(Vector3 worldPos)
         {
-            float percentX = (worldPos.x + m_gridSize.x / 2) / m_gridSize.x;
-            float percentY = (worldPos.z + m_gridSize.y / 2) / m_gridSize.y;
+            float percentX = (worldPos.x + m_gridSize.x / 2.0f) / m_gridSize.x;
+            float percentY = (worldPos.z + m_gridSize.y / 2.0f) / m_gridSize.y;
 
             percentX = Mathf.Clamp01(percentX);
             percentY = Mathf.Clamp01(percentY);
 
-            int x = Mathf.RoundToInt((m_gridX - 1) * percentX);
-            int y = Mathf.RoundToInt((m_gridY - 1) * percentY);
+            print((m_gridX) * percentX + "," + (m_gridY) * percentY);
+
+            int x = (int)((m_gridX) * percentX);
+            int y = (int)((m_gridY) * percentY);
+
+            print(x + "," + y);
 
             return m_grid[x, y];
         }
@@ -95,6 +105,29 @@ namespace PathFinding
                     nodeNumber++;
                 }
             }
+
+            List<ASNode> invalidNodes = new List<ASNode>();
+
+            for (int x = 0; x < m_gridX; x++)
+            {
+                for (int y = 0; y < m_gridY; y++)
+                {
+                    var neighbours = GetNeighbours(m_grid[x, y]);
+
+                    foreach (var neighbour in neighbours)
+                    {
+                        if (!neighbour.Walkable)
+                        {
+                            invalidNodes.Add(m_grid[x, y]);
+                        }
+                    }
+                }
+            }
+
+            foreach (var invalidNode in invalidNodes)
+            {
+                invalidNode.Walkable = false;
+            }
         }
 
         void OnDrawGizmos()
@@ -105,17 +138,19 @@ namespace PathFinding
             {
                 foreach (var node in m_grid)
                 {
-                    Gizmos.color = (node.Walkable) ? Color.green : Color.grey;
+                    if (!node.Walkable) continue;
+                    Gizmos.color = Color.green;
 
-                    if (Paths != null)
+                    if (Paths != null && Paths.Count > 0)
                     {
                         if (Paths[0].Contains(node))
                         {
-                            Gizmos.color = Color.black;
+                            Gizmos.color = Color.cyan;
+
                         }
                     }
 
-                    Gizmos.DrawCube(node.Position + Vector3.up * 0.3f, Vector3.one * (m_nodeDiameter - 0.2f));
+                    Gizmos.DrawCube(node.Position + Vector3.up * 1f, Vector3.one * m_nodeRadius);
                 }
             }
         }

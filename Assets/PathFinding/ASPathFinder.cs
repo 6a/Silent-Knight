@@ -9,7 +9,6 @@ namespace PathFinding
     {
         ASGrid m_grid;
 
-        Dictionary<int, ASNodePair> m_previousNodePairs = new Dictionary<int, ASNodePair>();
         Dictionary<int, ASPath> m_paths = new Dictionary<int, ASPath>();
         int m_nextID;
 
@@ -21,10 +20,17 @@ namespace PathFinding
 
         void Update()
         {
-            foreach (var path in m_paths)
-            {
-                FindPath(path.Value.Seeker.position, path.Value.Target.position, path.Key);
-            }
+        }
+
+        public List<ASNode> GetPath(int id)
+        {
+            FindPath(m_paths[id].Seeker.position, m_paths[id].Target.position, id);
+            return m_grid.GetPath(id);
+        }
+
+        public void UpdatePathTarget(int id, Transform newTarget)
+        {
+            m_paths[id] = new ASPath(m_paths[id].Seeker, newTarget);
         }
 
         public int Register(Transform seeker, Transform target)
@@ -42,11 +48,10 @@ namespace PathFinding
             return -1;
         }
         
-        void UnRegister(int id)
+        public void UnRegister(int id)
         {
             m_paths.Remove(id);
         }
-  
 
         void FindPath(Vector3 startPos, Vector3 targetPos, int pathID)
         {
@@ -55,17 +60,6 @@ namespace PathFinding
 
             ASNode startNode = m_grid.GetNearestNode(startPos);
             ASNode targetNode = m_grid.GetNearestNode(targetPos);
-
-            if (m_previousNodePairs.Count > 0)
-            {
-                if (m_previousNodePairs.ContainsKey(pathID) && m_previousNodePairs[pathID].Seeker == startNode.RegisterIndex && m_previousNodePairs[pathID].Target == targetNode.RegisterIndex)
-                {
-                    UnityEngine.Debug.Log("Skipping check as the nodes haven o changed for this ID since last update");
-                    return;
-                }
-            }
-
-            m_previousNodePairs[pathID] = new ASNodePair(startNode.RegisterIndex, targetNode.RegisterIndex);
 
             Heap<ASNode> openSet = new Heap<ASNode>(m_grid.MaxSize);
             HashSet<ASNode> closedSet = new HashSet<ASNode>();
@@ -104,6 +98,10 @@ namespace PathFinding
                         if (!openSet.Contains(neighbour))
                         {
                             openSet.Add(neighbour);
+                            
+                        }
+                        else
+                        {
                             openSet.UpdateItem(neighbour);
                         }
                     }
