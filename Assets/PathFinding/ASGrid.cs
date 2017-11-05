@@ -11,8 +11,6 @@ namespace PathFinding
         [SerializeField] float m_nodeRadius;
         [SerializeField] LayerMask m_walkableMask;
 
-        public Dictionary<int, List<ASNode>> Paths { get; private set; }
-
         public int MaxSize { get { return m_grid.Length; } }
 
         float m_nodeDiameter;
@@ -20,25 +18,9 @@ namespace PathFinding
 
         void Awake()
         {
-            Paths = new Dictionary<int, List<ASNode>>();
-        }
-
-        void Start()
-        {
             m_nodeDiameter = m_nodeRadius * 2;
             m_gridX = Mathf.RoundToInt(m_gridSize.x / m_nodeDiameter);
             m_gridY = Mathf.RoundToInt(m_gridSize.y / m_nodeDiameter);
-        }
-
-        public List<ASNode> GetPath(int id)
-        {
-            if (!Paths.ContainsKey(id)) return null;
-            return Paths[id];
-        }
-
-        public void RegisterPath (int id, List<ASNode> path)
-        {
-            Paths[id] = path;
         }
 
         public List<ASNode> GetNeighbours(ASNode refNode)
@@ -75,13 +57,8 @@ namespace PathFinding
             percentX = Mathf.Clamp01(percentX);
             percentY = Mathf.Clamp01(percentY);
 
-            print((m_gridX) * percentX + "," + (m_gridY) * percentY);
-
-            int x = (int)((m_gridX) * percentX);
-            int y = (int)((m_gridY) * percentY);
-
-            print(x + "," + y);
-
+            int x = Mathf.Clamp((int)((m_gridX) * percentX), 0, m_gridX - 1);
+            int y = Mathf.Clamp((int)((m_gridY) * percentY), 0, m_gridY - 1);
             return m_grid[x, y];
         }
 
@@ -141,16 +118,7 @@ namespace PathFinding
                     if (!node.Walkable) continue;
                     Gizmos.color = Color.green;
 
-                    if (Paths != null && Paths.Count > 0)
-                    {
-                        if (Paths[0].Contains(node))
-                        {
-                            Gizmos.color = Color.cyan;
-
-                        }
-                    }
-
-                    Gizmos.DrawCube(node.Position + Vector3.up * 1f, Vector3.one * m_nodeRadius);
+                    Gizmos.DrawCube(node.Position + Vector3.up * 0.8f, Vector3.one * m_nodeRadius * 1.8f);
                 }
             }
         }

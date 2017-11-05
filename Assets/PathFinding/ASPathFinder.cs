@@ -1,62 +1,29 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using System.Diagnostics;
+using System.Collections;
+using System;
 
 namespace PathFinding
 {
     public class ASPathFinder : MonoBehaviour
     {
         ASGrid m_grid;
-
-        Dictionary<int, ASPath> m_paths = new Dictionary<int, ASPath>();
-        int m_nextID;
+        PathRequestManager m_requestManager;
 
         void Awake()
         {
             m_grid = GetComponent<ASGrid>();
-            m_nextID = 0;
+            m_requestManager = GetComponent<PathRequestManager>();
         }
 
-        void Update()
-        {
-        }
-
-        public List<ASNode> GetPath(int id)
-        {
-            FindPath(m_paths[id].Seeker.position, m_paths[id].Target.position, id);
-            return m_grid.GetPath(id);
-        }
-
-        public void UpdatePathTarget(int id, Transform newTarget)
-        {
-            m_paths[id] = new ASPath(m_paths[id].Seeker, newTarget);
-        }
-
-        public int Register(Transform seeker, Transform target)
-        {
-            var path = new ASPath(seeker, target);
-
-            if (!m_paths.Any(i => i.Value.Equals(path)))
-            {
-                m_paths.Add(m_nextID, path);
-                m_nextID++;
-                return m_nextID - 1;
-            }
-
-            UnityEngine.Debug.Log("This set of transforms is already registered");
-            return -1;
-        }
-        
-        public void UnRegister(int id)
-        {
-            m_paths.Remove(id);
-        }
-
-        void FindPath(Vector3 startPos, Vector3 targetPos, int pathID)
+        IEnumerator FindPath(Vector3 startPos, Vector3 targetPos)
         {
             var stopWatch = new Stopwatch();
             stopWatch.Start();
+
+            Vector2[] wayPoints = null;
+            bool success = false;
 
             ASNode startNode = m_grid.GetNearestNode(startPos);
             ASNode targetNode = m_grid.GetNearestNode(targetPos);
@@ -75,9 +42,9 @@ namespace PathFinding
                 if (currentNode == targetNode)
                 {
                     stopWatch.Stop();
-                    UnityEngine.Debug.Log("Path " + pathID + " found in: " + stopWatch.ElapsedMilliseconds + "ms");
-                    RetracePath(startNode, targetNode, pathID);
-                    return;
+                    UnityEngine.Debug.Log("Path found in: " + stopWatch.ElapsedMilliseconds + "ms");
+                    success = true;
+                    break;
                 }
 
                 foreach (var neighbour in m_grid.GetNeighbours(currentNode))
@@ -107,9 +74,23 @@ namespace PathFinding
                     }
                 }
             }
+
+            yield return null;
+
+            if (success)
+            {
+                wayPoints = RetracePath(startNode, targetNode);
+            }
+
+            m_requestManager.FinishedProcessingPath(wayPoints, success);
         }
 
-        void RetracePath(ASNode startNode, ASNode targetNode, int id)
+        public void StartFindPath(Transform start, Transform end)
+        {
+            StartCoroutine(FindPath(start.position, end.position));
+        }
+
+        Vector2[] RetracePath(ASNode startNode, ASNode targetNode)
         {
             var path = new List<ASNode>();
             var currentNode = targetNode;
@@ -118,11 +99,26 @@ namespace PathFinding
             {
                 path.Add(currentNode);
                 currentNode = currentNode.Parent;
+
             }
 
-            path.Reverse();
+            var waypoints = path;
+            waypoints.Reverse();
+            return SimplifyPath(waypoints);
+        }
 
-            m_grid.RegisterPath(id, path);
+        Vector2[] SimplifyPath(List<ASNode> path)
+        {
+            var waypoints = new List<Vector2>();
+
+            foreach (var node in path)
+            {
+                waypoints.Add(new Vector2(node.Position.x, node.Position.z));
+            }
+
+            waypoints = PathSmoother.douglasPeuckerReduction(waypoints, 1f);
+
+            return waypoints.ToArray();
         }
     }
 }

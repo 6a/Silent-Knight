@@ -2,6 +2,7 @@
 using PathFinding;
 using UnityEngine;
 using Entities;
+using System.Collections;
 
 /// <summary>
 /// Handles control behaviour for player character.
@@ -17,7 +18,11 @@ public class JKnightControl : PathFindingObject
 
     // Variables exposed in the editor.
     [SerializeField] float m_horizontalMod, m_linearMod, m_jumpForce, m_groundTriggerDistance;
-    
+
+    // Overrides for pathfinding
+    public override float Speed { get; set; }
+    public override float TurnRate { get; set; }
+
     // References to attached components.
     Animator m_animator;
     Rigidbody m_rb;
@@ -45,7 +50,7 @@ public class JKnightControl : PathFindingObject
     {
         m_pathFinder = FindObjectOfType<ASPathFinder>();
         m_currentTarget = FindObjectOfType<Chest>();
-        RegisterPathID(m_pathFinder, m_currentTarget.TargetTransform);
+        SetNewTarget(m_currentTarget.TargetTransform);
     }
 
     void Update()
@@ -54,14 +59,24 @@ public class JKnightControl : PathFindingObject
         // GameManager.TriggerLevelLoad();
         //ManualInput();
 
-        // Update the path for this object
-        UpdatePath(m_pathFinder);
+        SetNewTarget(m_currentTarget.TargetTransform);
 
         // When the target changes:
         // SetNewTarget(m_pathFinder, /* NEW TARGET TRANSFORM */);
 
         // Take current inputs and handle behaviour
         InputHandler();
+    }
+
+    public override IEnumerator FollowPath()
+    {
+
+        yield return new WaitForEndOfFrame();
+    }
+
+    public override void OnFollowPath()
+    {
+
     }
 
     void ManualInput()

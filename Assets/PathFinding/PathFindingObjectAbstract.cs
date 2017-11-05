@@ -1,52 +1,65 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using UnityEngine;
 
 namespace PathFinding
 {
-    public abstract class PathFindingObject : UnityEngine.MonoBehaviour
+    public abstract class PathFindingObject : MonoBehaviour
     {
-        public int? PathFinderID = null;
-        public List<ASNode> Path { get; set; }
+        public abstract float Speed { get; set; }
+        public abstract float TurnRate { get; set; }
 
-        public void RegisterPathID(ASPathFinder pathFinder, UnityEngine.Transform target)
+        public Vector2[] Path { get; set; }
+
+        int m_currentPathIndex = 1;
+
+        public void SetNewTarget(Transform newTarget)
         {
-            if (!PathFinderID.HasValue)
+            PathRequestManager.RequestPath(transform, newTarget, UpdatePath);
+        }
+
+        public void UpdatePath(Vector2[] newPath, bool success)
+        {
+            if (success) Path = newPath;
+            StopFollowingPath();
+            StartCoroutine(FollowPath());
+        }
+
+        public void StopFollowingPath()
+        {
+            StopCoroutine(FollowPath());
+        }
+
+        public void OnDrawGizmos()
+        {
+            if (Path != null)
             {
-                PathFinderID = pathFinder.Register(transform, target);
-            }
-            else
-            {
-                print("This object is already registered to the pathfinder with ID [" + PathFinderID + "]");
+                for (int i = 0; i < Path.Length; i++)
+                {
+                    Gizmos.color = Color.red;
+                    Gizmos.DrawSphere(new Vector3(Path[i].x, 1, Path[i].y), 0.25f);
+
+                    if (i == 0) continue;
+
+                    if (i == m_currentPathIndex)
+                    {
+                        Gizmos.color = Color.black;
+                        Gizmos.DrawLine(new Vector3(Path[m_currentPathIndex].x, 1, Path[m_currentPathIndex].y), new Vector3(Path[m_currentPathIndex - 1].x, 1, Path[m_currentPathIndex - 1].y));
+                    }
+                    else
+                    {
+                        Gizmos.color = Color.red;
+                        Gizmos.DrawLine(new Vector3(Path[i].x, 1, Path[i].y), new Vector3(Path[i - 1].x, 1, Path[i - 1].y));
+                    }
+
+                }
             }
         }
 
-        public void SetNewTarget(ASPathFinder pathFinder, UnityEngine.Transform newTarget)
-        {
-            if (PathFinderID.HasValue)
-            {
-                pathFinder.UpdatePathTarget(PathFinderID.Value, newTarget);
-            }
-            else
-            {
-                print("This object is not yet registered to the pathfinder");
-            }
-        }
+        public abstract IEnumerator FollowPath();
 
-        public void UnRegisterPathID(ASPathFinder pathFinder)
-        {
-            if (PathFinderID.HasValue)
-            {
-                pathFinder.UnRegister(PathFinderID.Value);
-                PathFinderID = null;
-            }
-            else
-            {
-                print("This object is not yet registered to the pathfinder");
-            }
-        }
-
-        public void UpdatePath(ASPathFinder pathFinder)
-        {
-            Path = pathFinder.GetPath(PathFinderID.Value);
-        }
+        /// <summary>
+        /// Add actions in this functions for this unit to perform while moving, such as animations.
+        /// </summary>
+        public abstract void OnFollowPath();
     }
 }
