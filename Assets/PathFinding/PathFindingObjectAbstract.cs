@@ -3,21 +3,24 @@ using UnityEngine;
 
 namespace PathFinding
 {
+    [RequireComponent(typeof(LineRenderer))]
     public abstract class PathFindingObject : MonoBehaviour
     {
+        public Path Path { get; set; }
+
         public float Speed;
         public float TurnDistance;
         public float TurnSpeed;
         public float PathUpdateMoveThreshold;
         public float PathfindingTickDurationMS;
-
+        public float StoppingDistance;
         public bool IsFollowingPath;
 
-        private Transform m_target;
-        private IEnumerator m_currentPathCoroutine;
-        private bool m_newPath;
+        public LineRenderer LineRender;
 
-        public Path Path { get; set; }
+        Transform m_target;
+        IEnumerator m_currentPathCoroutine;
+        bool m_newPath;
 
         public void UpdatePathTarget(Transform newTarget)
         {
@@ -30,9 +33,14 @@ namespace PathFinding
             if (success)
             {
                 StopFollowingPath();
-                Path = new Path(wayPoints, transform.position, TurnDistance);
+                Path = new Path(wayPoints, transform.position, TurnDistance, StoppingDistance);
                 if (m_currentPathCoroutine == null) m_currentPathCoroutine = FollowPath();
                 StartCoroutine(m_currentPathCoroutine);
+
+                if (Path != null)
+                {
+                    Path.Draw(LineRender);
+                }
             }
         }
 
@@ -44,14 +52,6 @@ namespace PathFinding
             m_currentPathCoroutine = null;
         }
 
-        public void OnDrawGizmos()
-        {
-            if (Path != null)
-            {
-                Path.Draw();
-            }
-        }
-
         public IEnumerator RefreshPath()
         {
             var sqrMoveThreshold = PathUpdateMoveThreshold * PathUpdateMoveThreshold;
@@ -60,19 +60,22 @@ namespace PathFinding
             while (true)
             {
                 yield return new WaitForSeconds(PathfindingTickDurationMS / 1000f);
-                if (m_newPath || (m_target.position - targetPosOld).sqrMagnitude < sqrMoveThreshold)
+                if (m_newPath || (m_target.position - targetPosOld).sqrMagnitude > sqrMoveThreshold)
                 {
                     m_newPath = false;
                     PathRequestManager.RequestPath(transform, m_target, OnPathFound);
+                    print("New path requested");
                     targetPosOld = m_target.position;
                 }
             }
         }
 
-        public IEnumerator FollowPath()
+        IEnumerator FollowPath()
         {
             IsFollowingPath = true;
             int pathIndex = 0;
+
+            float speedPercent = 1;
 
             while (IsFollowingPath)
             {
@@ -93,14 +96,24 @@ namespace PathFinding
 
                 if (IsFollowingPath)
                 {
+                    if (pathIndex >= Path.SlowdownIndex && StoppingDistance > 0)
+                    {
+                        speedPercent = Mathf.Clamp01(Path.TurnBoundaries[Path.FinishLineIndex].DistanceFrom(pos2D) / StoppingDistance * 1.5f);
+                        if (speedPercent <= 0.1f)
+                        {
+                            speedPercent = 0;
+                            IsFollowingPath = false;
+                        }
+                    }
+
                     var targetRotation = Quaternion.LookRotation(new Vector3(Path.LookPoints[pathIndex].x, transform.position.y, Path.LookPoints[pathIndex].y) - transform.position);
                     newRotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * TurnSpeed);
-                    nextMovement = (Vector3.forward * Time.deltaTime * Speed);
+                    nextMovement = (Vector3.forward * Time.deltaTime * Speed * speedPercent);
 
                     processMovementUpdate = true;
                 }
 
-                OnFollowPath();
+                OnFollowPath(speedPercent);
                 yield return null;
             }
         }
@@ -115,12 +128,11 @@ namespace PathFinding
             transform.rotation = newRotation;
             transform.Translate(nextMovement);
             processMovementUpdate = false;
-
         }
 
         /// <summary>
         /// Add actions in this functions for this unit to perform while moving, such as animations.
         /// </summary>
-        public abstract void OnFollowPath();
+        public abstract void OnFollowPath(float speedPercent);
     }
 }

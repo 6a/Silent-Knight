@@ -41,6 +41,7 @@ public class JKnightControl : PathFindingObject, IEntity
     {
         m_animator = GetComponent<Animator>();
         m_rb = GetComponent<Rigidbody>();
+        LineRender = GetComponent<LineRenderer>();
     }
 
     void Start()
@@ -62,10 +63,11 @@ public class JKnightControl : PathFindingObject, IEntity
         InputHandler();
     }
 
-    public override void OnFollowPath()
+    public override void OnFollowPath(float speedPercent)
     {
-        if (IsFollowingPath) m_animator.SetFloat("MovementBlend", 0);
-        else m_animator.SetFloat("MovementBlend", 1);
+        if (speedPercent > 0) speedPercent = Mathf.Clamp01(speedPercent + 0.5f);
+
+        m_animator.SetFloat("MovementBlend", 1 - speedPercent);
     }
 
     void ManualInput()

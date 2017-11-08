@@ -24,7 +24,7 @@ GameObject:
   - component: {fileID: 23517576511281876}
   m_Layer: 8
   m_Name: Node 4
-  m_TagString: Path
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

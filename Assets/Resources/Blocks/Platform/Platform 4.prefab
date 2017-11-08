@@ -24,7 +24,7 @@ GameObject:
   - component: {fileID: 23857942414452820}
   m_Layer: 8
   m_Name: Platform 4
-  m_TagString: Path
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

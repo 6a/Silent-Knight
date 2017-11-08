@@ -54,11 +54,13 @@ namespace PathFinding
             return GetSide(p) != m_approachSide;
         }
 
-        public void Draw(float length)
+        public float DistanceFrom(Vector2 p)
         {
-            var lineDirection = new Vector3(1, 0, m_gradient).normalized;
-            var lineCentre = new Vector3(m_pointoOnLine1.x, 0, m_pointoOnLine1.y) + Vector3.up;
-            Gizmos.DrawLine(lineCentre - lineDirection * length / 2f, lineCentre + lineDirection * length / 2f);
+            var yInterceptPerpendicular = p.y - m_gradientPerpendicular * p.x;
+            var intersectX = (yInterceptPerpendicular - m_yInterceipt) / (m_gradient - m_gradientPerpendicular);
+
+            var intersectY = m_gradient * intersectX + m_yInterceipt;
+            return Vector2.Distance(p, new Vector2(intersectX, intersectY));
         }
     }
 }
