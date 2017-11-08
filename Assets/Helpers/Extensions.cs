@@ -30,4 +30,9 @@
             }
         }
     }
+
+    public static UnityEngine.Vector2 Reduce(this UnityEngine.Vector3 v)
+    {
+        return new UnityEngine.Vector2(v.x, v.z);
+    }
 }

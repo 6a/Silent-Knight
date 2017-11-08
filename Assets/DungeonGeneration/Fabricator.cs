@@ -67,10 +67,11 @@ namespace DungeonGeneration
 
             var closestPathBlock = GameObject.FindGameObjectsWithTag("Path").OrderBy(i => (i.transform.position - chest.transform.position).sqrMagnitude).FirstOrDefault();
 
+
             var closestPathTileV2 = new Vector2(closestPathBlock.transform.position.x, closestPathBlock.transform.position.z);
             var chestTileV2 = new Vector2(chest.transform.position.x, chest.transform.position.z);
 
-            Vector2 facingDir = (chestTileV2 - closestPathTileV2).Snap();   
+            Vector2 facingDir = (closestPathTileV2 - chestTileV2).Snap();
 
             chest.transform.LookAt(chest.transform.position + new Vector3(facingDir.x, 0, facingDir.y));
         }

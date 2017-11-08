@@ -90,6 +90,8 @@
                 {
                     break;
                 }
+
+                parentIndex = (item.HeapIndex - 1) / 2;
             }
         }
 
@@ -104,6 +106,4 @@
         }
 
     }
-
-
 }

@@ -111,16 +111,16 @@ namespace PathFinding
         {
             Gizmos.DrawWireCube(transform.position, new Vector3(m_gridSize.x, 2, m_gridSize.y));
 
-            if (m_grid != null)
-            {
-                foreach (var node in m_grid)
-                {
-                    if (!node.Walkable) continue;
-                    Gizmos.color = Color.green;
+            //if (m_grid != null)
+            //{
+            //    foreach (var node in m_grid)
+            //    {
+            //        if (!node.Walkable) continue;
+            //        Gizmos.color = Color.green;
 
-                    Gizmos.DrawCube(node.Position + Vector3.up * 0.8f, Vector3.one * m_nodeRadius * 1.8f);
-                }
-            }
+            //        Gizmos.DrawCube(node.Position + Vector3.up * 0.8f, Vector3.one * m_nodeRadius * 1.8f);
+            //    }
+            //}
         }
     }
 }

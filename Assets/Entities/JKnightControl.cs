@@ -6,9 +6,8 @@ using System.Collections;
 
 /// <summary>
 /// Handles control behaviour for player character.
-/// Properties: Moving
 /// </summary>
-public class JKnightControl : PathFindingObject
+public class JKnightControl : PathFindingObject, IEntity
 {
     // Enumerated animation states for easy referencing
     private enum ANIMATION
@@ -19,19 +18,17 @@ public class JKnightControl : PathFindingObject
     // Variables exposed in the editor.
     [SerializeField] float m_horizontalMod, m_linearMod, m_jumpForce, m_groundTriggerDistance;
 
-    // Overrides for pathfinding
-    public override float Speed { get; set; }
-    public override float TurnRate { get; set; }
-
     // References to attached components.
     Animator m_animator;
     Rigidbody m_rb;
 
-    // Refernce to pathfinder
+    // Reference to pathfinder
     ASPathFinder m_pathFinder;
 
     // Current target location
     ITargetable m_currentTarget;
+
+    public bool Running { get; set; }
 
     // Public property used to check knight focus point
     public Vector3 FocusPoint
@@ -50,7 +47,9 @@ public class JKnightControl : PathFindingObject
     {
         m_pathFinder = FindObjectOfType<ASPathFinder>();
         m_currentTarget = FindObjectOfType<Chest>();
-        SetNewTarget(m_currentTarget.TargetTransform);
+
+        UpdatePathTarget(m_currentTarget.TargetTransform);
+        StartCoroutine(RefreshPath());
     }
 
     void Update()
@@ -59,24 +58,14 @@ public class JKnightControl : PathFindingObject
         // GameManager.TriggerLevelLoad();
         //ManualInput();
 
-        SetNewTarget(m_currentTarget.TargetTransform);
-
-        // When the target changes:
-        // SetNewTarget(m_pathFinder, /* NEW TARGET TRANSFORM */);
-
         // Take current inputs and handle behaviour
         InputHandler();
     }
 
-    public override IEnumerator FollowPath()
-    {
-
-        yield return new WaitForEndOfFrame();
-    }
-
     public override void OnFollowPath()
     {
-
+        if (IsFollowingPath) m_animator.SetFloat("MovementBlend", 0);
+        else m_animator.SetFloat("MovementBlend", 1);
     }
 
     void ManualInput()
@@ -160,42 +149,57 @@ public class JKnightControl : PathFindingObject
         switch (anim)
         {
             case ANIMATION.ATTACK_BASIC:
-                m_animator.SetTrigger("Interrupt");
+                InterruptAnimator();
                 m_animator.SetTrigger("A1Start");
                 break;
             case ANIMATION.ATTACK_SPECIAL:
-                m_animator.SetTrigger("Interrupt");
+                InterruptAnimator();
                 m_animator.SetTrigger("A2Start");
                 break;
             case ANIMATION.ATTACK_ULTIMATE:
-                m_animator.SetTrigger("Interrupt");
+                InterruptAnimator();
                 m_animator.SetTrigger("A3Start");
                 break;
             case ANIMATION.ATTACK_KICK:
-                m_animator.SetTrigger("Interrupt");
+                InterruptAnimator();
                 m_animator.SetTrigger("KickStart");
                 break;
             case ANIMATION.ATTACK_SHIELD:
-                m_animator.SetTrigger("Interrupt");
+                InterruptAnimator();
                 m_animator.SetTrigger("ShieldStart");
                 break;
             case ANIMATION.PARRY:
-                m_animator.SetTrigger("Interrupt");
+                InterruptAnimator();
                 m_animator.SetTrigger("ParryStart");
                 break;
             case ANIMATION.BUFF:
-                m_animator.SetTrigger("Interrupt");
+                InterruptAnimator();
                 m_animator.SetTrigger("BuffStart");
                 break;
             case ANIMATION.DEATH:
-                m_animator.SetTrigger("Interrupt");
+                InterruptAnimator();
                 m_animator.SetTrigger("DeathStart");
                 break;
             case ANIMATION.JUMP:
-                m_animator.SetTrigger("Interrupt");
+                InterruptAnimator();
                 m_animator.SetTrigger("JumpStart");
                 break;
         }
+    }
+
+    void InterruptAnimator()
+    {
+        m_animator.SetTrigger("Interrupt");
+
+        m_animator.ResetTrigger("A1Start");
+        m_animator.ResetTrigger("A2Start");
+        m_animator.ResetTrigger("A3Start");
+        m_animator.ResetTrigger("KickStart");
+        m_animator.ResetTrigger("ShieldStart");
+        m_animator.ResetTrigger("ParryStart");
+        m_animator.ResetTrigger("BuffStart");
+        m_animator.ResetTrigger("DeathStart");
+        m_animator.ResetTrigger("JumpStart");
     }
 
     // Helper function that uses a raycast to check if the knight is touching a surface with their feet.
@@ -209,5 +213,10 @@ public class JKnightControl : PathFindingObject
         }
 
         return true;
+    }
+
+    public void Reset()
+    {
+        Running = false;
     }
 }

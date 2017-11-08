@@ -42,7 +42,7 @@ namespace PathFinding
                 if (currentNode == targetNode)
                 {
                     stopWatch.Stop();
-                    UnityEngine.Debug.Log("Path found in: " + stopWatch.ElapsedMilliseconds + "ms");
+                    //UnityEngine.Debug.Log("Path found in: " + stopWatch.ElapsedMilliseconds + "ms");
                     success = true;
                     break;
                 }
@@ -82,6 +82,8 @@ namespace PathFinding
                 wayPoints = RetracePath(startNode, targetNode);
             }
 
+            if (wayPoints.Length == 0) success = false;
+
             m_requestManager.FinishedProcessingPath(wayPoints, success);
         }
 
@@ -111,12 +113,12 @@ namespace PathFinding
         {
             var waypoints = new List<Vector2>();
 
-            foreach (var node in path)
+            for (int i = 1; i < path.Count; i++)
             {
-                waypoints.Add(new Vector2(node.Position.x, node.Position.z));
+                waypoints.Add(new Vector2(path[i].Position.x, path[i].Position.z));
             }
 
-            waypoints = PathSmoother.douglasPeuckerReduction(waypoints, 1f);
+            waypoints = PathSmoother.douglasPeuckerReduction(waypoints, 0f);
 
             return waypoints.ToArray();
         }
