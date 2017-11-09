@@ -33,7 +33,7 @@ public class JKnightControl : PathFindingObject, IEntity
     // Public property used to check knight focus point
     public Vector3 FocusPoint
     {
-        get { return transform.position + transform.forward; }
+        get { return transform.position; }
         set { FocusPoint = value; }
     }
 
