@@ -134,5 +134,8 @@ namespace PathFinding
         /// Add actions in this functions for this unit to perform while moving, such as animations.
         /// </summary>
         public abstract void OnFollowPath(float speedPercent);
+
+        public abstract void OnStartRun();
+        public abstract void OnEndRun();
     }
 }

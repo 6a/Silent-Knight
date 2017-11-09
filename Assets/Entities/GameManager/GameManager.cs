@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 
 public delegate void LevelLoadTrigger();
@@ -7,14 +8,14 @@ public class GameManager : MonoBehaviour
 {
     public static GAMESTATE GameState { get; set; }
 
-    public static event LevelLoadTrigger OnLevelLoadTrigger;
+    public static event LevelLoadTrigger OnStartRun;
 
     DungeonGenerator m_generator;
 
     void Awake()
     {
         m_generator = FindObjectOfType<DungeonGenerator>();
-        OnLevelLoadTrigger += NextLevelSequence;
+        OnStartRun += NextLevelSequence;
         GameState = GAMESTATE.START;
     }
 
@@ -39,14 +40,15 @@ public class GameManager : MonoBehaviour
     void LoadNext()
     {
         m_generator.LoadNext();
+
+        OnStartRun();
     }
 
     public static void TriggerLevelLoad ()
     {
-        if (GameState == GAMESTATE.GAMEPLAY && OnLevelLoadTrigger != null)
+        if (GameState == GAMESTATE.GAMEPLAY && OnStartRun != null)
         {
             GameState = GAMESTATE.LEVELTRANSITION;
-            OnLevelLoadTrigger();
         }
     }
 }

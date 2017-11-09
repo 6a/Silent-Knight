@@ -47,7 +47,7 @@ namespace PathFinding
             lr.positionCount = LookPoints.Length;
             for (int i = 0; i < LookPoints.Length; i++)
             {
-                lr.SetPosition(i, new Vector3(LookPoints[i].x, 1, LookPoints[i].y));
+                lr.SetPosition(i, new Vector3(LookPoints[i].x, 1.1f, LookPoints[i].y));
             }
         }
 

@@ -42,15 +42,13 @@ public class JKnightControl : PathFindingObject, IEntity
         m_animator = GetComponent<Animator>();
         m_rb = GetComponent<Rigidbody>();
         LineRender = GetComponent<LineRenderer>();
+        GameManager.OnStartRun += OnStartRun;
     }
 
     void Start()
     {
         m_pathFinder = FindObjectOfType<ASPathFinder>();
-        m_currentTarget = FindObjectOfType<Chest>();
 
-        UpdatePathTarget(m_currentTarget.TargetTransform);
-        StartCoroutine(RefreshPath());
     }
 
     void Update()
@@ -220,5 +218,18 @@ public class JKnightControl : PathFindingObject, IEntity
     public void Reset()
     {
         Running = false;
+    }
+
+    public override void OnStartRun()
+    {
+        m_currentTarget = FindObjectOfType<Chest>();
+
+        UpdatePathTarget(m_currentTarget.TargetTransform);
+        StartCoroutine(RefreshPath());
+    }
+
+    public override void OnEndRun()
+    {
+
     }
 }
