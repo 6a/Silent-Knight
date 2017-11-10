@@ -8,22 +8,22 @@ namespace DungeonGeneration
     {
         readonly Dungeon m_dungeon;
 
-        const int m_numberOfPlatformBlocks = 4;
-        const int m_numberOfNodeBlocks = 4;
-        const int m_numberOfPathBlocks = 4;
-        const int m_scale = 2;
-        const int m_offset = 32;
+        public int DungeonScale;
+        public int PositionOffset;
 
         Vector2 m_startNode, m_endNode;
         Vector2? m_chestDirection;
         GameObject m_playerCharacter;
         GameObject m_chest;
+        int m_levelIndex = 1;
 
-        public Fabricator(Dungeon d)
+        public Fabricator(Dungeon d, int scale, int positionOffset)
         {
             m_dungeon = d;
             m_startNode = d.Nodes[0].Center;
             m_endNode = d.Nodes[1].Center;
+            DungeonScale = scale;
+            PositionOffset = positionOffset;
 
             m_playerCharacter = Resources.Load("Tetsuo/Knight") as GameObject;
             m_chest = Resources.Load("Chest/Chest") as GameObject;
@@ -81,9 +81,14 @@ namespace DungeonGeneration
             Object.Instantiate(m_playerCharacter, new Vector3(Scale((int)m_startNode.x), 1, Scale((int)m_startNode.y)), Quaternion.identity);
         }
 
+        public void Finalise()
+        {
+            m_levelIndex++;
+        }
+
         private int Scale(int i)
         {
-            return (i * m_scale) - m_offset + (m_scale / 2);
+            return (i * DungeonScale) - PositionOffset + (DungeonScale / 2);
         }
 
         private GameObject GetBlock(char c)
@@ -92,20 +97,21 @@ namespace DungeonGeneration
 
             if (c == m_dungeon.PlatformChar)
             {
-                name += "Platform/Platform " + Random.Range(1, m_numberOfPlatformBlocks);
+                name += "Platform/Platform " + m_levelIndex;
             }
             else if (c == m_dungeon.NodeChar)
             {
-                name += "Node/Node " + Random.Range(1, m_numberOfNodeBlocks);
+                name += "Node/Node " + m_levelIndex;
             }
             else if (c == m_dungeon.PathChar)
             {
-                name += "Path/Path " + Random.Range(1, m_numberOfPathBlocks);
+                name += "Path/Path " + m_levelIndex;
             }
             else
             {
                 return null;
             }
+
             return Resources.Load(name) as GameObject;
         }
     }

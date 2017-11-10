@@ -15,6 +15,8 @@ public class DungeonGenerator : MonoBehaviour
     [SerializeField] char m_platformChar;
     [SerializeField] char m_nodeChar;
     [SerializeField] char m_pathChar;
+    [SerializeField] int m_scale;
+    [SerializeField] int m_offset;
     [SerializeField] int [] m_levelSeeds;
 
     [SerializeField] int m_iterations;
@@ -33,7 +35,7 @@ public class DungeonGenerator : MonoBehaviour
 
         Generator.Init(m_maxDungeonWidth, m_maxDungeonHeight,
         new PlatformProperties(m_minWidth, m_maxWidth, m_minHeight, m_maxHeight),
-        m_cycles, m_padding, m_minPlatforms, m_emptyChar, m_platformChar, m_nodeChar, m_pathChar);
+        m_cycles, m_padding, m_minPlatforms, m_emptyChar, m_platformChar, m_nodeChar, m_pathChar, m_scale, m_offset);
     }
 
     void Update ()

@@ -16,11 +16,13 @@ namespace DungeonGeneration
         static char m_platformChar;
         static char m_nodeChar;
         static char m_pathChar;
+        static int m_scale;
+        static int m_offset;
 
         public static Dungeon CurrentDungeon { get; set; }
 
         public static void Init(int width, int height, PlatformProperties platformProperties, 
-        int cycles, int padding, int minPlatforms, char emptyChar, char platformChar, char nodeChar, char pathChar)
+        int cycles, int padding, int minPlatforms, char emptyChar, char platformChar, char nodeChar, char pathChar, int scale, int offset)
         {
             m_width = width;
             m_height = height;
@@ -32,17 +34,21 @@ namespace DungeonGeneration
             m_platformChar = platformChar;
             m_nodeChar = nodeChar;
             m_pathChar = pathChar;
+            m_scale = scale;
+            m_offset = offset;
         }
 
         public static void Fabricate()
         {
-            var fabricator = new Fabricator(CurrentDungeon);
+            var fabricator = new Fabricator(CurrentDungeon, m_scale, m_offset);
 
             fabricator.Fabricate();
 
             fabricator.PlacePlayerAtStartNode();
 
             fabricator.PlaceChestAtEndNode();
+
+            fabricator.Finalise();
         }
 
         public static void GenerateNewDungeon(int seed = 0)
@@ -55,6 +61,7 @@ namespace DungeonGeneration
         private static void Generate ()
         {
             List<Platform> platforms = new List<Platform>();
+            var platformBounds = new List<PlatformBounds>();
             List<Path> paths = new List<Path>();
 
             // Platforms
@@ -75,8 +82,11 @@ namespace DungeonGeneration
                 if (isValid)
                 {
                     platforms.Add(platform);
+                    platformBounds.Add(new PlatformBounds(new Vector2(platform.X * 2 - 32, platform.Y * 2 - 32), new Vector2((platform.X * 2 - 32) + platform.Width * 2, (platform.Y * 2 - 32) + platform.Height * 2)));
                 }
             }
+
+            Platforms.Identify(platformBounds);
 
             List<Vector2> centers = new List<Vector2>();
             List<uint> colors = new List<uint>();
@@ -204,9 +214,6 @@ namespace DungeonGeneration
             }
 
             CurrentDungeon = new Dungeon(platforms, paths, m_width, m_height, m_emptyChar, m_platformChar, m_nodeChar, m_pathChar);
-
-            platforms = new List<Platform>();
-            paths = new List<Path>();
         }
 
         private static Platform GeneratePlatform(int id)
