@@ -29,39 +29,29 @@ public class PlatformBounds
 
 public class Platforms : MonoBehaviour
 {
+    public int PlayerPlatform { get; private set; }
+
     static Platforms instance;
     List<PlatformBounds> m_platformBounds;
     JKnightControl m_player;
-    public int CurrentPlatformID { get; private set; }
 
     void Awake()
     {
         instance = this;
+
+        PlayerPlatform = -1;
     }
 
     void LateUpdate()
     {
-        if (m_player == null) return;
-
-        CurrentPlatformID = -1;
-
-        for (int i = 0; i < m_platformBounds.Count; i++)
+        if (!m_player) return;
+        PlayerPlatform = GetPlatformId(m_player.transform.position);
+        m_player.CurrentPlatformIndex = PlayerPlatform;
+        if (PlayerPlatform != -1)
         {
-            if (m_platformBounds[i].IsInBounds(m_player.transform.position))
-            {
-                m_platformBounds[i].PlayerIsWithinBounds = true;
-                CurrentPlatformID = i;
-            }
-            else
-            {
-                m_platformBounds[i].PlayerIsWithinBounds = false;
-            }
+            m_platformBounds[PlayerPlatform].PlayerIsWithinBounds = true;
+            m_player.OnEnterPlatform();
         }
-    }
-
-    public static void Identify(List<PlatformBounds> platforms)
-    {
-        instance.m_platformBounds = new List<PlatformBounds>(platforms);
     }
 
     public static void RegisterPlayer(JKnightControl player)
@@ -72,6 +62,30 @@ public class Platforms : MonoBehaviour
     public static void UnregisterPlayer()
     {
         instance.m_player = null;
+    }
+
+    public static int GetPlatformId(Vector3 pos)
+    {
+        int id = -1;
+
+        for (int i = 0; i < instance.m_platformBounds.Count; i++)
+        {
+            if (instance.m_platformBounds[i].IsInBounds(pos))
+            {
+                id = i;
+            }
+            else
+            {
+                instance.m_platformBounds[i].PlayerIsWithinBounds = false;
+            }
+        }
+
+        return id;
+    }
+
+    public static void Identify(List<PlatformBounds> platforms)
+    {
+        instance.m_platformBounds = new List<PlatformBounds>(platforms);
     }
 
     private void OnDrawGizmos()

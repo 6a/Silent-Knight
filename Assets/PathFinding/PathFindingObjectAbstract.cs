@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Entities;
+using System.Collections;
 using UnityEngine;
 
 namespace PathFinding
@@ -10,6 +11,8 @@ namespace PathFinding
         [SerializeField] bool m_drawPath;
 
         public Path Path { get; set; }
+        public ITargetable PathingTarget { get; set; }
+        public int UnitID { get; set; }
 
         public float Speed;
         public float TurnDistance;
@@ -18,21 +21,32 @@ namespace PathFinding
         public float PathfindingTickDurationMS;
         public float StoppingDistance;
         public bool IsFollowingPath;
+        public int CurrentPlatformIndex;
+
+
+        // Indices of the current node, stored for updating grid to avoid collisions.
+        public Vector3 PreviousPos;
 
         public LineRenderer LineRender;
 
-        Transform m_target;
         IEnumerator m_currentPathCoroutine;
         bool m_newPath;
 
-        public void UpdatePathTarget(Transform newTarget)
+        public void UpdatePositionOnGrid()
         {
-            m_target = newTarget;
+
+        }
+
+        public void UpdatePathTarget(ITargetable newTarget)
+        {
+            PathingTarget = newTarget;
             m_newPath = true;
         }
 
         public void OnPathFound(Vector2[] wayPoints, bool success)
         {
+            print("CLASS " + transform.name + ", success: " + success);
+
             if (success)
             {
                 StopFollowingPath();
@@ -58,17 +72,17 @@ namespace PathFinding
         public IEnumerator RefreshPath()
         {
             var sqrMoveThreshold = PathUpdateMoveThreshold * PathUpdateMoveThreshold;
-            var targetPosOld = m_target.position;
+            var targetPosOld = PathingTarget.TargetTransform(UnitID).position;
 
             while (true)
             {
                 yield return new WaitForSeconds(PathfindingTickDurationMS / 1000f);
-                if (m_newPath || (m_target.position - targetPosOld).sqrMagnitude > sqrMoveThreshold)
+
+                if (m_newPath || (PathingTarget.TargetTransform(UnitID).position - targetPosOld).sqrMagnitude > sqrMoveThreshold)
                 {
                     m_newPath = false;
-                    PathRequestManager.RequestPath(new PathRequest(transform, m_target, OnPathFound));
-                    print("New path requested");
-                    targetPosOld = m_target.position;
+                    PathRequestManager.RequestPath(new PathRequest(transform, PathingTarget.TargetTransform(UnitID), OnPathFound));
+                    targetPosOld = PathingTarget.TargetTransform(UnitID).position;
                 }
             }
         }
@@ -121,6 +135,14 @@ namespace PathFinding
             }
         }
 
+        void UpdateGridPosition()
+        {
+            if (PreviousPos == transform.position) return;
+
+            ASGrid.UpdateGrid(PreviousPos, transform.position);
+            PreviousPos = transform.position;
+        }
+
         Quaternion newRotation;
         Vector3 nextMovement;
         bool processMovementUpdate;
@@ -131,6 +153,8 @@ namespace PathFinding
             transform.rotation = newRotation;
             transform.Translate(nextMovement);
             processMovementUpdate = false;
+
+            UpdateGridPosition();
         }
 
         /// <summary>

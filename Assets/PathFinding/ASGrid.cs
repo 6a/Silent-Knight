@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace PathFinding
@@ -16,13 +17,29 @@ namespace PathFinding
         float m_nodeDiameter;
         int m_gridX, m_gridY;
 
+        static ASGrid instance;
+
         void Awake()
         {
             m_nodeDiameter = m_nodeRadius * 2;
             m_gridX = Mathf.RoundToInt(m_gridSize.x / m_nodeDiameter);
             m_gridY = Mathf.RoundToInt(m_gridSize.y / m_nodeDiameter);
+            instance = this;
         }
 
+        public static void UpdateGrid(Vector3 previousPos, Vector3 currentPos)
+        {
+            var previousIndices = instance.GetNearestNodeIndeces(previousPos);
+            var currentIndices = instance.GetNearestNodeIndeces(currentPos);
+
+            instance.m_grid[(int)currentIndices.x, (int)currentIndices.y].Blocked = true;
+
+            if (currentIndices != previousIndices)
+            {
+                var node = instance.m_grid[(int)previousIndices.x, (int)previousIndices.y];
+                node.Blocked = false;
+            }
+        }
         public List<ASNode> GetNeighbours(ASNode refNode)
         {
             List<ASNode> neighbours = new List<ASNode>();
@@ -62,6 +79,19 @@ namespace PathFinding
             return m_grid[x, y];
         }
 
+        public Vector2 GetNearestNodeIndeces(Vector3 worldPos)
+        {
+            float percentX = (worldPos.x + m_gridSize.x / 2.0f) / m_gridSize.x;
+            float percentY = (worldPos.z + m_gridSize.y / 2.0f) / m_gridSize.y;
+
+            percentX = Mathf.Clamp01(percentX);
+            percentY = Mathf.Clamp01(percentY);
+
+            int x = Mathf.Clamp((int)((m_gridX) * percentX), 0, m_gridX - 1);
+            int y = Mathf.Clamp((int)((m_gridY) * percentY), 0, m_gridY - 1);
+            return new Vector2(x, y);
+        }
+
         public void CreateGrid()
         {
             m_grid = new ASNode[m_gridX, m_gridY];
@@ -79,6 +109,9 @@ namespace PathFinding
                     bool walkable = Physics.CheckSphere(worldPos, m_nodeRadius - 0.1f, m_walkableMask);
 
                     m_grid[x, y] = new ASNode(walkable, worldPos, x, y, nodeNumber);
+
+                    if (!walkable) m_grid[x, y].OutOfBounds = true;
+
                     nodeNumber++;
                 }
             }
@@ -104,6 +137,7 @@ namespace PathFinding
             foreach (var invalidNode in invalidNodes)
             {
                 invalidNode.Walkable = false;
+                invalidNode.OutOfBounds = true;
             }
         }
 
@@ -111,16 +145,17 @@ namespace PathFinding
         {
             Gizmos.DrawWireCube(transform.position, new Vector3(m_gridSize.x, 2, m_gridSize.y));
 
-            //if (m_grid != null)
-            //{
-            //    foreach (var node in m_grid)
-            //    {
-            //        if (!node.Walkable) continue;
-            //        Gizmos.color = Color.green;
+            if (m_grid != null)
+            {
+                foreach (var node in m_grid)
+                {
+                    if (!node.Walkable) continue;
+                    if (node.Blocked) Gizmos.color = Color.blue;
+                    else Gizmos.color = Color.green;
 
-            //        Gizmos.DrawCube(node.Position + Vector3.up * 0.8f, Vector3.one * m_nodeRadius * 1.8f);
-            //    }
-            //}
+                    Gizmos.DrawCube(node.Position + Vector3.up * 0.8f, Vector3.one * m_nodeRadius * 1.8f);
+                }
+            }
         }
     }
 }

@@ -31,15 +31,16 @@ namespace PathFinding
 
             openSet.Add(startNode);
 
+            ASNode currentNode = null;
+
             while (openSet.Count > 0)
             {
-                var currentNode = openSet.RemoveFirst();
+                currentNode = openSet.RemoveFirst();
 
                 closedSet.Add(currentNode);
 
                 if (currentNode == targetNode)
                 {
-
                     success = true;
                     break;
                 }
@@ -62,7 +63,6 @@ namespace PathFinding
                         if (!openSet.Contains(neighbour))
                         {
                             openSet.Add(neighbour);
-                            
                         }
                         else
                         {
@@ -74,13 +74,18 @@ namespace PathFinding
 
             if (success)
             {
+                print("SC: " + startNode.Position + " | " + currentNode.Position + " | " + targetNode.Position);
                 wayPoints = RetracePath(startNode, targetNode);
+            }
+            else
+            {
+                print(startNode.Position + " | " + currentNode.Position + " | " + targetNode.Position);
             }
 
             if (wayPoints == null || wayPoints.Length == 0) success = false;
 
             stopWatch.Stop();
-            UnityEngine.Debug.Log("Path found and sorted in: " + stopWatch.ElapsedMilliseconds + "ms");
+            //UnityEngine.Debug.Log("Path found and sorted in: " + stopWatch.ElapsedMilliseconds + "ms");
             callback(new PathResult(wayPoints, success, request.Callback));
         }
 
@@ -91,9 +96,8 @@ namespace PathFinding
 
             while (currentNode != startNode)
             {
-                path.Add(currentNode);
+                if (!currentNode.Blocked) path.Add(currentNode);
                 currentNode = currentNode.Parent;
-
             }
 
             var waypoints = path;

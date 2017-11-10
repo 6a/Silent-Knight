@@ -2,8 +2,8 @@
 
 namespace Entities
 {
-    interface ITargetable
+    public interface ITargetable
     {
-        Transform TargetTransform { get; set; }
+        Transform TargetTransform(int unitID);
     }
 }

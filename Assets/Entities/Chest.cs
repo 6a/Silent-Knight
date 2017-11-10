@@ -5,10 +5,9 @@ using UnityEngine;
 public class Chest : MonoBehaviour, ITargetable
 {
     [SerializeField] Transform m_targetTransform;
-    public Transform TargetTransform { get; set; }
 
-    void Awake()
+    Transform ITargetable.TargetTransform(int unitID)
     {
-        TargetTransform = m_targetTransform;
+        return m_targetTransform;
     }
 }

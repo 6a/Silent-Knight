@@ -1,6 +1,6 @@
 ﻿namespace Entities
 {
-    interface IAttackable
+    public interface IAttackable
     {
         int Health { get; set; }
         int DeathTime { get; set; }

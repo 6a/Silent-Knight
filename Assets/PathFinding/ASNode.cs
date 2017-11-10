@@ -6,6 +6,8 @@ namespace PathFinding
     public class ASNode : IHeapable<ASNode>
     {
         public bool Walkable { get; set; }
+        public bool OutOfBounds { get; set; }
+        public bool Blocked { get; set; }
         public Vector3 Position { get; set; }
         public int X { get; set; }
         public int Y { get; set; }
@@ -29,6 +31,9 @@ namespace PathFinding
             X = x;
             Y = y;
             RegisterIndex = registerIndex;
+
+            OutOfBounds = false;
+            Blocked = false;
         }
 
         public int GetDistance(ASNode target)

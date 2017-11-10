@@ -1954,9 +1954,11 @@ MonoBehaviour:
   TurnDistance: 1.5
   TurnSpeed: 4
   PathUpdateMoveThreshold: 0.5
-  PathfindingTickDurationMS: 500
+  PathfindingTickDurationMS: 100
   StoppingDistance: 2
   IsFollowingPath: 0
+  CurrentPlatformIndex: 0
+  PreviousPos: {x: 0, y: 0, z: 0}
   LineRender: {fileID: 0}
   m_horizontalMod: 3
   m_linearMod: 3
