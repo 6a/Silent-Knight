@@ -64,7 +64,23 @@ public class Sparky : MonoBehaviour
     {
         int movement = Random.Range(0, 40);
         int limit = movement;
-        int mod = (Random.Range(0, 2) == 0) ? -1 : 1;
+
+        int mod = 0;
+        if (IsInFront())
+        {
+            if (IsLeft())
+            {
+                mod = -1;
+            }
+            else
+            {
+                mod = 1;
+            }
+        }
+        else
+        {
+            mod = (Random.Range(0, 2) == 0) ? -1 : 1;
+        }
 
         while (movement > 0 && !IsInFront())
         {
