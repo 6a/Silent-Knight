@@ -9,15 +9,13 @@ namespace PathFinding
     public class ASPathFinder : MonoBehaviour
     {
         ASGrid m_grid;
-        PathRequestManager m_requestManager;
 
         void Awake()
         {
             m_grid = GetComponent<ASGrid>();
-            m_requestManager = GetComponent<PathRequestManager>();
         }
 
-        IEnumerator FindPath(Vector3 startPos, Vector3 targetPos)
+        public void FindPath(PathRequest request, Action<PathResult> callback)
         {
             var stopWatch = new Stopwatch();
             stopWatch.Start();
@@ -25,8 +23,8 @@ namespace PathFinding
             Vector2[] wayPoints = null;
             bool success = false;
 
-            ASNode startNode = m_grid.GetNearestNode(startPos);
-            ASNode targetNode = m_grid.GetNearestNode(targetPos);
+            ASNode startNode = m_grid.GetNearestNode(request.Start.position);
+            ASNode targetNode = m_grid.GetNearestNode(request.End.position);
 
             Heap<ASNode> openSet = new Heap<ASNode>(m_grid.MaxSize);
             HashSet<ASNode> closedSet = new HashSet<ASNode>();
@@ -74,8 +72,6 @@ namespace PathFinding
                 }
             }
 
-            yield return null;
-
             if (success)
             {
                 wayPoints = RetracePath(startNode, targetNode);
@@ -85,12 +81,7 @@ namespace PathFinding
 
             stopWatch.Stop();
             UnityEngine.Debug.Log("Path found and sorted in: " + stopWatch.ElapsedMilliseconds + "ms");
-            m_requestManager.FinishedProcessingPath(wayPoints, success);
-        }
-
-        public void StartFindPath(Transform start, Transform end)
-        {
-            StartCoroutine(FindPath(start.position, end.position));
+            callback(new PathResult(wayPoints, success, request.Callback));
         }
 
         Vector2[] RetracePath(ASNode startNode, ASNode targetNode)

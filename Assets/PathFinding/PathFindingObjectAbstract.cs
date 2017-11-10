@@ -63,7 +63,7 @@ namespace PathFinding
                 if (m_newPath || (m_target.position - targetPosOld).sqrMagnitude > sqrMoveThreshold)
                 {
                     m_newPath = false;
-                    PathRequestManager.RequestPath(transform, m_target, OnPathFound);
+                    PathRequestManager.RequestPath(new PathRequest(transform, m_target, OnPathFound));
                     print("New path requested");
                     targetPosOld = m_target.position;
                 }
