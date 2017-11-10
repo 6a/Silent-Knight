@@ -6,6 +6,9 @@ namespace PathFinding
     [RequireComponent(typeof(LineRenderer))]
     public abstract class PathFindingObject : MonoBehaviour
     {
+        [SerializeField] Color m_pathColor;
+        [SerializeField] bool m_drawPath;
+
         public Path Path { get; set; }
 
         public float Speed;
@@ -37,9 +40,9 @@ namespace PathFinding
                 if (m_currentPathCoroutine == null) m_currentPathCoroutine = FollowPath();
                 StartCoroutine(m_currentPathCoroutine);
 
-                if (Path != null)
+                if (Path != null && m_drawPath)
                 {
-                    Path.Draw(LineRender);
+                    Path.Draw(LineRender, m_pathColor);
                 }
             }
         }

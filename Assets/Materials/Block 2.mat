@@ -101,10 +101,10 @@ Material:
     - _RimSize: 0
     - _RimSmoothness: 0
     - _ShadowIntensity: 2
-    - _Shininess: 1
+    - _Shininess: 0.01
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 0
-    - _SpecularIntensity: 0.161
+    - _SpecularIntensity: 0
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1

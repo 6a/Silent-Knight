@@ -42,6 +42,8 @@ namespace DungeonGeneration
                 if (ob != null) Object.Destroy(ob);
             }
 
+            Platforms.UnregisterPlayer();
+
             var container = new GameObject("Tiles");
 
             for (int i = 0; i < m_dungeon.Count; i++)

@@ -38,11 +38,11 @@ namespace PathFinding
             }
         }
 
-        public void Draw(LineRenderer lr)
+        public void Draw(LineRenderer lr, Color color)
         {
             lr.widthMultiplier = 0.2f;
             lr.material = new Material(Shader.Find("Unlit/Color"));
-            lr.material.color = Color.cyan;
+            lr.material.color = color;
 
             lr.positionCount = LookPoints.Length;
             for (int i = 0; i < LookPoints.Length; i++)

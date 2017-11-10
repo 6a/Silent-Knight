@@ -43,6 +43,8 @@ public class JKnightControl : PathFindingObject, IEntity
         m_rb = GetComponent<Rigidbody>();
         LineRender = GetComponent<LineRenderer>();
         GameManager.OnStartRun += OnStartRun;
+
+        Platforms.RegisterPlayer(this);
     }
 
     void Start()
