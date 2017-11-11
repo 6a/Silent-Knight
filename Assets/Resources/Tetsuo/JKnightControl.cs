@@ -9,12 +9,6 @@ using System.Collections;
 /// </summary>
 public class JKnightControl : PathFindingObject, IEntity, IAttackable, IAttacker, ITargetable
 {
-    // Enumerated animation states for easy referencing
-    private enum ANIMATION
-    {
-        ATTACK_BASIC, ATTACK_SPECIAL, ATTACK_ULTIMATE, ATTACK_KICK, ATTACK_SHIELD, PARRY, BUFF, DEATH, JUMP
-    }
-
     // Variables exposed in the editor.
     [SerializeField] float m_horizontalMod, m_linearMod, m_jumpForce, m_groundTriggerDistance;
 
@@ -31,18 +25,28 @@ public class JKnightControl : PathFindingObject, IEntity, IAttackable, IAttacker
         set { FocusPoint = value; }
     }
 
-    public int Health { get; set; }
+    public float Health { get; set; }
 
     public int DeathTime { get; set; }
     public bool IsDead { get; set; }
 
     public IAttackable CurrentTarget { get; set; }
 
+    [SerializeField] float m_attackRange;
+    [SerializeField] float m_attacksPerSecond;
+    [SerializeField] float m_baseDamage;
+    [SerializeField] float m_level;
+    [SerializeField] float m_baseHealth;
+
+    float m_lastAttackTime;
+
     void Awake()
     {
         m_animator = GetComponent<Animator>();
         m_rb = GetComponent<Rigidbody>();
         LineRender = GetComponent<LineRenderer>();
+        m_lastAttackTime = -1;
+        Health = (m_baseHealth * (1 + (m_level - 1) * LevelMultipliers.HEALTH));
         GameManager.OnStartRun += OnStartRun;
     }
 
@@ -220,6 +224,7 @@ public class JKnightControl : PathFindingObject, IEntity, IAttackable, IAttacker
     public void Reset()
     {
         Running = false;
+        IsDead = false;
     }
 
     public override void OnStartRun()
@@ -241,9 +246,22 @@ public class JKnightControl : PathFindingObject, IEntity, IAttackable, IAttacker
 
     }
 
-    public void Damage()
+    public void Damage(float dmg)
     {
-        throw new NotImplementedException();
+        if (IsDead) return;
+
+        Health -= Mathf.Max(dmg, 0);
+
+        print(dmg + " damage received. " + Health + " health remaining.");
+
+        if (Health <= 0)
+        {
+            print("Player died");
+            Running = false;
+            InterruptAnimator();
+            TriggerAnimation(ANIMATION.DEATH);
+            IsDead = true;
+        }
     }
 
     public void KnockBack()
@@ -261,7 +279,7 @@ public class JKnightControl : PathFindingObject, IEntity, IAttackable, IAttacker
         throw new NotImplementedException();
     }
 
-    public void GetInRange(IAttackable target)
+    public void GetInRange(ITargetable target)
     {
         throw new NotImplementedException();
     }
@@ -275,5 +293,10 @@ public class JKnightControl : PathFindingObject, IEntity, IAttackable, IAttacker
     {
         // TODO add code to locate optimal target for next seeker.
         return transform;
+    }
+
+    public Vector3 Position()
+    {
+        return transform.position;
     }
 }

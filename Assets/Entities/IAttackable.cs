@@ -1,13 +1,16 @@
-﻿namespace Entities
+﻿using UnityEngine;
+
+namespace Entities
 {
     public interface IAttackable
     {
-        int Health { get; set; }
+        float Health { get; set; }
         int DeathTime { get; set; }
         bool IsDead { get; set; }
 
-        void Damage();
+        void Damage(float damage);
         void KnockBack();
         void AfflictStatus(STATUS status);
+        Vector3 Position();
     }
 }

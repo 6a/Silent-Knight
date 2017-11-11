@@ -17,12 +17,10 @@ namespace PathFinding
         public float Speed;
         public float TurnDistance;
         public float TurnSpeed;
-        public float PathUpdateMoveThreshold;
         public float PathfindingTickDurationMS;
         public float StoppingDistance;
         public bool IsFollowingPath;
         public int CurrentPlatformIndex;
-
 
         // Indices of the current node, stored for updating grid to avoid collisions.
         public Vector3 PreviousPos;
@@ -32,11 +30,6 @@ namespace PathFinding
         IEnumerator m_currentPathCoroutine;
         bool m_newPath;
 
-        public void UpdatePositionOnGrid()
-        {
-
-        }
-
         public void UpdatePathTarget(ITargetable newTarget)
         {
             PathingTarget = newTarget;
@@ -45,8 +38,6 @@ namespace PathFinding
 
         public void OnPathFound(Vector2[] wayPoints, bool success)
         {
-            print("CLASS " + transform.name + ", success: " + success);
-
             if (success)
             {
                 StopFollowingPath();
@@ -71,19 +62,12 @@ namespace PathFinding
 
         public IEnumerator RefreshPath()
         {
-            var sqrMoveThreshold = PathUpdateMoveThreshold * PathUpdateMoveThreshold;
-            var targetPosOld = PathingTarget.TargetTransform(UnitID).position;
-
             while (true)
             {
                 yield return new WaitForSeconds(PathfindingTickDurationMS / 1000f);
 
-                if (m_newPath || (PathingTarget.TargetTransform(UnitID).position - targetPosOld).sqrMagnitude > sqrMoveThreshold)
-                {
-                    m_newPath = false;
-                    PathRequestManager.RequestPath(new PathRequest(transform, PathingTarget.TargetTransform(UnitID), OnPathFound));
-                    targetPosOld = PathingTarget.TargetTransform(UnitID).position;
-                }
+                m_newPath = false;
+                PathRequestManager.RequestPath(new PathRequest(transform, PathingTarget.TargetTransform(UnitID), OnPathFound));
             }
         }
 
@@ -135,12 +119,12 @@ namespace PathFinding
             }
         }
 
-        void UpdateGridPosition()
+        void UpdateGridPosition(Vector3 pos)
         {
-            if (PreviousPos == transform.position) return;
+            if (PreviousPos == pos) return;
 
-            ASGrid.UpdateGrid(PreviousPos, transform.position);
-            PreviousPos = transform.position;
+            ASGrid.UpdateGrid(PreviousPos, pos);
+            PreviousPos = pos;
         }
 
         Quaternion newRotation;
@@ -154,7 +138,7 @@ namespace PathFinding
             transform.Translate(nextMovement);
             processMovementUpdate = false;
 
-            UpdateGridPosition();
+            UpdateGridPosition(transform.position);
         }
 
         /// <summary>

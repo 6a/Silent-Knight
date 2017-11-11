@@ -1096,7 +1096,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1882099167516600}
   m_LocalRotation: {x: -0, y: -0.31020102, z: -0, w: 0.950671}
-  m_LocalPosition: {x: 23.96, y: 1, z: -21.67}
+  m_LocalPosition: {x: 22.52, y: 1, z: -6.89}
   m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
   m_Children:
   - {fileID: 4409292417785764}
@@ -1530,14 +1530,15 @@ MonoBehaviour:
   m_drawPath: 1
   Speed: 3
   TurnDistance: 1.5
-  TurnSpeed: 4
-  PathUpdateMoveThreshold: 0.5
+  TurnSpeed: 11
   PathfindingTickDurationMS: 200
-  StoppingDistance: 0
+  StoppingDistance: 1
   IsFollowingPath: 0
   CurrentPlatformIndex: 0
   PreviousPos: {x: 0, y: 0, z: 0}
   LineRender: {fileID: 0}
+  m_attackRange: 1.5
+  m_attacksPerSecond: 1
 --- !u!120 &120503341159294666
 LineRenderer:
   m_ObjectHideFlags: 1
@@ -1572,9 +1573,7 @@ LineRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Positions:
-  - {x: 0, y: 0, z: 0}
-  - {x: 0, y: 0, z: 1}
+  m_Positions: []
   m_Parameters:
     serializedVersion: 2
     widthMultiplier: 1
@@ -1635,7 +1634,7 @@ CapsuleCollider:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_Enabled: 1
-  m_Radius: 0.5
+  m_Radius: 0.33333334
   m_Height: 1.4
   m_Direction: 1
   m_Center: {x: 0, y: 0.7, z: 0}

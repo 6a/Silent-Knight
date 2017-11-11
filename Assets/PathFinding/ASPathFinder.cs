@@ -52,7 +52,7 @@ namespace PathFinding
                         continue;
                     }
 
-                    int newMoveCost = currentNode.GCost + currentNode.GetDistance(neighbour);
+                    int newMoveCost = currentNode.GCost + currentNode.GetDistance(neighbour) + currentNode.MovementPenalty;
 
                     if (newMoveCost < neighbour.GCost || !openSet.Contains(neighbour))
                     {
@@ -74,18 +74,13 @@ namespace PathFinding
 
             if (success)
             {
-                print("SC: " + startNode.Position + " | " + currentNode.Position + " | " + targetNode.Position);
                 wayPoints = RetracePath(startNode, targetNode);
-            }
-            else
-            {
-                print(startNode.Position + " | " + currentNode.Position + " | " + targetNode.Position);
             }
 
             if (wayPoints == null || wayPoints.Length == 0) success = false;
 
             stopWatch.Stop();
-            //UnityEngine.Debug.Log("Path found and sorted in: " + stopWatch.ElapsedMilliseconds + "ms");
+            UnityEngine.Debug.Log("Path found and sorted in: " + stopWatch.ElapsedMilliseconds + "ms");
             callback(new PathResult(wayPoints, success, request.Callback));
         }
 

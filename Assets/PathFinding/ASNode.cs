@@ -8,6 +8,7 @@ namespace PathFinding
         public bool Walkable { get; set; }
         public bool OutOfBounds { get; set; }
         public bool Blocked { get; set; }
+        public int MovementPenalty { get { return (Blocked) ? 10 : 0; } }
         public Vector3 Position { get; set; }
         public int X { get; set; }
         public int Y { get; set; }

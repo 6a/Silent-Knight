@@ -56,7 +56,6 @@ namespace PathFinding
 
                 lock (m_results)
                 {
-                    print(queueCount);
                     for (int i = 0; i < queueCount; i++)
                     {
                         var result = m_results.Dequeue();

@@ -5,7 +5,7 @@
         IAttackable CurrentTarget { get; set; }
 
         void Attack(IAttackable target);
-        void GetInRange(IAttackable target);
+        void GetInRange(ITargetable target);
         void AfflictStatus(IAttackable target);
     }
 }
