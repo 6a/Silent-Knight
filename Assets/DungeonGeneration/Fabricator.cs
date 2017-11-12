@@ -76,8 +76,13 @@ namespace DungeonGeneration
             {
                 var attackers = new List<IAttackable>();
 
-                if (!platform.IsInBounds(m_startNode) && !platform.IsInBounds(m_endNode))
+                var startNode = new Vector2(Scale((int)m_startNode.x), Scale((int)m_startNode.y));
+                var endNode = new Vector2(Scale((int)m_endNode.x), Scale((int)m_endNode.y));
+
+                if (!platform.IsInBounds(startNode) && !platform.IsInBounds(endNode))
                 {
+                    // TODO make this loop for multiple spawnages. 
+
                     var enemy1 = Resources.Load("Goblins/Goblin 1") as GameObject;
 
                     var pos = platform.GetRandomLocationOnPlatform(4);

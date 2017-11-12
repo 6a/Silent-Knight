@@ -16,14 +16,14 @@ public class PlatformBounds
         PlayerIsWithinBounds = false;
     }
 
-    public bool IsInBounds(Vector3 pos)
+    public bool IsInBounds(Vector2 pos)
     {
-        if (pos.x >= BottomLeft.x && pos.x <= TopRight.x && pos.z >= BottomLeft.y && pos.z <= TopRight.y)
+        if (pos.x < BottomLeft.x || pos.x > TopRight.x || pos.y < BottomLeft.y || pos.y > TopRight.y)
         {
-            return true;
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     public Vector2 GetRandomLocationOnPlatform(int padding)
@@ -86,7 +86,7 @@ public class Platforms : MonoBehaviour
 
         for (int i = 0; i < instance.m_platformBounds.Count; i++)
         {
-            if (instance.m_platformBounds[i].IsInBounds(pos))
+            if (instance.m_platformBounds[i].IsInBounds(new Vector2(pos.x, pos.z)))
             {
                 id = i;
             }

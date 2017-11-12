@@ -1949,7 +1949,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_pathColor: {r: 0, g: 1, b: 0.9586208, a: 1}
-  m_drawPath: 1
+  m_drawPath: 0
   Speed: 5
   TurnDistance: 1.5
   TurnSpeed: 4
