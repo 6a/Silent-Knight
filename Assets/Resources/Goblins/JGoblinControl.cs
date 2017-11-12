@@ -4,18 +4,15 @@ using System;
 using Entities;
 using System.Collections;
 
-public class JGoblinControl : PathFindingObject, IEntity, ITargetable, IAttackable, IAttacker
+public class JGoblinControl : PathFindingObject, ITargetable, IAttackable, IAttacker
 {
     // References to attached components.
     Animator m_animator;
     Rigidbody m_rb;
 
-    public bool Running { get; set; }
-
     public float Health { get; set; }
 
     public int DeathTime { get; set; }
-    public bool IsDead { get; set; }
 
     public IAttackable CurrentTarget { get; set; }
 
@@ -27,14 +24,11 @@ public class JGoblinControl : PathFindingObject, IEntity, ITargetable, IAttackab
 
     float m_lastAttackTime;
 
-    public bool Active { get; set; }
-
     void Awake ()
     {
         m_animator = GetComponent<Animator>();
         LineRender = GetComponent<LineRenderer>();
         m_rb = GetComponent<Rigidbody>();
-        Active = true; //TODO revert
         m_lastAttackTime = -1;
         Health = (m_baseHealth * (1 + (m_level - 1) * LevelMultipliers.HEALTH));
         GameManager.OnStartRun += OnStartRun;
@@ -42,15 +36,10 @@ public class JGoblinControl : PathFindingObject, IEntity, ITargetable, IAttackab
 
 	void Update ()
     {
-        if (!Active) return;
+        if (!Running) return;
 
         Attack(CurrentTarget);
 	}
-
-    public void Reset()
-    {
-        Running = false;
-    }
 
     public override void OnEndRun()
     {
@@ -72,12 +61,28 @@ public class JGoblinControl : PathFindingObject, IEntity, ITargetable, IAttackab
 
         PathingTarget = FindObjectOfType<JKnightControl>();
 
+        StartCoroutine(RefreshPath());
+
         GetInRange(PathingTarget);
     }
 
-    public void Damage(float dmg)
+    public void Damage(IAttacker attacker, float dmg)
     {
-        throw new NotImplementedException();
+        if (IsDead) return;
+
+        Health -= Mathf.Max(dmg, 0);
+
+        //print(dmg + " damage received. " + Health + " health remaining.");
+
+        if (Health <= 0)
+        {
+            print("Goblin died");
+            Running = false;
+            InterruptAnimator();
+            TriggerAnimation(ANIMATION.DEATH);
+            IsDead = true;
+            attacker.OnTargetDied(this);
+        }
     }
 
     public void KnockBack()
@@ -96,6 +101,8 @@ public class JGoblinControl : PathFindingObject, IEntity, ITargetable, IAttackab
 
         if (distanceToTarget <= m_attackRange)
         {
+            StopMovement();
+
             transform.LookAt(target.Position());
 
             float delay = 1000f / (1000f * m_attacksPerSecond);
@@ -131,7 +138,7 @@ public class JGoblinControl : PathFindingObject, IEntity, ITargetable, IAttackab
     public void GetInRange(ITargetable target)
     {
         UpdatePathTarget(PathingTarget);
-        StartCoroutine(RefreshPath());
+
     }
 
     public void AfflictStatus(IAttackable target)
@@ -153,7 +160,7 @@ public class JGoblinControl : PathFindingObject, IEntity, ITargetable, IAttackab
     {
         yield return new WaitForSeconds(Time.fixedDeltaTime * frameDelay);
 
-        target.Damage(dmgMultiplier * m_baseDamage * (1 + (m_level - 1 ) * LevelMultipliers.DAMAGE));
+        target.Damage(this, dmgMultiplier * m_baseDamage * (1 + (m_level - 1 ) * LevelMultipliers.DAMAGE));
     }
 
     void TriggerAnimation(ANIMATION anim)
@@ -173,8 +180,13 @@ public class JGoblinControl : PathFindingObject, IEntity, ITargetable, IAttackab
                 m_animator.SetTrigger("A3Start");
                 break;
             case ANIMATION.DEATH:
-                InterruptAnimator();
-                m_animator.SetTrigger("DeathStart");
+                // Particles or stuff
+                AI.RemoveUnit(Platforms.PlayerPlatform, this);
+
+                transform.position = new Vector3(0, -1000, 0);
+
+                Disposal.Dispose(gameObject);
+
                 break;
         }
     }
@@ -187,5 +199,15 @@ public class JGoblinControl : PathFindingObject, IEntity, ITargetable, IAttackab
         m_animator.ResetTrigger("A2Start");
         m_animator.ResetTrigger("A3Start");
         m_animator.ResetTrigger("DeathStart");
+    }
+
+    public void OnTargetDied(IAttackable target)
+    {
+        throw new NotImplementedException();
+    }
+
+    public ITargetable GetTargetableInterface()
+    {
+        return this;
     }
 }

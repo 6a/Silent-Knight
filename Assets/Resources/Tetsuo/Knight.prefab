@@ -1963,9 +1963,9 @@ MonoBehaviour:
   m_linearMod: 3
   m_jumpForce: 150
   m_groundTriggerDistance: 0.55
-  m_attackRange: 1.5
+  m_attackRange: 1
   m_attacksPerSecond: 1
-  m_baseDamage: 50
+  m_baseDamage: 10
   m_level: 1
   m_baseHealth: 100
 --- !u!120 &120479263612630268

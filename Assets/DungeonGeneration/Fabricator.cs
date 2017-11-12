@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Entities;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -39,7 +41,7 @@ namespace DungeonGeneration
 
             foreach (var ob in oldObjects)
             {
-                if (ob != null) Object.Destroy(ob);
+                if (ob != null) GameObject.Destroy(ob);
             }
 
             Platforms.UnregisterPlayer();
@@ -57,18 +59,51 @@ namespace DungeonGeneration
                         var y = Scale(j);
                         var x = Scale(i);
 
-                        var tile = Object.Instantiate(block, new Vector3(x, 0, y), Quaternion.identity, container.transform);
+                        var tile = GameObject.Instantiate(block, new Vector3(x, 0, y), Quaternion.identity, container.transform);
                     }
                 }
             }
         }
 
+        public void PlaceEnemies()
+        {
+            var platformData = Platforms.GetPlatformData();
+
+            var aiSet = new Dictionary<int, List<IAttackable>>();
+
+            int pNumber = 0;
+            foreach (var platform in platformData)
+            {
+                var attackers = new List<IAttackable>();
+
+                if (!platform.IsInBounds(m_startNode) && !platform.IsInBounds(m_endNode))
+                {
+                    var enemy1 = Resources.Load("Goblins/Goblin 1") as GameObject;
+
+                    var pos = platform.GetRandomLocationOnPlatform(4);
+
+                    GameObject enemy = GameObject.Instantiate(enemy1, new Vector3(pos.x, 1, pos.y), Quaternion.identity);
+
+                    var enemyClass = enemy.GetComponent<JGoblinControl>();
+
+                    enemyClass.Running = false;
+
+                    attackers.Add(enemyClass as IAttackable);
+                }
+
+                aiSet.Add(pNumber, attackers);
+
+                pNumber++;
+            }
+
+            AI.LoadAIData(new AISet(aiSet));
+        }
+
         public void PlaceChestAtEndNode()
         {
-            GameObject chest = Object.Instantiate(m_chest, new Vector3(Scale((int)m_endNode.x), 1, Scale((int)m_endNode.y)), Quaternion.identity);
+            GameObject chest = GameObject.Instantiate(m_chest, new Vector3(Scale((int)m_endNode.x), 1, Scale((int)m_endNode.y)), Quaternion.identity);
 
             var closestPathBlock = GameObject.FindGameObjectsWithTag("Path").OrderBy(i => (i.transform.position - chest.transform.position).sqrMagnitude).FirstOrDefault();
-
 
             var closestPathTileV2 = new Vector2(closestPathBlock.transform.position.x, closestPathBlock.transform.position.z);
             var chestTileV2 = new Vector2(chest.transform.position.x, chest.transform.position.z);
@@ -80,7 +115,7 @@ namespace DungeonGeneration
 
         public void PlacePlayerAtStartNode()
         {
-            Object.Instantiate(m_playerCharacter, new Vector3(Scale((int)m_startNode.x), 1, Scale((int)m_startNode.y)), Quaternion.identity);
+            GameObject.Instantiate(m_playerCharacter, new Vector3(Scale((int)m_startNode.x), 1, Scale((int)m_startNode.y)), Quaternion.identity);
         }
 
         public void Finalise()

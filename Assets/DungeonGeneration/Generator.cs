@@ -48,6 +48,8 @@ namespace DungeonGeneration
 
             fabricator.PlaceChestAtEndNode();
 
+            fabricator.PlaceEnemies();
+
             fabricator.Finalise();
         }
 

@@ -8,9 +8,10 @@ namespace Entities
         int DeathTime { get; set; }
         bool IsDead { get; set; }
 
-        void Damage(float damage);
+        void Damage(IAttacker attacker, float damage);
         void KnockBack();
         void AfflictStatus(STATUS status);
         Vector3 Position();
+        ITargetable GetTargetableInterface();
     }
 }

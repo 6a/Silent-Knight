@@ -7,7 +7,7 @@ using System.Collections;
 /// <summary>
 /// Handles control behaviour for player character.
 /// </summary>
-public class JKnightControl : PathFindingObject, IEntity, IAttackable, IAttacker, ITargetable
+public class JKnightControl : PathFindingObject, IAttackable, IAttacker, ITargetable
 {
     // Variables exposed in the editor.
     [SerializeField] float m_horizontalMod, m_linearMod, m_jumpForce, m_groundTriggerDistance;
@@ -15,8 +15,6 @@ public class JKnightControl : PathFindingObject, IEntity, IAttackable, IAttacker
     // References to attached components.
     Animator m_animator;
     Rigidbody m_rb;
-
-    public bool Running { get; set; }
 
     // Public property used to check knight focus point
     public Vector3 FocusPoint
@@ -28,7 +26,6 @@ public class JKnightControl : PathFindingObject, IEntity, IAttackable, IAttacker
     public float Health { get; set; }
 
     public int DeathTime { get; set; }
-    public bool IsDead { get; set; }
 
     public IAttackable CurrentTarget { get; set; }
 
@@ -39,6 +36,10 @@ public class JKnightControl : PathFindingObject, IEntity, IAttackable, IAttacker
     [SerializeField] float m_baseHealth;
 
     float m_lastAttackTime;
+    ITargetable m_chest;
+    bool m_isDoingSpecial;
+    IEnumerator m_currentDamageCoroutine;
+    int m_attackState;
 
     void Awake()
     {
@@ -47,17 +48,16 @@ public class JKnightControl : PathFindingObject, IEntity, IAttackable, IAttacker
         LineRender = GetComponent<LineRenderer>();
         m_lastAttackTime = -1;
         Health = (m_baseHealth * (1 + (m_level - 1) * LevelMultipliers.HEALTH));
+        m_attackState = 0;
+        m_currentDamageCoroutine = null;
         GameManager.OnStartRun += OnStartRun;
     }
 
     void Update()
     {
-        // Check for level end trigger
-        // GameManager.TriggerLevelLoad();
-        //ManualInput();
+        if (!Running) return;
 
-        // Take current inputs and handle behaviour
-        InputHandler();
+        Attack(CurrentTarget);
     }
 
     public override void OnFollowPath(float speedPercent)
@@ -98,6 +98,9 @@ public class JKnightControl : PathFindingObject, IEntity, IAttackable, IAttacker
     // Interacts with universal input
     private void InputHandler()
     {
+        //                      TriggerAnimation(ANIMATION.ATTACK_ULTIMATE);
+        //                      
+
         // If waterfall - Chosen as it allows for easy prioritisation of inputs.
         if (Input.GetButtonDown("AttackBasic"))
         {
@@ -109,7 +112,8 @@ public class JKnightControl : PathFindingObject, IEntity, IAttackable, IAttacker
         }
         else if (Input.GetButtonDown("AttackUltimate"))
         {
-            TriggerAnimation(ANIMATION.ATTACK_ULTIMATE);
+            if (CurrentTarget == null) return;
+
         }
         else if (Input.GetButtonDown("AttackKick"))
         {
@@ -143,44 +147,37 @@ public class JKnightControl : PathFindingObject, IEntity, IAttackable, IAttacker
 
     // Triggers appropriate animation. Is set to interrupt the current animation, and then trigger
     // the appropriate one.
-    private void TriggerAnimation(ANIMATION anim)
+    private void TriggerAnimation(ANIMATION anim, bool interrupt = true)
     {
+        if (interrupt) InterruptAnimator();
+
         switch (anim)
         {
             case ANIMATION.ATTACK_BASIC:
-                InterruptAnimator();
                 m_animator.SetTrigger("A1Start");
                 break;
             case ANIMATION.ATTACK_SPECIAL:
-                InterruptAnimator();
                 m_animator.SetTrigger("A2Start");
                 break;
             case ANIMATION.ATTACK_ULTIMATE:
-                InterruptAnimator();
                 m_animator.SetTrigger("A3Start");
                 break;
             case ANIMATION.ATTACK_KICK:
-                InterruptAnimator();
                 m_animator.SetTrigger("KickStart");
                 break;
             case ANIMATION.ATTACK_SHIELD:
-                InterruptAnimator();
                 m_animator.SetTrigger("ShieldStart");
                 break;
             case ANIMATION.PARRY:
-                InterruptAnimator();
                 m_animator.SetTrigger("ParryStart");
                 break;
             case ANIMATION.BUFF:
-                InterruptAnimator();
                 m_animator.SetTrigger("BuffStart");
                 break;
             case ANIMATION.DEATH:
-                InterruptAnimator();
                 m_animator.SetTrigger("DeathStart");
                 break;
             case ANIMATION.JUMP:
-                InterruptAnimator();
                 m_animator.SetTrigger("JumpStart");
                 break;
         }
@@ -216,15 +213,19 @@ public class JKnightControl : PathFindingObject, IEntity, IAttackable, IAttacker
 
     public void OnEnterPlatform()
     {
-        //print("Player just entered platform: " + CurrentPlatformIndex);
+        var nextTarget = AI.GetNewTarget(transform.position, Platforms.PlayerPlatform);
 
-
-    }
-
-    public void Reset()
-    {
-        Running = false;
-        IsDead = false;
+        if (nextTarget == null)
+        {
+            PathingTarget = m_chest;
+            UpdatePathTarget(PathingTarget);
+            CurrentTarget = null;
+        }
+        else
+        {
+            CurrentTarget = nextTarget;
+            GetInRange(nextTarget.GetTargetableInterface());
+        }
     }
 
     public override void OnStartRun()
@@ -237,6 +238,10 @@ public class JKnightControl : PathFindingObject, IEntity, IAttackable, IAttacker
 
         PathingTarget = FindObjectOfType<Chest>();
 
+        m_chest = PathingTarget;
+
+        Running = true;
+
         UpdatePathTarget(PathingTarget);
         StartCoroutine(RefreshPath());
     }
@@ -246,13 +251,13 @@ public class JKnightControl : PathFindingObject, IEntity, IAttackable, IAttacker
 
     }
 
-    public void Damage(float dmg)
+    public void Damage(IAttacker attacker, float dmg)
     {
         if (IsDead) return;
 
         Health -= Mathf.Max(dmg, 0);
 
-        print(dmg + " damage received. " + Health + " health remaining.");
+        //print(dmg + " damage received. " + Health + " health remaining.");
 
         if (Health <= 0)
         {
@@ -261,6 +266,7 @@ public class JKnightControl : PathFindingObject, IEntity, IAttackable, IAttacker
             InterruptAnimator();
             TriggerAnimation(ANIMATION.DEATH);
             IsDead = true;
+            attacker.OnTargetDied(this);
         }
     }
 
@@ -276,12 +282,84 @@ public class JKnightControl : PathFindingObject, IEntity, IAttackable, IAttacker
 
     public void Attack(IAttackable target)
     {
-        throw new NotImplementedException();
+        if (target == null) return;
+
+        var distanceToTarget = Vector3.Distance(transform.position, target.Position());
+
+        if (distanceToTarget <= m_attackRange)
+        {
+            StopMovement();
+
+            transform.LookAt(target.Position());
+
+            if (Input.GetButtonDown("AttackUltimate") && !m_isDoingSpecial)
+            {
+                InterruptAnimator();
+                m_isDoingSpecial = true;
+                StopCoroutine(m_currentDamageCoroutine);
+                TriggerAnimation(ANIMATION.ATTACK_ULTIMATE);
+                m_currentDamageCoroutine = ApplyDamageDelayed(5, 26, target);
+                StartCoroutine(m_currentDamageCoroutine);
+                return;
+            }
+
+            float delay = 1000f / (1000f * m_attacksPerSecond);
+
+            if (!m_isDoingSpecial && (m_lastAttackTime == -1 || Time.time - m_lastAttackTime > delay))
+            {
+                InterruptAnimator();
+
+                m_attackState = (m_attackState == 0) ? 1 : 0;
+
+                if (m_attackState == 0)
+                {
+                    TriggerAnimation(ANIMATION.ATTACK_BASIC);
+                    m_currentDamageCoroutine = ApplyDamageDelayed(1, 30, target);
+                    StartCoroutine(m_currentDamageCoroutine);
+                }
+                else
+                {
+                    TriggerAnimation(ANIMATION.ATTACK_SPECIAL);
+                    m_currentDamageCoroutine = ApplyDamageDelayed(1, 30, target);
+                    StartCoroutine(m_currentDamageCoroutine);
+                }
+
+                m_lastAttackTime = Time.time;
+            }
+        }
+    }
+
+    IEnumerator ApplyDamageDelayed(int dmgMultiplier, int frameDelay, IAttackable target)
+    {
+        yield return new WaitForSeconds(Time.fixedDeltaTime * frameDelay);
+
+        // dont forget animations and such
+
+        if (m_isDoingSpecial)
+        {
+            m_isDoingSpecial = false;
+            m_lastAttackTime = Time.time - 0.5f;
+            StartCoroutine(Freeze(0.1f));
+            
+        }
+
+        target.Damage(this, dmgMultiplier * m_baseDamage * (1 + (m_level - 1) * LevelMultipliers.DAMAGE));
+    }
+
+    IEnumerator Freeze(float duration)
+    {
+        Time.timeScale = 0f;
+        float pauseEndTime = Time.realtimeSinceStartup + duration;
+        while (Time.realtimeSinceStartup < pauseEndTime)
+        {
+            yield return null;
+        }
+        Time.timeScale = 1;
     }
 
     public void GetInRange(ITargetable target)
     {
-        throw new NotImplementedException();
+        UpdatePathTarget(target);
     }
 
     public void AfflictStatus(IAttackable target)
@@ -298,5 +376,17 @@ public class JKnightControl : PathFindingObject, IEntity, IAttackable, IAttacker
     public Vector3 Position()
     {
         return transform.position;
+    }
+
+    public void OnTargetDied(IAttackable target)
+    {
+        OnEnterPlatform();
+
+        // XP etc.
+    }
+
+    public ITargetable GetTargetableInterface()
+    {
+        return this;
     }
 }

@@ -1,11 +1,12 @@
 ﻿using Entities;
 using System.Collections;
 using UnityEngine;
+using System;
 
 namespace PathFinding
 {
     [RequireComponent(typeof(LineRenderer))]
-    public abstract class PathFindingObject : MonoBehaviour
+    public abstract class PathFindingObject : MonoBehaviour, IEntity
     {
         [SerializeField] Color m_pathColor;
         [SerializeField] bool m_drawPath;
@@ -13,6 +14,10 @@ namespace PathFinding
         public Path Path { get; set; }
         public ITargetable PathingTarget { get; set; }
         public int UnitID { get; set; }
+
+        public bool Running { get; set; }
+
+        public bool IsDead { get; set; }
 
         public float Speed;
         public float TurnDistance;
@@ -38,7 +43,7 @@ namespace PathFinding
 
         public void OnPathFound(Vector2[] wayPoints, bool success)
         {
-            if (success)
+            if (Running && success)
             {
                 StopFollowingPath();
                 Path = new Path(wayPoints, transform.position, TurnDistance, StoppingDistance);
@@ -65,6 +70,8 @@ namespace PathFinding
             while (true)
             {
                 yield return new WaitForSeconds(PathfindingTickDurationMS / 1000f);
+
+                if (!Running) continue;
 
                 m_newPath = false;
                 PathRequestManager.RequestPath(new PathRequest(transform, PathingTarget.TargetTransform(UnitID), OnPathFound));
@@ -133,12 +140,21 @@ namespace PathFinding
 
         void LateUpdate()
         {
-            if (!processMovementUpdate) return;
-            transform.rotation = newRotation;
-            transform.Translate(nextMovement);
-            processMovementUpdate = false;
+            if (processMovementUpdate)
+            {
+                transform.rotation = newRotation;
+                transform.Translate(nextMovement);
+                processMovementUpdate = false;
+            }
 
             UpdateGridPosition(transform.position);
+        }
+
+        public void StopMovement()
+        {
+            IsFollowingPath = false;
+            processMovementUpdate = false;
+            OnFollowPath(0);
         }
 
         /// <summary>
@@ -148,5 +164,11 @@ namespace PathFinding
 
         public abstract void OnStartRun();
         public abstract void OnEndRun();
+
+        public void Reset()
+        {
+            Running = false;
+            IsDead = false;
+        }
     }
 }

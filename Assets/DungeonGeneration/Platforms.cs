@@ -16,23 +16,33 @@ public class PlatformBounds
         PlayerIsWithinBounds = false;
     }
 
-    public bool IsInBounds(Vector3 playerPos)
+    public bool IsInBounds(Vector3 pos)
     {
-        if (playerPos.x >= BottomLeft.x && playerPos.x <= TopRight.x && playerPos.z >= BottomLeft.y && playerPos.z <= TopRight.y)
+        if (pos.x >= BottomLeft.x && pos.x <= TopRight.x && pos.z >= BottomLeft.y && pos.z <= TopRight.y)
         {
             return true;
         }
 
         return false;
     }
+
+    public Vector2 GetRandomLocationOnPlatform(int padding)
+    {
+        int xRand = Random.Range(0 + padding, (int)TopRight.x - (int)BottomLeft.x - padding);
+        int yRand = Random.Range(0 + padding, (int)TopRight.y - (int)BottomLeft.y - padding);
+
+        return new Vector2(BottomLeft.x + xRand, BottomLeft.y + yRand);
+    }
 }
 
 public class Platforms : MonoBehaviour
 {
-    public int PlayerPlatform { get; private set; }
+    public static int PlayerPlatform { get; private set; }
+
+    public List<PlatformBounds> m_platformBounds { get; private set; }
 
     static Platforms instance;
-    List<PlatformBounds> m_platformBounds;
+
     JKnightControl m_player;
 
     void Awake()
@@ -51,6 +61,7 @@ public class Platforms : MonoBehaviour
         {
             m_platformBounds[PlayerPlatform].PlayerIsWithinBounds = true;
             m_player.OnEnterPlatform();
+            AI.ActivateUnits(PlayerPlatform);
         }
     }
 
@@ -62,6 +73,11 @@ public class Platforms : MonoBehaviour
     public static void UnregisterPlayer()
     {
         instance.m_player = null;
+    }
+
+    public static List<PlatformBounds> GetPlatformData()
+    {
+        return instance.m_platformBounds;
     }
 
     public static int GetPlatformId(Vector3 pos)
