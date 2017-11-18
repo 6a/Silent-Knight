@@ -23,8 +23,9 @@ namespace PathFinding
             Vector2[] wayPoints = null;
             bool success = false;
 
-            ASNode startNode = m_grid.GetNearestNode(request.Start.position);
-            ASNode targetNode = m_grid.GetNearestNode(request.End.position);
+            ASNode startNode = ASGrid.GetNearestNode(request.Start.position);
+
+            ASNode targetNode = ASGrid.GetNearestNode(request.End.position);
 
             Heap<ASNode> openSet = new Heap<ASNode>(m_grid.MaxSize);
             HashSet<ASNode> closedSet = new HashSet<ASNode>();
@@ -91,7 +92,7 @@ namespace PathFinding
 
             while (currentNode != startNode)
             {
-                if (!currentNode.Blocked) path.Add(currentNode);
+                path.Add(currentNode);
                 currentNode = currentNode.Parent;
             }
 
@@ -104,12 +105,11 @@ namespace PathFinding
         {
             var waypoints = new List<Vector2>();
 
-            for (int i = 1; i < path.Count; i++)
+            for (int i = 0; i < path.Count; i++)
             {
                 waypoints.Add(new Vector2(path[i].Position.x, path[i].Position.z));
             }
-
-            waypoints = PathSmoother.douglasPeuckerReduction(waypoints, 0.5f);
+            if (waypoints.Count > 1) waypoints = PathSmoother.douglasPeuckerReduction(waypoints, 0.5f);
 
             return waypoints.ToArray();
         }

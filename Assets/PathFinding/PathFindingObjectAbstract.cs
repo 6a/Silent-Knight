@@ -33,12 +33,10 @@ namespace PathFinding
         public LineRenderer LineRender;
 
         IEnumerator m_currentPathCoroutine;
-        bool m_newPath;
 
         public void UpdatePathTarget(ITargetable newTarget)
         {
             PathingTarget = newTarget;
-            m_newPath = true;
         }
 
         public void OnPathFound(Vector2[] wayPoints, bool success)
@@ -54,6 +52,10 @@ namespace PathFinding
                 {
                     Path.Draw(LineRender, m_pathColor);
                 }
+            }
+            else
+            {
+                Path = null;
             }
         }
 
@@ -71,9 +73,8 @@ namespace PathFinding
             {
                 yield return new WaitForSeconds(PathfindingTickDurationMS / 1000f);
 
-                if (!Running) continue;
+                if (!Running || transform == null) continue;
 
-                m_newPath = false;
                 PathRequestManager.RequestPath(new PathRequest(transform, PathingTarget.TargetTransform(UnitID), OnPathFound));
             }
         }
@@ -85,8 +86,14 @@ namespace PathFinding
 
             float speedPercent = 1;
 
-            while (IsFollowingPath)
+            while (true)
             {
+                if (Path == null || !IsFollowingPath)
+                {
+                    yield return null;
+                    continue;
+                }
+
                 var pos2D = new Vector2(transform.position.x, transform.position.z);
 
                 while (Path.TurnBoundaries[pathIndex].HasCrossedLine(pos2D))
@@ -146,15 +153,18 @@ namespace PathFinding
                 transform.Translate(nextMovement);
                 processMovementUpdate = false;
             }
-
-            UpdateGridPosition(transform.position);
         }
 
         public void StopMovement()
         {
             IsFollowingPath = false;
             processMovementUpdate = false;
-            OnFollowPath(0);
+        }
+
+        public void StartMovement()
+        {
+            IsFollowingPath = true;
+            processMovementUpdate = true;
         }
 
         /// <summary>

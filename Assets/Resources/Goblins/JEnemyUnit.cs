@@ -4,7 +4,7 @@ using System;
 using Entities;
 using System.Collections;
 
-public class JGoblinControl : PathFindingObject, ITargetable, IAttackable, IAttacker
+public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
 {
     // References to attached components.
     Animator m_animator;
@@ -16,6 +16,8 @@ public class JGoblinControl : PathFindingObject, ITargetable, IAttackable, IAtta
 
     public IAttackable CurrentTarget { get; set; }
 
+    public int ID { get; set; }
+
     [SerializeField] float m_attackRange;
     [SerializeField] float m_attacksPerSecond;
     [SerializeField] float m_baseDamage;
@@ -23,6 +25,7 @@ public class JGoblinControl : PathFindingObject, ITargetable, IAttackable, IAtta
     [SerializeField] float m_baseHealth;
 
     float m_lastAttackTime;
+    bool m_deleted = false;
 
     void Awake ()
     {
@@ -37,6 +40,16 @@ public class JGoblinControl : PathFindingObject, ITargetable, IAttackable, IAtta
 	void Update ()
     {
         if (!Running) return;
+
+        if (!m_deleted && transform.position.y < 0)
+        {
+            AI.RemoveUnit(Platforms.PlayerPlatform, this);
+
+            Disposal.Dispose(gameObject);
+
+            m_deleted = true;
+            Running = false;
+        }
 
         Attack(CurrentTarget);
 	}
@@ -57,9 +70,9 @@ public class JGoblinControl : PathFindingObject, ITargetable, IAttackable, IAtta
     {
         PreviousPos = transform.position;
 
-        CurrentTarget = FindObjectOfType<JKnightControl>();
+        CurrentTarget = FindObjectOfType<JPlayerUnit>();
 
-        PathingTarget = FindObjectOfType<JKnightControl>();
+        PathingTarget = FindObjectOfType<JPlayerUnit>();
 
         StartCoroutine(RefreshPath());
 
@@ -85,9 +98,10 @@ public class JGoblinControl : PathFindingObject, ITargetable, IAttackable, IAtta
         }
     }
 
-    public void KnockBack()
+    public void KnockBack(Vector2 sourcePos, float strength)
     {
-        throw new NotImplementedException();
+        var forceVec = (transform.position - new Vector3(sourcePos.x, transform.position.y, sourcePos.y)).normalized * strength;
+        m_rb.AddForce(forceVec);
     }
 
     public void AfflictStatus(STATUS status)
@@ -102,8 +116,11 @@ public class JGoblinControl : PathFindingObject, ITargetable, IAttackable, IAtta
         if (distanceToTarget <= m_attackRange)
         {
             StopMovement();
+            OnFollowPath(0);
 
-            transform.LookAt(target.Position());
+            var targetRotation = Quaternion.LookRotation(target.Position() - transform.position);
+
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 4);
 
             float delay = 1000f / (1000f * m_attacksPerSecond);
 
@@ -132,6 +149,10 @@ public class JGoblinControl : PathFindingObject, ITargetable, IAttackable, IAtta
 
                 m_lastAttackTime = Time.time;
             }
+        }
+        else
+        {
+            GetInRange(CurrentTarget.GetTargetableInterface());
         }
     }
 
@@ -186,6 +207,8 @@ public class JGoblinControl : PathFindingObject, ITargetable, IAttackable, IAtta
                 transform.position = new Vector3(0, -1000, 0);
 
                 Disposal.Dispose(gameObject);
+
+                m_deleted = true;
 
                 break;
         }

@@ -27,6 +27,14 @@ namespace PathFinding
             instance = this;
         }
 
+        public static bool IsOffGrid(Vector3 pos)
+        {
+            var n = GetNearestNode(pos);
+
+            if (n.OutOfBounds) return true;
+            return false;
+        }
+
         public static void UpdateGrid(Vector3 previousPos, Vector3 currentPos)
         {
             var previousIndices = instance.GetNearestNodeIndeces(previousPos);
@@ -66,17 +74,32 @@ namespace PathFinding
             return neighbours;
         }
 
-        public ASNode GetNearestNode(Vector3 worldPos)
+        public static ASNode GetNearestValidNode(Vector3 pos)
         {
-            float percentX = (worldPos.x + m_gridSize.x / 2.0f) / m_gridSize.x;
-            float percentY = (worldPos.z + m_gridSize.y / 2.0f) / m_gridSize.y;
+            var neighbours = instance.GetNeighbours(GetNearestNode(pos));
+
+            foreach (var n in neighbours)
+            {
+                if (n.Walkable) return n;
+            }
+            print("Couldnt find a valid node near " + pos);
+            return null;
+        }
+
+        public static ASNode GetNearestNode(Vector3 worldPos)
+        {
+            float percentX = (worldPos.x + instance.m_gridSize.x / 2.0f) / instance.m_gridSize.x;
+            float percentY = (worldPos.z + instance.m_gridSize.y / 2.0f) / instance.m_gridSize.y;
 
             percentX = Mathf.Clamp01(percentX);
             percentY = Mathf.Clamp01(percentY);
 
-            int x = Mathf.Clamp((int)((m_gridX) * percentX), 0, m_gridX - 1);
-            int y = Mathf.Clamp((int)((m_gridY) * percentY), 0, m_gridY - 1);
-            return m_grid[x, y];
+            int x = Mathf.Clamp((int)((instance.m_gridX) * percentX), 0, instance.m_gridX - 1);
+            int y = Mathf.Clamp((int)((instance.m_gridY) * percentY), 0, instance.m_gridY - 1);
+
+            var n = instance.m_grid[x, y];
+
+            return n;
         }
 
         public Vector2 GetNearestNodeIndeces(Vector3 worldPos)

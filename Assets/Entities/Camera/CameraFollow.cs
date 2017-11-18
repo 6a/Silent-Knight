@@ -6,14 +6,14 @@
 public class CameraFollow : MonoBehaviour
 {
     // Reference to focus point (as we want the camera to follow slightly ahead of the knights facing direction).
-    JKnightControl m_knight;
+    JPlayerUnit m_knight;
     Vector3 m_offset;
 
     void Start()
     {
         transform.parent = null;
 
-        m_knight = FindObjectOfType<JKnightControl>();
+        m_knight = FindObjectOfType<JPlayerUnit>();
 
         m_offset = transform.position - m_knight.FocusPoint;
     }

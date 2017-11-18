@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Threading;
 
-
 namespace PathFinding
 {
     public struct PathRequest

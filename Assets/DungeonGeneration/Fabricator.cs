@@ -72,6 +72,7 @@ namespace DungeonGeneration
             var aiSet = new Dictionary<int, List<IAttackable>>();
 
             int pNumber = 0;
+            int eNumber = 1;
             foreach (var platform in platformData)
             {
                 var attackers = new List<IAttackable>();
@@ -79,21 +80,35 @@ namespace DungeonGeneration
                 var startNode = new Vector2(Scale((int)m_startNode.x), Scale((int)m_startNode.y));
                 var endNode = new Vector2(Scale((int)m_endNode.x), Scale((int)m_endNode.y));
 
+                int numToSpawn = 2 + m_levelIndex;
+
+                var positions = new List<Vector2>();
+
                 if (!platform.IsInBounds(startNode) && !platform.IsInBounds(endNode))
                 {
-                    // TODO make this loop for multiple spawnages. 
+                    for (int i = 0; i < numToSpawn; i++)
+                    {
+                        int r = UnityEngine.Random.Range(1, 4);
+                        var enemyObj = Resources.Load("Goblins/Goblin " + r) as GameObject;
 
-                    var enemy1 = Resources.Load("Goblins/Goblin 1") as GameObject;
+                        var pos = platform.GetRandomLocationOnPlatform(2);
 
-                    var pos = platform.GetRandomLocationOnPlatform(4);
+                        if (positions.Contains(pos)) { i--; continue; }
 
-                    GameObject enemy = GameObject.Instantiate(enemy1, new Vector3(pos.x, 1, pos.y), Quaternion.identity);
+                        positions.Add(pos);
 
-                    var enemyClass = enemy.GetComponent<JGoblinControl>();
+                        GameObject enemy = GameObject.Instantiate(enemyObj, new Vector3(pos.x, 1, pos.y), Quaternion.identity);
 
-                    enemyClass.Running = false;
+                        var enemyClass = enemy.GetComponent<JEnemyUnit>();
 
-                    attackers.Add(enemyClass as IAttackable);
+                        enemyClass.Running = false;
+
+                        var enemyClassInterface = enemyClass as IAttackable;
+                        enemyClassInterface.ID = eNumber;
+                        eNumber++;
+
+                        attackers.Add(enemyClassInterface);
+                    }
                 }
 
                 aiSet.Add(pNumber, attackers);

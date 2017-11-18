@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 
 struct DisposalObject
@@ -27,7 +26,7 @@ public class Disposal : MonoBehaviour
         instance = this;
 	}
 	
-	void Update ()
+	void LateUpdate ()
     {
         if (m_disposalQueue.Count == 0) return;
 

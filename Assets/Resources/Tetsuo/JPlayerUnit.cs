@@ -3,11 +3,12 @@ using PathFinding;
 using UnityEngine;
 using Entities;
 using System.Collections;
+using System.Collections.Generic;
 
 /// <summary>
 /// Handles control behaviour for player character.
 /// </summary>
-public class JKnightControl : PathFindingObject, IAttackable, IAttacker, ITargetable
+public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetable
 {
     // Variables exposed in the editor.
     [SerializeField] float m_horizontalMod, m_linearMod, m_jumpForce, m_groundTriggerDistance;
@@ -15,6 +16,7 @@ public class JKnightControl : PathFindingObject, IAttackable, IAttacker, ITarget
     // References to attached components.
     Animator m_animator;
     Rigidbody m_rb;
+    PlayerWeapon m_weapon;
 
     // Public property used to check knight focus point
     public Vector3 FocusPoint
@@ -28,6 +30,8 @@ public class JKnightControl : PathFindingObject, IAttackable, IAttacker, ITarget
     public int DeathTime { get; set; }
 
     public IAttackable CurrentTarget { get; set; }
+
+    public int ID { get; set; }
 
     [SerializeField] float m_attackRange;
     [SerializeField] float m_attacksPerSecond;
@@ -46,11 +50,18 @@ public class JKnightControl : PathFindingObject, IAttackable, IAttacker, ITarget
         m_animator = GetComponent<Animator>();
         m_rb = GetComponent<Rigidbody>();
         LineRender = GetComponent<LineRenderer>();
+        m_weapon = GetComponentInChildren<PlayerWeapon>();
         m_lastAttackTime = -1;
         Health = (m_baseHealth * (1 + (m_level - 1) * LevelMultipliers.HEALTH));
         m_attackState = 0;
         m_currentDamageCoroutine = null;
+
         GameManager.OnStartRun += OnStartRun;
+    }
+
+    void Start()
+    {
+        DisableWCollider();
     }
 
     void Update()
@@ -65,6 +76,16 @@ public class JKnightControl : PathFindingObject, IAttackable, IAttacker, ITarget
         if (speedPercent > 0) speedPercent = Mathf.Clamp01(speedPercent + 0.5f);
 
         m_animator.SetFloat("MovementBlend", 1 - speedPercent);
+    }
+
+    public void EnableWCollider()
+    {
+        m_weapon.Switch(true);
+    }
+
+    void DisableWCollider()
+    {
+        m_weapon.Switch(false);
     }
 
     void ManualInput()
@@ -198,6 +219,30 @@ public class JKnightControl : PathFindingObject, IAttackable, IAttacker, ITarget
         m_animator.ResetTrigger("JumpStart");
     }
 
+    List<int> enemiesHit = new List<int>();
+
+    public void OnContactEnemy(IAttackable enemy)
+    {
+        if (enemy == null) return;
+
+        if (m_isDoingSpecial && !enemiesHit.Contains(enemy.ID))
+        {
+            enemiesHit.Add(enemy.ID);
+            enemy.Damage(this, m_baseDamage * 3);
+            StartCoroutine(Freeze(0.1f));
+
+            enemy.KnockBack(new Vector2(transform.position.x, transform.position.z), 400);
+        }
+    }
+
+    public void SpecialFinished()
+    {
+        DisableWCollider();
+        m_isDoingSpecial = false;
+        m_lastAttackTime = Time.time - 0.5f;
+        enemiesHit = new List<int>();
+    }
+
     // Helper function that uses a raycast to check if the knight is touching a surface with their feet.
     bool IsAirborne()
     {
@@ -213,7 +258,9 @@ public class JKnightControl : PathFindingObject, IAttackable, IAttacker, ITarget
 
     public void OnEnterPlatform()
     {
-        var nextTarget = AI.GetNewTarget(transform.position, Platforms.PlayerPlatform);
+        IAttackable nextTarget;
+
+        nextTarget = AI.GetNewTarget(transform.position, Platforms.PlayerPlatform);
 
         if (nextTarget == null)
         {
@@ -270,7 +317,7 @@ public class JKnightControl : PathFindingObject, IAttackable, IAttacker, ITarget
         }
     }
 
-    public void KnockBack()
+    public void KnockBack(Vector2 sourcePos, float strength)
     {
         throw new NotImplementedException();
     }
@@ -284,31 +331,31 @@ public class JKnightControl : PathFindingObject, IAttackable, IAttacker, ITarget
     {
         if (target == null) return;
 
-        var distanceToTarget = Vector3.Distance(transform.position, target.Position());
+        float attackDelay = 1000f / (1000f * m_attacksPerSecond);
 
-        if (distanceToTarget <= m_attackRange)
+        var distanceToTarget = Vector3.Distance(transform.position, target.Position());
+        if (distanceToTarget < m_attackRange)
         {
             StopMovement();
+            OnFollowPath(0);
 
-            transform.LookAt(target.Position());
+            var targetRotation = Quaternion.LookRotation(target.Position() - transform.position);
+
+            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 4);
 
             if (Input.GetButtonDown("AttackUltimate") && !m_isDoingSpecial)
             {
                 InterruptAnimator();
                 m_isDoingSpecial = true;
-                StopCoroutine(m_currentDamageCoroutine);
+                if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
                 TriggerAnimation(ANIMATION.ATTACK_ULTIMATE);
-                m_currentDamageCoroutine = ApplyDamageDelayed(5, 26, target);
-                StartCoroutine(m_currentDamageCoroutine);
                 return;
             }
 
-            float delay = 1000f / (1000f * m_attacksPerSecond);
-
-            if (!m_isDoingSpecial && (m_lastAttackTime == -1 || Time.time - m_lastAttackTime > delay))
+            if (!m_isDoingSpecial && (m_lastAttackTime == -1 || Time.time - m_lastAttackTime > attackDelay))
             {
+                OnFollowPath(0);
                 InterruptAnimator();
-
                 m_attackState = (m_attackState == 0) ? 1 : 0;
 
                 if (m_attackState == 0)
@@ -327,6 +374,22 @@ public class JKnightControl : PathFindingObject, IAttackable, IAttacker, ITarget
                 m_lastAttackTime = Time.time;
             }
         }
+        else
+        {
+            if (CurrentTarget == null || distanceToTarget > m_attackRange * 2 || Time.time - m_lastAttackTime > attackDelay + 0.2f)
+            {
+                CurrentTarget = AI.GetNewTarget(transform.position, Platforms.PlayerPlatform);
+
+                if (CurrentTarget == null)
+                {
+                    PathingTarget = m_chest;
+                    UpdatePathTarget(PathingTarget);
+                    CurrentTarget = null;
+                }
+            }
+
+            if (CurrentTarget != null) GetInRange(CurrentTarget.GetTargetableInterface());
+        }
     }
 
     IEnumerator ApplyDamageDelayed(int dmgMultiplier, int frameDelay, IAttackable target)
@@ -334,14 +397,6 @@ public class JKnightControl : PathFindingObject, IAttackable, IAttacker, ITarget
         yield return new WaitForSeconds(Time.fixedDeltaTime * frameDelay);
 
         // dont forget animations and such
-
-        if (m_isDoingSpecial)
-        {
-            m_isDoingSpecial = false;
-            m_lastAttackTime = Time.time - 0.5f;
-            StartCoroutine(Freeze(0.1f));
-            
-        }
 
         target.Damage(this, dmgMultiplier * m_baseDamage * (1 + (m_level - 1) * LevelMultipliers.DAMAGE));
     }

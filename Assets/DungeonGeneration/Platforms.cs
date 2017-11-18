@@ -43,7 +43,7 @@ public class Platforms : MonoBehaviour
 
     static Platforms instance;
 
-    JKnightControl m_player;
+    JPlayerUnit m_player;
 
     void Awake()
     {
@@ -55,17 +55,21 @@ public class Platforms : MonoBehaviour
     void LateUpdate()
     {
         if (!m_player) return;
-        PlayerPlatform = GetPlatformId(m_player.transform.position);
+
+        var p = GetPlatformId(m_player.transform.position);
+
+        if (p != -1) PlayerPlatform = p;
+
+        if (m_player.CurrentPlatformIndex != PlayerPlatform) m_player.OnEnterPlatform();
+
         m_player.CurrentPlatformIndex = PlayerPlatform;
-        if (PlayerPlatform != -1)
-        {
-            m_platformBounds[PlayerPlatform].PlayerIsWithinBounds = true;
-            m_player.OnEnterPlatform();
-            AI.ActivateUnits(PlayerPlatform);
-        }
+
+        m_platformBounds[PlayerPlatform].PlayerIsWithinBounds = true;
+
+        AI.ActivateUnits(PlayerPlatform);
     }
 
-    public static void RegisterPlayer(JKnightControl player)
+    public static void RegisterPlayer(JPlayerUnit player)
     {
         instance.m_player = player;
     }

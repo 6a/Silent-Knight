@@ -3,7 +3,7 @@ using UnityEngine;
 
 public class Sparky : MonoBehaviour
 {
-    JKnightControl m_knight;
+    JPlayerUnit m_knight;
     Light m_light;
     float m_vOffset;
 
@@ -11,7 +11,7 @@ public class Sparky : MonoBehaviour
 
     private void Awake()
     {
-        m_knight = FindObjectOfType<JKnightControl>();
+        m_knight = FindObjectOfType<JPlayerUnit>();
         m_light = GetComponentInChildren<Light>();
         m_vOffset = 0;
         transform.parent = null;

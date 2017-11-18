@@ -4,12 +4,13 @@ namespace Entities
 {
     public interface IAttackable
     {
+        int ID { get; set; }
         float Health { get; set; }
         int DeathTime { get; set; }
         bool IsDead { get; set; }
 
         void Damage(IAttacker attacker, float damage);
-        void KnockBack();
+        void KnockBack(Vector2 sourcePos, float strength);
         void AfflictStatus(STATUS status);
         Vector3 Position();
         ITargetable GetTargetableInterface();
