@@ -11,7 +11,7 @@ namespace Entities
 
         void Damage(IAttacker attacker, float damage);
         void KnockBack(Vector2 sourcePos, float strength);
-        void AfflictStatus(STATUS status);
+        void AfflictStatus(STATUS status, float duration);
         Vector3 Position();
         ITargetable GetTargetableInterface();
     }

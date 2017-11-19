@@ -10,6 +10,8 @@ using System.Collections.Generic;
 /// </summary>
 public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetable
 {
+    enum SPECIAL { ULTIMATE, KICK, SHIELD }
+
     // Variables exposed in the editor.
     [SerializeField] float m_horizontalMod, m_linearMod, m_jumpForce, m_groundTriggerDistance;
 
@@ -41,7 +43,10 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     float m_lastAttackTime;
     ITargetable m_chest;
+    bool m_isDoingUltimate;
+    bool m_isKicking;
     bool m_isDoingSpecial;
+    bool m_isShieldAttacking;
     IEnumerator m_currentDamageCoroutine;
     int m_attackState;
 
@@ -86,84 +91,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     void DisableWCollider()
     {
         m_weapon.Switch(false);
-    }
-
-    void ManualInput()
-    {
-        // Take the input variables from universal input.
-        var linearValue = Input.GetAxis("Vertical");
-        var lateralValue = Input.GetAxis("Horizontal");
-
-        // Construct a vector that points in the movement direction, modified by scalar.
-        var movementVec = new Vector3(lateralValue * Time.deltaTime * m_horizontalMod, 0, linearValue * Time.deltaTime * m_linearMod);
-
-        // This variable will be constructed for later use of LookAt.
-        Vector3 lookPoint;
-
-        // Apply movement appropriately and also update the animator and LookAt target.
-        if (movementVec != Vector3.zero)
-        {
-            transform.position += movementVec;
-            lookPoint = transform.position + movementVec.normalized;
-            m_animator.SetFloat("MovementBlend", 0);
-
-            // Using LookAt is an easy way to maintain the correct visual orientation of the knight.
-            transform.LookAt(lookPoint);
-        }
-        else
-        {
-            m_animator.SetFloat("MovementBlend", 1);
-        }
-    }
-
-    // Interacts with universal input
-    private void InputHandler()
-    {
-        //                      TriggerAnimation(ANIMATION.ATTACK_ULTIMATE);
-        //                      
-
-        // If waterfall - Chosen as it allows for easy prioritisation of inputs.
-        if (Input.GetButtonDown("AttackBasic"))
-        {
-            TriggerAnimation(ANIMATION.ATTACK_BASIC);
-        }
-        else if (Input.GetButtonDown("AttackSpecial"))
-        {
-            TriggerAnimation(ANIMATION.ATTACK_SPECIAL);
-        }
-        else if (Input.GetButtonDown("AttackUltimate"))
-        {
-            if (CurrentTarget == null) return;
-
-        }
-        else if (Input.GetButtonDown("AttackKick"))
-        {
-            TriggerAnimation(ANIMATION.ATTACK_KICK);
-        }
-        else if (Input.GetButtonDown("AttackShield"))
-        {
-            TriggerAnimation(ANIMATION.ATTACK_SHIELD);
-        }
-        else if (Input.GetButtonDown("Parry"))
-        {
-            TriggerAnimation(ANIMATION.PARRY);
-        }
-        else if (Input.GetButtonDown("Buff"))
-        {
-            TriggerAnimation(ANIMATION.BUFF);
-        }
-        else if (Input.GetButtonDown("Death"))
-        {
-            TriggerAnimation(ANIMATION.DEATH);
-        }
-        else if (Input.GetButtonDown("Jump"))
-        {
-            if (!IsAirborne())
-            {
-                TriggerAnimation(ANIMATION.JUMP);
-                m_rb.AddForce(Vector3.up * m_jumpForce);
-            }
-        }
     }
 
     // Triggers appropriate animation. Is set to interrupt the current animation, and then trigger
@@ -225,22 +152,58 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     {
         if (enemy == null) return;
 
-        if (m_isDoingSpecial && !enemiesHit.Contains(enemy.ID))
+        if (m_isDoingUltimate && !enemiesHit.Contains(enemy.ID))
         {
             enemiesHit.Add(enemy.ID);
             enemy.Damage(this, m_baseDamage * 3);
             StartCoroutine(Freeze(0.1f));
 
+            // TODO particles
+
             enemy.KnockBack(new Vector2(transform.position.x, transform.position.z), 400);
         }
+    }
+
+    public void OnShieldAttack()
+    {
+        if (CurrentTarget == null) return;
+
+        CurrentTarget.Damage(this, m_baseDamage * 2);
+        StartCoroutine(Freeze(0.1f));
+
+        // TODO particles
+
+        CurrentTarget.AfflictStatus(STATUS.STUN, 2);
+
+
+        ToggleSpecial(SPECIAL.SHIELD, false);
+        m_lastAttackTime = Time.time - 0.5f;
+        OnFollowPath(0);
+    }
+
+    public void OnKick()
+    {
+        if (CurrentTarget == null) return;
+
+        CurrentTarget.Damage(this, m_baseDamage * 2);
+        StartCoroutine(Freeze(0.1f));
+
+        // TODO particles
+
+        CurrentTarget.KnockBack(new Vector2(transform.position.x, transform.position.z), 800);
+
+        ToggleSpecial(SPECIAL.KICK, false);
+        m_lastAttackTime = Time.time - 0.5f;
+        OnFollowPath(0);
     }
 
     public void SpecialFinished()
     {
         DisableWCollider();
-        m_isDoingSpecial = false;
+        ToggleSpecial(SPECIAL.ULTIMATE, false);
         m_lastAttackTime = Time.time - 0.5f;
         enemiesHit = new List<int>();
+        OnFollowPath(0);
     }
 
     // Helper function that uses a raycast to check if the knight is touching a surface with their feet.
@@ -310,7 +273,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         {
             print("Player died");
             Running = false;
-            InterruptAnimator();
             TriggerAnimation(ANIMATION.DEATH);
             IsDead = true;
             attacker.OnTargetDied(this);
@@ -322,9 +284,27 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         throw new NotImplementedException();
     }
 
-    public void AfflictStatus(STATUS status)
+    public void AfflictStatus(STATUS status, float duration)
     {
         throw new NotImplementedException();
+    }
+
+    void ToggleSpecial(SPECIAL type, bool on)
+    {
+        m_isDoingSpecial = on;
+
+        switch (type)
+        {
+            case SPECIAL.ULTIMATE:
+                m_isDoingUltimate = on;
+                break;
+            case SPECIAL.KICK:
+                m_isKicking = on;
+                break;
+            case SPECIAL.SHIELD:
+                m_isShieldAttacking = on;
+                break;
+        }
     }
 
     public void Attack(IAttackable target)
@@ -343,19 +323,35 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 4);
 
-            if (Input.GetButtonDown("AttackUltimate") && !m_isDoingSpecial)
+            if (!m_isDoingSpecial)
             {
-                InterruptAnimator();
-                m_isDoingSpecial = true;
-                if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
-                TriggerAnimation(ANIMATION.ATTACK_ULTIMATE);
-                return;
-            }
+                if (Input.GetButtonDown("AttackUltimate"))
+                {
+                    ToggleSpecial(SPECIAL.ULTIMATE, true);
+                    if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
+                    TriggerAnimation(ANIMATION.ATTACK_ULTIMATE);
+                    return;
+                }
 
+                if (Input.GetButtonDown("AttackKick"))
+                {
+                    ToggleSpecial(SPECIAL.KICK, true);
+                    if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
+                    TriggerAnimation(ANIMATION.ATTACK_KICK);
+                    return;
+                }
+
+                if (Input.GetButtonDown("AttackShield"))
+                {
+                    ToggleSpecial(SPECIAL.SHIELD, true);
+                    if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
+                    TriggerAnimation(ANIMATION.ATTACK_SHIELD);
+                    return;
+                }
+            }
+            
             if (!m_isDoingSpecial && (m_lastAttackTime == -1 || Time.time - m_lastAttackTime > attackDelay))
             {
-                OnFollowPath(0);
-                InterruptAnimator();
                 m_attackState = (m_attackState == 0) ? 1 : 0;
 
                 if (m_attackState == 0)
@@ -405,10 +401,12 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     {
         Time.timeScale = 0f;
         float pauseEndTime = Time.realtimeSinceStartup + duration;
+
         while (Time.realtimeSinceStartup < pauseEndTime)
         {
             yield return null;
         }
+
         Time.timeScale = 1;
     }
 

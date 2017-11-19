@@ -1047,13 +1047,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1184896675190950}
-  m_LocalRotation: {x: 0.13855319, y: -0.006685106, z: 0.9785654, w: -0.15221086}
+  m_LocalRotation: {x: -0.15211682, y: 0.9785606, z: 0.007353333, w: -0.13865656}
   m_LocalPosition: {x: -0.070023, y: -0.022210807, z: -0.004792328}
   m_LocalScale: {x: 0.9999999, y: 1.0000002, z: 1.0000008}
   m_Children: []
   m_Father: {fileID: 4931899900052242}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 1.593, y: -164.115, z: -17.45}
 --- !u!4 &4516320956008232
 Transform:
   m_ObjectHideFlags: 1
@@ -1213,7 +1213,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1898676279974504}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0.8, y: 0.8, z: 0.8}
   m_Children:
   - {fileID: 4053450927966558}
@@ -1455,6 +1455,9 @@ MonoBehaviour:
   m_baseDamage: 2.5
   m_level: 1
   m_baseHealth: 100
+  m_material: {fileID: 137760138854134224}
+  m_enemyType: 2
+  m_projectile: {fileID: 0}
 --- !u!120 &120205317270496346
 LineRenderer:
   m_ObjectHideFlags: 1

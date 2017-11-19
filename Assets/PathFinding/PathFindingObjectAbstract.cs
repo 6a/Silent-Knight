@@ -90,6 +90,7 @@ namespace PathFinding
             {
                 if (Path == null || !IsFollowingPath)
                 {
+                    OnFollowPath(0);
                     yield return null;
                     continue;
                 }

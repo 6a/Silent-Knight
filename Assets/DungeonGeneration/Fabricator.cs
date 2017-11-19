@@ -88,7 +88,7 @@ namespace DungeonGeneration
                 {
                     for (int i = 0; i < numToSpawn; i++)
                     {
-                        int r = UnityEngine.Random.Range(1, 4);
+                        int r = UnityEngine.Random.Range(4, 5);
                         var enemyObj = Resources.Load("Goblins/Goblin " + r) as GameObject;
 
                         var pos = platform.GetRandomLocationOnPlatform(2);

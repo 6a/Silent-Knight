@@ -4,6 +4,8 @@ using System;
 using Entities;
 using System.Collections;
 
+public enum ENEMY_TYPE { AXE, SPEAR, DAGGER, BOW }
+
 public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
 {
     // References to attached components.
@@ -23,9 +25,16 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
     [SerializeField] float m_baseDamage;
     [SerializeField] float m_level;
     [SerializeField] float m_baseHealth;
+    [SerializeField] SkinnedMeshRenderer m_material;
+    [SerializeField] ENEMY_TYPE m_enemyType;
+    [SerializeField] GameObject m_projectile;
+    [SerializeField] Transform m_projectileTransform;
 
     float m_lastAttackTime;
     bool m_deleted = false;
+
+    float m_statusEndTime;
+    STATUS m_currentStatus;
 
     void Awake ()
     {
@@ -34,21 +43,66 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         m_rb = GetComponent<Rigidbody>();
         m_lastAttackTime = -1;
         Health = (m_baseHealth * (1 + (m_level - 1) * LevelMultipliers.HEALTH));
+        m_currentStatus = STATUS.NONE;
         GameManager.OnStartRun += OnStartRun;
     }
+
+    float m_speedTemp;
 
 	void Update ()
     {
         if (!Running) return;
-
-        if (!m_deleted && transform.position.y < 0)
+        switch (m_currentStatus)
         {
-            AI.RemoveUnit(Platforms.PlayerPlatform, this);
+            case STATUS.STUN:
+                if (Time.time > m_statusEndTime)
+                {
+                    m_animator.enabled = true;
+                    m_material.material.color = Color.white;
+                    m_currentStatus = STATUS.NONE;
+                    Speed = m_speedTemp;
+                }
+                else
+                {
+                    if (m_animator.enabled)
+                    {
+                        m_animator.enabled = false;
+                        m_material.material.color = Color.cyan;
+                        m_speedTemp = Speed;
+                        Speed = 0;
+                    }
+                }
+                break;
+            case STATUS.SLOW:
+                break;
+            case STATUS.CONFUSE:
+                break;
+            case STATUS.FLINCH:
+                break;
+            default:
+                break;
+        }
 
-            Disposal.Dispose(gameObject);
+        if (!m_deleted)
+        {
+            bool offgrid = ASGrid.IsOffGrid(transform.position);
+            if (offgrid || transform.position.y < 0)
+            {
+                if (offgrid)
+                {
+                    transform.position = new Vector3(0, -1000, 0);
 
-            m_deleted = true;
-            Running = false;
+                    // TODO particles
+                }
+
+                m_deleted = true;
+                Running = false;
+                IsDead = true;
+
+                AI.RemoveUnit(Platforms.PlayerPlatform, this);
+
+                Disposal.Dispose(gameObject);
+            }
         }
 
         Attack(CurrentTarget);
@@ -104,9 +158,16 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         m_rb.AddForce(forceVec);
     }
 
-    public void AfflictStatus(STATUS status)
+    public void AfflictStatus(STATUS status, float duration)
     {
-        throw new NotImplementedException();
+        RevertAllStatus();
+        m_currentStatus = status;
+        m_statusEndTime = Time.time + duration;
+    }
+
+    void RevertAllStatus()
+    {
+
     }
 
     public void Attack(IAttackable target)
@@ -128,8 +189,22 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
             {
                 InterruptAnimator();
 
-                int rand = UnityEngine.Random.Range(0, 30);
+                PerformAttack(target);
+            }
+        }
+        else
+        {
+            if (m_currentStatus != STATUS.STUN) GetInRange(CurrentTarget.GetTargetableInterface());
+        }
+    }
 
+    void PerformAttack(IAttackable target)
+    {
+        int rand = UnityEngine.Random.Range(0, 30);
+
+        switch (m_enemyType)
+        {
+            case ENEMY_TYPE.AXE:
                 if (rand > 9)
                 {
                     TriggerAnimation(ANIMATION.ATTACK_BASIC);
@@ -148,12 +223,52 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
                 }
 
                 m_lastAttackTime = Time.time;
-            }
+                break;
+            case ENEMY_TYPE.SPEAR:
+                if (rand > 2)
+                {
+                    TriggerAnimation(ANIMATION.ATTACK_BASIC);
+                    StartCoroutine(ApplyDamageDelayed(2, 9, target));
+
+                }
+                else
+                {
+                    TriggerAnimation(ANIMATION.ATTACK_ULTIMATE);
+                    StartCoroutine(ApplyDamageDelayed(5, 16, target));
+                }
+
+                m_lastAttackTime = Time.time;
+                break;
+            case ENEMY_TYPE.DAGGER:
+                if (rand > 2)
+                {
+                    TriggerAnimation(ANIMATION.ATTACK_BASIC);
+                    StartCoroutine(ApplyDamageDelayed(1, 7, target));
+                }
+                else
+                {
+                    TriggerAnimation(ANIMATION.ATTACK_SPECIAL);
+                    StartCoroutine(ApplyDamageDelayed(2, 7, target));
+                    StartCoroutine(ApplyDamageDelayed(2, 19, target));
+                }
+
+                m_lastAttackTime = Time.time;
+                break;
+            case ENEMY_TYPE.BOW:
+                TriggerAnimation(ANIMATION.ATTACK_BASIC);
+
+                m_lastAttackTime = Time.time;
+                break;
         }
-        else
-        {
-            GetInRange(CurrentTarget.GetTargetableInterface());
-        }
+    }
+
+    public void OnProjectileFired()
+    {
+        var newProjectile = GameObject.Instantiate(m_projectile, m_projectileTransform.position, Quaternion.identity) as GameObject;
+
+        var refToScript = newProjectile.GetComponent<HostileProjectile>();
+
+        refToScript.Init(CurrentTarget, this, 2, 5, m_baseDamage);
     }
 
     public void GetInRange(ITargetable target)

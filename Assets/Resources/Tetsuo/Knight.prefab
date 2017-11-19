@@ -1975,7 +1975,7 @@ MonoBehaviour:
   m_linearMod: 0
   m_jumpForce: 0
   m_groundTriggerDistance: 0
-  m_attackRange: 1.2
+  m_attackRange: 1
   m_attacksPerSecond: 1
   m_baseDamage: 1
   m_level: 1
