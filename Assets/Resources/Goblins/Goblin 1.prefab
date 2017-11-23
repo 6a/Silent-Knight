@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4781088414313842}
   - component: {fileID: 33107157230727436}
   - component: {fileID: 23098231218296794}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: goblin_shield
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -36,7 +36,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4724424901310720}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeLIKTarget
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -51,7 +51,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4059179435879072}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeSpine2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -66,7 +66,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4158236217656982}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeLDigit22
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -81,7 +81,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4446957874683380}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeRFoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -96,7 +96,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4779621081161304}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeLUpperarm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -111,7 +111,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4339291042544536}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeRCollarbone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -126,7 +126,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4487969325137554}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeRDigit12
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -141,7 +141,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4389424965387618}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeRPlatform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -156,7 +156,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4284031022210648}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bon_gob_war_jaw_tip
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -171,7 +171,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4412374896545932}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeLDigit12
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -186,7 +186,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4409292417785764}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_horde
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -201,7 +201,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4917421189192562}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeLPlatform
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -216,7 +216,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4764553987731598}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeNeck1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -231,7 +231,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4656516430114080}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeLThigh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -249,7 +249,7 @@ GameObject:
   - component: {fileID: 33569183068371638}
   - component: {fileID: 23736027708140298}
   - component: {fileID: 64369957052150310}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: goblin_war_axe
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -264,7 +264,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4982224369172516}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bon_gob_war_cloth00
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -279,7 +279,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4680267061490114}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeLDigit11
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -294,7 +294,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4406933017773660}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeLForearm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -309,7 +309,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4522701418873550}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bon_gob_war_jaw
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -324,7 +324,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4124200304721568}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeHeadBone001
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -339,7 +339,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4736203534055032}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeRIKTarget
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -354,7 +354,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4743567376002124}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeRibcage
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -369,7 +369,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4259224564014246}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeLDigit21
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -384,7 +384,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4000793369082394}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeRDigit11
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -399,7 +399,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4162254793466024}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeRPalm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -414,7 +414,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4591709570585922}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeLCollarbone
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -429,7 +429,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4962448994197504}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeRDigit11 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -444,7 +444,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4049595311081460}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeSpine1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -460,7 +460,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4829739853706682}
   - component: {fileID: 137107583648415470}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordePelvis
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -475,7 +475,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4104437740208782}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeRCalf
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -490,7 +490,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4007241273337524}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeRUpperarm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -505,7 +505,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4187695537006398}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeLCalf
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -520,7 +520,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4208612532394970}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeLDigit11 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -535,7 +535,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4479743989920920}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Goblin - axe warrior
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -550,7 +550,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4019420310024590}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeHead
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -565,7 +565,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4110617420487158}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeRDigit21
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -580,7 +580,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4639138100807260}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeRForearm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -595,7 +595,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4087379356456782}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bon_gob_war_cloth01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -615,7 +615,7 @@ GameObject:
   - component: {fileID: 95904295367149880}
   - component: {fileID: 114898009655345578}
   - component: {fileID: 120503341159294666}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: Goblin 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -630,7 +630,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4899481793663306}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bon_gob_war_cloth_tip
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -645,7 +645,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4652352643333088}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeHeadBone002
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -660,7 +660,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4903109500099860}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeNeck2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -675,7 +675,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4496296228817738}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeLFoot
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -690,7 +690,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4351459138566556}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeRDigit22
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -705,7 +705,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4259460457650458}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeLPalm
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -720,7 +720,7 @@ GameObject:
   serializedVersion: 5
   m_Component:
   - component: {fileID: 4712216541603412}
-  m_Layer: 0
+  m_Layer: 10
   m_Name: bip_hordeRThigh
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -1545,6 +1545,7 @@ MonoBehaviour:
   m_material: {fileID: 137107583648415470}
   m_enemyType: 0
   m_projectile: {fileID: 0}
+  m_projectileTransform: {fileID: 0}
 --- !u!120 &120503341159294666
 LineRenderer:
   m_ObjectHideFlags: 1

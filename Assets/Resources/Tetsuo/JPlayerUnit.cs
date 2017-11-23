@@ -48,11 +48,16 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     [SerializeField] float m_kickCooldown;
     [SerializeField] float m_buffCooldown;
     [SerializeField] float m_buffDuration;
+    [SerializeField] float m_buffRotInterval;
+    [SerializeField] float m_buffRotPercentDamage;
+
+    [SerializeField] GameObject m_buffSystem, m_buffInitSystem;
 
     ITargetable m_chest;
 
     bool m_isDoingSpecial;
     bool m_parrySuccess;
+    bool m_applyBuffDamage;
 
     float m_lastAttackTime;
     float m_nextUltTime;
@@ -61,6 +66,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     float m_nextParryTime;
     float m_nextBuffTime;
     float m_buffEndTime;
+    float m_nextBuffRotTime;
 
     bool m_isParrying;
 
@@ -415,6 +421,21 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     void OnTriggerStay(Collider c)
     {
+
+        if (m_applyBuffDamage && Time.time >= m_nextBuffRotTime)
+        {
+            if (c.gameObject.layer == 10)
+            {
+                print(c.gameObject.name + " --> " + c.gameObject.layer);
+
+                m_nextBuffRotTime = Time.time + m_buffRotInterval;
+
+                var enemy = c.GetComponent<JEnemyUnit>() as IAttackable;
+
+                enemy.Damage(this, -m_buffRotPercentDamage);
+            }
+        }
+
         if (!m_isParrying) return;
 
         if (c.gameObject.layer == 9)
@@ -467,6 +488,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         StartCoroutine(BuffTimer(m_buffDuration));
 
         // particles and stuff
+
+        m_nextBuffRotTime = Time.time;
     }
 
     float m_speedTemp;
@@ -475,6 +498,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     {
         Speed = m_speedTemp;
         ToggleSpecial(SPECIAL.BUFF, false);
+        m_buffInitSystem.SetActive(false);
     }
 
     public bool Buff()
@@ -488,6 +512,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
                 TriggerAnimation(ANIMATION.BUFF);
                 m_speedTemp = Speed;
                 Speed = 0;
+                m_buffInitSystem.SetActive(true);
                 return true;
             }
         }
@@ -497,11 +522,21 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     IEnumerator BuffTimer(float duration)
     {
-        yield return new WaitForSeconds(duration);
+        m_applyBuffDamage = true;
+
+        yield return new WaitForFixedUpdate();
+
+        m_buffSystem.SetActive(true);
+
+        yield return new WaitForSeconds(duration - Time.fixedDeltaTime);
 
         // Turn off animations and stuff
 
+        m_buffSystem.SetActive(false);
+
         m_baseDamage = m_baseDamageHolder;
+
+        m_applyBuffDamage = false;
     }
 
     public void Attack(IAttackable target)

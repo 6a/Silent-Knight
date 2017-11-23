@@ -42,9 +42,14 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         LineRender = GetComponent<LineRenderer>();
         m_rb = GetComponent<Rigidbody>();
         m_lastAttackTime = -1;
-        Health = (m_baseHealth * (1 + (m_level - 1) * LevelMultipliers.HEALTH));
+        Health = CalcuateUnitHealth();
         m_currentStatus = STATUS.NONE;
         GameManager.OnStartRun += OnStartRun;
+    }
+
+    float CalcuateUnitHealth()
+    {
+        return (m_baseHealth * (1 + (m_level - 1) * LevelMultipliers.HEALTH));
     }
 
     float m_speedTemp;
@@ -135,15 +140,20 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
 
     public void Damage(IAttacker attacker, float dmg)
     {
-        if (IsDead) return;
+        if (IsDead || dmg == 0) return;
+        // This means we are applying percentage damage
+        if (dmg < 0)
+        {
+            dmg = CalcuateUnitHealth() * (Mathf.Abs(dmg) / 100f);
+        }
 
-        Health -= Mathf.Max(dmg, 0);
+        Health -= dmg;
 
-        //print(dmg + " damage received. " + Health + " health remaining.");
+        // TODO send damage info to floating combat text module
 
         if (Health <= 0)
         {
-            print("Goblin died");
+            print("Unit died");
             Running = false;
             InterruptAnimator();
             TriggerAnimation(ANIMATION.DEATH);
