@@ -19,14 +19,18 @@ public class Projectile : MonoBehaviour
 
     public void Reflect(IAttackable parent, float lifeTime, float speed = -1, float damage = -1)
     {
-        if (parent == m_parent) return;
-
         m_target = m_parent;
         m_parent = parent;
         m_endOfLife = Time.time + lifeTime;
 
         if (speed != -1) m_speed = speed;
         if (damage != -1) m_damage = damage;
+    }
+
+    public bool CanBeReflected(IAttackable parent)
+    {
+        if (parent == m_parent) return false;
+        else return true;
     }
 	
 	void LateUpdate ()

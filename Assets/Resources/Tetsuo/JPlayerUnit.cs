@@ -10,7 +10,7 @@ using System.Collections.Generic;
 /// </summary>
 public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetable
 {
-    public enum SPECIAL { ULTIMATE, KICK, SHIELD, PARRY }
+    public enum SPECIAL { ULTIMATE, KICK, SHIELD, PARRY, BUFF }
 
     // Variables exposed in the editor.
     [SerializeField] float m_horizontalMod, m_linearMod, m_jumpForce, m_groundTriggerDistance;
@@ -40,22 +40,30 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     [SerializeField] float m_baseDamage;
     [SerializeField] float m_level;
     [SerializeField] float m_baseHealth;
+    [SerializeField] float m_buffMultiplier;
 
     [SerializeField] float m_shieldAttackCooldown;
     [SerializeField] float m_ultCooldown;
     [SerializeField] float m_parryCooldown;
     [SerializeField] float m_kickCooldown;
+    [SerializeField] float m_buffCooldown;
+    [SerializeField] float m_buffDuration;
 
     ITargetable m_chest;
 
+    bool m_isDoingSpecial;
+    bool m_parrySuccess;
+
     float m_lastAttackTime;
     float m_nextUltTime;
-    bool m_isDoingSpecial;
     float m_nextKickTime;
     float m_nextShieldAttackTime;
     float m_nextParryTime;
+    float m_nextBuffTime;
+    float m_buffEndTime;
 
     bool m_isParrying;
+
     IEnumerator m_currentDamageCoroutine;
     int m_attackState;
 
@@ -83,6 +91,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         if (!Running) return;
 
         if (Parry()) return;
+
+        if (Buff()) return;
 
         Attack(CurrentTarget);
     }
@@ -220,9 +230,27 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     public void OnParryFinished()
     {
         ToggleSpecial(SPECIAL.PARRY, false);
-        m_lastAttackTime = Time.time - 0.5f;
+
+        if (m_parrySuccess)
+        {
+            m_lastAttackTime = Time.time - 0.5f;
+        }
+        else
+        {
+            m_lastAttackTime = Time.time + 0.5f;
+            StartCoroutine(LockSpecial(1));
+        }
+
         m_isParrying = false;
         OnFollowPath(0);
+    }
+
+    IEnumerator LockSpecial(float duration)
+    {
+        m_isDoingSpecial = true;
+        yield return new WaitForSeconds(duration);
+
+        m_isDoingSpecial = false;
     }
 
     // Helper function that uses a raycast to check if the knight is touching a surface with their feet.
@@ -328,6 +356,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
                 case SPECIAL.PARRY:
                     m_nextParryTime = Time.time + cooldown;
                     break;
+                case SPECIAL.BUFF:
+                    m_nextBuffTime = Time.time + cooldown;
+                    break;
             }
         }
     }
@@ -344,6 +375,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
                 return Time.time > m_nextShieldAttackTime;
             case SPECIAL.PARRY:
                 return Time.time > m_nextParryTime;
+            case SPECIAL.BUFF:
+                return Time.time > m_nextBuffTime;
         }
 
         return true;
@@ -367,6 +400,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
             case SPECIAL.PARRY:
                 percent = (int)(((m_nextParryTime - Time.time) / m_parryCooldown) * 100);
                 break;
+            case SPECIAL.BUFF:
+                percent = (int)(((m_nextBuffTime - Time.time) / m_buffCooldown) * 100);
+                break;
         }
 
         if (percent != -1)
@@ -383,13 +419,21 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         if (c.gameObject.layer == 9)
         {
-            c.GetComponent<Projectile>().Reflect(this, 5, -1, m_baseDamage * 3);
+            var projectile = c.GetComponent<Projectile>();
+
+            if (projectile.CanBeReflected(this))
+            {
+                StartCoroutine(Freeze(0.1f));
+                projectile.Reflect(this, 5, -1, m_baseDamage * 3);
+                m_parrySuccess = true;
+            }
         }
     }
 
     public void OnParryStart()
     {
         m_isParrying = true;
+        m_parrySuccess = false;
     }
 
     public bool Parry()
@@ -406,6 +450,58 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         }
 
         return false;
+    }
+
+    float m_baseDamageHolder;
+
+    public void OnBuffStart()
+    {
+        m_buffEndTime = Time.time + m_buffDuration;
+
+        m_baseDamageHolder = m_baseDamage;
+
+        m_baseDamage *= m_buffMultiplier;
+
+        StartCoroutine(Freeze(0.3f));
+
+        StartCoroutine(BuffTimer(m_buffDuration));
+
+        // particles and stuff
+    }
+
+    float m_speedTemp;
+
+    public void OnBuffAnimationFinished()
+    {
+        Speed = m_speedTemp;
+        ToggleSpecial(SPECIAL.BUFF, false);
+    }
+
+    public bool Buff()
+    {
+        if (!m_isDoingSpecial)
+        {
+            if (CanSpec(SPECIAL.BUFF) && Input.GetButtonDown("Buff"))
+            {
+                ToggleSpecial(SPECIAL.BUFF, true, m_buffCooldown);
+                if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
+                TriggerAnimation(ANIMATION.BUFF);
+                m_speedTemp = Speed;
+                Speed = 0;
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    IEnumerator BuffTimer(float duration)
+    {
+        yield return new WaitForSeconds(duration);
+
+        // Turn off animations and stuff
+
+        m_baseDamage = m_baseDamageHolder;
     }
 
     public void Attack(IAttackable target)
