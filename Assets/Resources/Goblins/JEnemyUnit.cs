@@ -266,7 +266,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
     {
         var newProjectile = GameObject.Instantiate(m_projectile, m_projectileTransform.position, Quaternion.identity) as GameObject;
 
-        var refToScript = newProjectile.GetComponent<HostileProjectile>();
+        var refToScript = newProjectile.GetComponent<Projectile>();
 
         refToScript.Init(CurrentTarget, this, 2, 5, m_baseDamage);
     }

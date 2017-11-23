@@ -1,7 +1,7 @@
 ﻿using Entities;
 using UnityEngine;
 
-public class HostileProjectile : MonoBehaviour
+public class Projectile : MonoBehaviour
 {
     IAttackable m_target, m_parent;
     float m_speed;
@@ -15,6 +15,18 @@ public class HostileProjectile : MonoBehaviour
         m_speed = speed;
         m_endOfLife = Time.time + lifeTime;
         m_damage = damage;
+    }
+
+    public void Reflect(IAttackable parent, float lifeTime, float speed = -1, float damage = -1)
+    {
+        if (parent == m_parent) return;
+
+        m_target = m_parent;
+        m_parent = parent;
+        m_endOfLife = Time.time + lifeTime;
+
+        if (speed != -1) m_speed = speed;
+        if (damage != -1) m_damage = damage;
     }
 	
 	void LateUpdate ()
