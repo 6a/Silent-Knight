@@ -46,7 +46,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     [SerializeField] float m_buffMultiplier;
     [SerializeField] float m_critChance;
     [SerializeField] float m_critMultiplier;
-
+    [SerializeField] float m_regenAmount;
+    [SerializeField] float m_regenDelay;
+    [SerializeField] float m_regenTick;
     [SerializeField] float m_shieldAttackCooldown;
     [SerializeField] float m_ultCooldown;
     [SerializeField] float m_parryCooldown;
@@ -55,6 +57,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     [SerializeField] float m_buffDuration;
     [SerializeField] float m_buffRotInterval;
     [SerializeField] float m_buffRotPercentDamage;
+    [SerializeField] float m_dangerHealthThreshold;
     [SerializeField] GameObject m_buffSystem, m_buffInitSystem, m_hpAnchor;
 
     ITargetable m_chest;
@@ -72,6 +75,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     float m_buffEndTime;
     float m_nextBuffRotTime;
     float m_maxHealth;
+    float m_nextRegenTick;
 
     bool m_isParrying;
     bool m_tickRot;
@@ -101,13 +105,26 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     void Update()
     {
+        if (!Running) return;
+
         if (m_tickRot)
         {
             m_nextBuffRotTime = Time.time + m_buffRotInterval;
             m_tickRot = false;
         }
 
-        if (!Running) return;
+        if (Time.time > m_nextRegenTick && Health < m_maxHealth)
+        {
+            var addedHealth = (m_maxHealth * m_regenAmount);
+            Health = Mathf.Clamp(Health + addedHealth, 0, m_maxHealth);
+
+            FCTRenderer.AddFCT(FCT_TYPE.HEALTH, addedHealth.ToString(), transform.position + Vector3.up, Vector2.down);
+
+            m_hb.UpdateHealthDisplay(Health / m_maxHealth);
+            m_hb.Pulse(true);
+
+            m_nextRegenTick += m_regenTick;
+        }
 
         if (Parry()) return;
 
@@ -374,6 +391,12 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         Health -= Mathf.Max(dmg, 0);
 
         m_hb.UpdateHealthDisplay(Health / m_maxHealth);
+        m_nextRegenTick = Time.time + m_regenDelay;
+
+        if (Health / m_maxHealth < m_dangerHealthThreshold)
+        {
+            m_hb.Pulse(false);
+        }
 
         if (Health <= 0)
         {
@@ -608,6 +631,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         {
             StopMovement();
             OnFollowPath(0);
+
+            m_nextRegenTick = Time.time + m_regenDelay;
 
             var targetRotation = Quaternion.LookRotation(target.Position() - transform.position);
 

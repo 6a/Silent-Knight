@@ -2379,6 +2379,9 @@ MonoBehaviour:
   m_buffMultiplier: 2
   m_critChance: 0.1
   m_critMultiplier: 2
+  m_regenAmount: 0.00001
+  m_regenDelay: 2
+  m_regenTick: 0.2
   m_shieldAttackCooldown: 0
   m_ultCooldown: 0
   m_parryCooldown: 0
@@ -2387,6 +2390,7 @@ MonoBehaviour:
   m_buffDuration: 5
   m_buffRotInterval: 1
   m_buffRotPercentDamage: 2
+  m_dangerHealthThreshold: 0
   m_buffSystem: {fileID: 1156342071702214}
   m_buffInitSystem: {fileID: 1257328510344228}
   m_hpAnchor: {fileID: 1773417812589534}

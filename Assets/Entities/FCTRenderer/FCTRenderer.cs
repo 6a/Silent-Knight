@@ -18,7 +18,7 @@ public FCTRequest(FCT_TYPE type, string text, Vector3 worldPos, Vector2 dir)
     }
 }
 
-public enum FCT_TYPE { HIT, CRIT, DOTHIT, DOTCRIT, REBOUNDHIT, REBOUNDCRIT }
+public enum FCT_TYPE { HIT, CRIT, DOTHIT, DOTCRIT, REBOUNDHIT, REBOUNDCRIT, HEALTH }
 
 public class FCTRenderer : MonoBehaviour
 {

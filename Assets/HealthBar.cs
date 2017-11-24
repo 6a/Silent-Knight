@@ -48,15 +48,28 @@ public class HealthBar : MonoBehaviour
         m_transform.position = Camera.main.WorldToScreenPoint(anchor.position);
     }
 
-    public void UpdateHealthDisplay(float value)
+    public void UpdateHealthDisplay(float value, bool silent = false)
     {
-        m_TimeToStartFade = Time.time + m_lifeTime;
+        if (!silent)
+        {
+            m_running = true;
+            m_TimeToStartFade = Time.time + m_lifeTime;
+            m_bg.color = new Color(m_bg.color.r, m_bg.color.g, m_bg.color.b, 1);
+            m_fill.color = new Color(m_fill.color.r, m_fill.color.g, m_fill.color.b, 1);
+        }
 
         m_slider.value = value;
+    }
 
-        m_bg.color = new Color(m_bg.color.r, m_bg.color.g, m_bg.color.b, 1);
-        m_fill.color = new Color(m_fill.color.r, m_fill.color.g, m_fill.color.b, 1);
+    public void Pulse(bool positiveAction)
+    {
+        if (positiveAction)
+        {
 
-        m_running = true;
+        }
+        else
+        {
+
+        }
     }
 }
