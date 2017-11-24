@@ -20,6 +20,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     Rigidbody m_rb;
     PlayerWeapon m_weapon;
 
+    // Reference to healthbar object
+    HealthBar m_hb;
+
     // Public property used to check knight focus point
     public Vector3 FocusPoint
     {
@@ -52,7 +55,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     [SerializeField] float m_buffDuration;
     [SerializeField] float m_buffRotInterval;
     [SerializeField] float m_buffRotPercentDamage;
-    [SerializeField] GameObject m_buffSystem, m_buffInitSystem;
+    [SerializeField] GameObject m_buffSystem, m_buffInitSystem, m_hpAnchor;
 
     ITargetable m_chest;
 
@@ -68,6 +71,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     float m_nextBuffTime;
     float m_buffEndTime;
     float m_nextBuffRotTime;
+    float m_maxHealth;
 
     bool m_isParrying;
     bool m_tickRot;
@@ -83,6 +87,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         m_weapon = GetComponentInChildren<PlayerWeapon>();
         m_lastAttackTime = -1;
         Health = (m_baseHealth * (1 + (m_level - 1) * LevelMultipliers.HEALTH));
+        m_maxHealth = Health;
         m_attackState = 0;
         m_currentDamageCoroutine = null;
 
@@ -350,6 +355,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         Running = true;
 
+        m_hb = FindObjectOfType<HealthBar>();
+        m_hb.Init(m_hpAnchor.transform);
+
         UpdatePathTarget(PathingTarget);
         StartCoroutine(RefreshPath());
     }
@@ -364,6 +372,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         if (IsDead) return;
 
         Health -= Mathf.Max(dmg, 0);
+
+        m_hb.UpdateHealthDisplay(Health / m_maxHealth);
 
         if (Health <= 0)
         {
