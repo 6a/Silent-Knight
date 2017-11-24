@@ -41,6 +41,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     [SerializeField] float m_level;
     [SerializeField] float m_baseHealth;
     [SerializeField] float m_buffMultiplier;
+    [SerializeField] float m_critChance;
+    [SerializeField] float m_critMultiplier;
 
     [SerializeField] float m_shieldAttackCooldown;
     [SerializeField] float m_ultCooldown;
@@ -50,7 +52,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     [SerializeField] float m_buffDuration;
     [SerializeField] float m_buffRotInterval;
     [SerializeField] float m_buffRotPercentDamage;
-
     [SerializeField] GameObject m_buffSystem, m_buffInitSystem;
 
     ITargetable m_chest;
@@ -69,6 +70,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     float m_nextBuffRotTime;
 
     bool m_isParrying;
+    bool m_tickRot;
 
     IEnumerator m_currentDamageCoroutine;
     int m_attackState;
@@ -94,6 +96,12 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     void Update()
     {
+        if (m_tickRot)
+        {
+            m_nextBuffRotTime = Time.time + m_buffRotInterval;
+            m_tickRot = false;
+        }
+
         if (!Running) return;
 
         if (Parry()) return;
@@ -182,7 +190,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         if (!enemiesHit.Contains(enemy.ID))
         {
             enemiesHit.Add(enemy.ID);
-            enemy.Damage(this, m_baseDamage * 3);
+
+            ApplyDamage(enemy, 5);
+
             StartCoroutine(Freeze(0.1f));
 
             // TODO particles
@@ -191,11 +201,41 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         }
     }
 
+    public void ApplyDamage(IAttackable enemy, int baseDamageMultiplier)
+    {
+        var rand = UnityEngine.Random.Range(0f, 1f);
+
+        var isCrit = rand < m_critChance;
+
+        var critMultiplier = (isCrit) ? m_critMultiplier : 1;
+
+        var total = m_baseDamage * (1 + (m_level - 1) * LevelMultipliers.DAMAGE) * baseDamageMultiplier * critMultiplier;
+
+        enemy.Damage(this, total, isCrit);
+    }
+
+    public void ApplyPercentageDamage(IAttackable enemy, float amount)
+    {
+        var rand = UnityEngine.Random.Range(0f, 1f);
+
+        var isCrit = rand < m_critChance;
+
+        var critMultiplier = (isCrit) ? m_critMultiplier : 1;
+
+        if (amount > 0)
+        {
+            amount *= -1;
+        }
+
+        enemy.Damage(this, amount * critMultiplier, isCrit);
+    }
+
     public void OnShieldAttack()
     {
         if (CurrentTarget == null) return;
 
-        CurrentTarget.Damage(this, m_baseDamage * 2);
+        ApplyDamage(CurrentTarget, 2);
+
         StartCoroutine(Freeze(0.1f));
 
         // TODO particles
@@ -212,7 +252,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     {
         if (CurrentTarget == null) return;
 
-        CurrentTarget.Damage(this, m_baseDamage * 2);
+        ApplyDamage(CurrentTarget, 1);
+
         StartCoroutine(Freeze(0.1f));
 
         // TODO particles
@@ -314,13 +355,12 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     }
 
-    public void Damage(IAttacker attacker, float dmg)
+    public void Damage(IAttacker attacker, float dmg, bool crit)
     {
         if (IsDead) return;
 
         Health -= Mathf.Max(dmg, 0);
 
-        //print(dmg + " damage received. " + Health + " health remaining.");
 
         if (Health <= 0)
         {
@@ -421,18 +461,15 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     void OnTriggerStay(Collider c)
     {
-
         if (m_applyBuffDamage && Time.time >= m_nextBuffRotTime)
         {
             if (c.gameObject.layer == 10)
             {
-                print(c.gameObject.name + " --> " + c.gameObject.layer);
-
-                m_nextBuffRotTime = Time.time + m_buffRotInterval;
+                m_tickRot = true;   
 
                 var enemy = c.GetComponent<JEnemyUnit>() as IAttackable;
 
-                enemy.Damage(this, -m_buffRotPercentDamage);
+                ApplyPercentageDamage(enemy, -m_buffRotPercentDamage);
             }
         }
 
@@ -626,7 +663,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         // dont forget animations and such
 
-        target.Damage(this, dmgMultiplier * m_baseDamage * (1 + (m_level - 1) * LevelMultipliers.DAMAGE));
+        ApplyDamage(target, dmgMultiplier);
     }
 
     IEnumerator Freeze(float duration)
@@ -673,5 +710,10 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     public ITargetable GetTargetableInterface()
     {
         return this;
+    }
+
+    public Vector3 GetWorldPos()
+    {
+        return transform.position;
     }
 }

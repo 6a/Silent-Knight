@@ -43,7 +43,7 @@ public class Projectile : MonoBehaviour
 
         if (Vector3.Distance(targetPos, transform.position) < 0.1f)
         {
-            m_target.Damage(m_parent as IAttacker, m_damage);
+            m_target.Damage(m_parent as IAttacker, m_damage, false);
             // TODO particles
             Destroy(gameObject);
         }

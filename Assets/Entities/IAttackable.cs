@@ -9,7 +9,7 @@ namespace Entities
         int DeathTime { get; set; }
         bool IsDead { get; set; }
 
-        void Damage(IAttacker attacker, float damage);
+        void Damage(IAttacker attacker, float damage, bool crit);
         void KnockBack(Vector2 sourcePos, float strength);
         void AfflictStatus(STATUS status, float duration);
         Vector3 Position();
