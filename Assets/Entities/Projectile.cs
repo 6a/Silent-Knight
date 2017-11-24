@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class Projectile : MonoBehaviour
 {
+    public bool Crit { get; set; }
+
     IAttackable m_target, m_parent;
     float m_speed;
     float m_endOfLife;
@@ -43,7 +45,9 @@ public class Projectile : MonoBehaviour
 
         if (Vector3.Distance(targetPos, transform.position) < 0.1f)
         {
-            m_target.Damage(m_parent as IAttacker, m_damage, false);
+            var t = (Crit) ? FCT_TYPE.REBOUNDCRIT : FCT_TYPE.REBOUNDHIT;
+
+            m_target.Damage(m_parent as IAttacker, m_damage, t);
             // TODO particles
             Destroy(gameObject);
         }

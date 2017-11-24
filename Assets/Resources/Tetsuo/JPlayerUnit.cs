@@ -211,7 +211,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         var total = m_baseDamage * (1 + (m_level - 1) * LevelMultipliers.DAMAGE) * baseDamageMultiplier * critMultiplier;
 
-        enemy.Damage(this, total, isCrit);
+        var t = (isCrit) ? FCT_TYPE.CRIT : FCT_TYPE.HIT;
+
+        enemy.Damage(this, total, t);
     }
 
     public void ApplyPercentageDamage(IAttackable enemy, float amount)
@@ -227,7 +229,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
             amount *= -1;
         }
 
-        enemy.Damage(this, amount * critMultiplier, isCrit);
+        var t = (isCrit) ? FCT_TYPE.DOTCRIT : FCT_TYPE.DOTHIT;
+
+        enemy.Damage(this, amount * critMultiplier, t);
     }
 
     public void OnShieldAttack()
@@ -355,12 +359,11 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     }
 
-    public void Damage(IAttacker attacker, float dmg, bool crit)
+    public void Damage(IAttacker attacker, float dmg, FCT_TYPE type)
     {
         if (IsDead) return;
 
         Health -= Mathf.Max(dmg, 0);
-
 
         if (Health <= 0)
         {
@@ -482,7 +485,15 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
             if (projectile.CanBeReflected(this))
             {
                 StartCoroutine(Freeze(0.1f));
-                projectile.Reflect(this, 5, -1, m_baseDamage * 3);
+
+                var rand = UnityEngine.Random.Range(0f, 1f);
+
+                var isCrit = rand < m_critChance;
+
+                var critMultiplier = (isCrit) ? m_critMultiplier : 1;
+
+                projectile.Crit = isCrit;
+                projectile.Reflect(this, 5, -1, m_baseDamage * 3 * critMultiplier);
                 m_parrySuccess = true;
             }
         }

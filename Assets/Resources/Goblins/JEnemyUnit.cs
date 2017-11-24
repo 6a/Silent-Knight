@@ -138,7 +138,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         GetInRange(PathingTarget);
     }
 
-    public void Damage(IAttacker attacker, float dmg, bool crit)
+    public void Damage(IAttacker attacker, float dmg, FCT_TYPE type)
     {
         if (IsDead || dmg == 0) return;
         // This means we are applying percentage damage
@@ -152,9 +152,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         var screenPos = Camera.main.WorldToScreenPoint(transform.position);
         var dir = screenPos - Camera.main.WorldToScreenPoint(attacker.GetWorldPos());
 
-        FCT_TYPE t = (crit) ? FCT_TYPE.CRIT : FCT_TYPE.HIT;
-
-        FCTRenderer.AddFCT(t, dmg.ToString(), transform.position + (Vector3.up * 0.5f), dir);
+        FCTRenderer.AddFCT(type, dmg.ToString(), transform.position + (Vector3.up * 0.5f), dir);
 
         if (Health <= 0)
         {
@@ -311,7 +309,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
     {
         yield return new WaitForSeconds(Time.fixedDeltaTime * frameDelay);
 
-        target.Damage(this, dmgMultiplier * m_baseDamage * (1 + (m_level - 1 ) * LevelMultipliers.DAMAGE), false);
+        target.Damage(this, dmgMultiplier * m_baseDamage * (1 + (m_level - 1 ) * LevelMultipliers.DAMAGE), FCT_TYPE.HIT);
     }
 
     void TriggerAnimation(ANIMATION anim)
