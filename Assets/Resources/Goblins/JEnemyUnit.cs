@@ -147,12 +147,13 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
             dmg = CalcuateUnitHealth() * (Mathf.Abs(dmg) / 100f);
         }
 
+        dmg *= ((m_currentStatus == STATUS.STUN) ? 2 : 1);
         Health -= dmg;
 
         var screenPos = Camera.main.WorldToScreenPoint(transform.position);
         var dir = screenPos - Camera.main.WorldToScreenPoint(attacker.GetWorldPos());
 
-        FCTRenderer.AddFCT(type, dmg.ToString(), transform.position + (Vector3.up * 0.5f), dir);
+        FCTRenderer.AddFCT(type, dmg.ToString(), transform.position + Vector3.up);
 
         if (Health <= 0)
         {

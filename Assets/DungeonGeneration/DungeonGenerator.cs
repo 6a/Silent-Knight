@@ -31,11 +31,11 @@ public class DungeonGenerator : MonoBehaviour
     {
         m_grid = FindObjectOfType<ASGrid>();
 
-        m_currentLevel = 0;
+        m_currentLevel = 2;
 
         Generator.Init(m_maxDungeonWidth, m_maxDungeonHeight,
         new PlatformProperties(m_minWidth, m_maxWidth, m_minHeight, m_maxHeight),
-        m_cycles, m_padding, m_minPlatforms, m_emptyChar, m_platformChar, m_nodeChar, m_pathChar, m_scale, m_offset);
+        m_cycles, m_padding, m_minPlatforms, m_emptyChar, m_platformChar, m_nodeChar, m_pathChar, m_scale, m_offset, m_currentLevel);
     }
 
     void Update ()

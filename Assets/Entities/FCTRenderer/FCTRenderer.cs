@@ -7,13 +7,14 @@ class FCTRequest
     public FCT_TYPE Type { get; set; }
     public string Text { get; set; }
     public Vector3 WorldPos { get; set; }
-    public Vector2 Dir { get; set; }
+    public Vector2? Dir { get; set; }
 
-public FCTRequest(FCT_TYPE type, string text, Vector3 worldPos, Vector2 dir)
+public FCTRequest(FCT_TYPE type, string text, Vector3 worldPos, Vector2? dir)
     {
         Type = type;
         Text = text;
         WorldPos = worldPos;
+
         Dir = dir;
     }
 }
@@ -48,7 +49,7 @@ public class FCTRenderer : MonoBehaviour
         }
     }
 
-    public static void AddFCT(FCT_TYPE type, string text, Vector3 worldPos, Vector2 dir)
+    public static void AddFCT(FCT_TYPE type, string text, Vector3 worldPos, Vector2? dir = null)
     {
         instance.m_fctQueue.Enqueue(new FCTRequest(type, text, worldPos, dir));
     }

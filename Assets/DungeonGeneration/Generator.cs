@@ -18,11 +18,12 @@ namespace DungeonGeneration
         static char m_pathChar;
         static int m_scale;
         static int m_offset;
+        static int m_level;
 
         public static Dungeon CurrentDungeon { get; set; }
 
         public static void Init(int width, int height, PlatformProperties platformProperties, 
-        int cycles, int padding, int minPlatforms, char emptyChar, char platformChar, char nodeChar, char pathChar, int scale, int offset)
+        int cycles, int padding, int minPlatforms, char emptyChar, char platformChar, char nodeChar, char pathChar, int scale, int offset, int level)
         {
             m_width = width;
             m_height = height;
@@ -36,11 +37,12 @@ namespace DungeonGeneration
             m_pathChar = pathChar;
             m_scale = scale;
             m_offset = offset;
+            m_level = level;
         }
 
         public static void Fabricate()
         {
-            var fabricator = new Fabricator(CurrentDungeon, m_scale, m_offset);
+            var fabricator = new Fabricator(CurrentDungeon, m_scale, m_offset, m_level);
 
             fabricator.Fabricate();
 

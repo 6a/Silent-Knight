@@ -118,7 +118,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
             var addedHealth = (m_maxHealth * m_regenAmount);
             Health = Mathf.Clamp(Health + addedHealth, 0, m_maxHealth);
 
-            FCTRenderer.AddFCT(FCT_TYPE.HEALTH, addedHealth.ToString(), transform.position + Vector3.up, Vector2.down);
+            FCTRenderer.AddFCT(FCT_TYPE.HEALTH, "+ " + addedHealth.ToString(), transform.position + Vector3.up, Vector2.down);
 
             m_hb.UpdateHealthDisplay(Health / m_maxHealth);
             m_hb.Pulse(true);

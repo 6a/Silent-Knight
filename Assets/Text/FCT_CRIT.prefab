@@ -172,7 +172,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_speed: 10
-  m_offset: 25
+  m_offset: 10
 --- !u!222 &222131042344452854
 CanvasRenderer:
   m_ObjectHideFlags: 1

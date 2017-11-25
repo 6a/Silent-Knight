@@ -3,3 +3,5 @@ TODO
 1. Prevent enemies going onto the platforms?
 2. Prevent / deal with player ending up out of bounds? 
 3. Make ulti buff aura bigger and redo particles to be more obvious.
+4. Make sparky brighter during ulti or something.
+5. Add pulsing to function for healthbar.
