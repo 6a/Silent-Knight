@@ -1,17 +1,9 @@
 fileFormatVersion: 2
-guid: 87cdd1bb3519a4f468152146fce9bdba
-timeCreated: 1514474328
+guid: f688394aa834bd0498444d3d62a212ef
+timeCreated: 1514472596
 licenseType: Free
 TextureImporter:
-  fileIDToRecycleName:
-    21300000: cbtn_big_blue
-    21300002: cbtn_big_green
-    21300004: cbtn_big_red
-    21300006: cbtn_big_mask
-    21300008: cbtn_big_0
-    21300010: cbtn_big_1
-    21300012: cbtn_big_2
-    21300014: cbtn_big_3
+  fileIDToRecycleName: {}
   externalObjects: {}
   serializedVersion: 4
   mipmaps:
@@ -44,11 +36,11 @@ TextureImporter:
     mipBias: -1
     wrapU: 1
     wrapV: 1
-    wrapW: 1
+    wrapW: -1
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -94,65 +86,19 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
+  - buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
   spriteSheet:
     serializedVersion: 2
-    sprites:
-    - serializedVersion: 2
-      name: cbtn_big_0
-      rect:
-        serializedVersion: 2
-        x: 26
-        y: 0
-        width: 306
-        height: 306
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-    - serializedVersion: 2
-      name: cbtn_big_1
-      rect:
-        serializedVersion: 2
-        x: 358
-        y: 0
-        width: 306
-        height: 306
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-    - serializedVersion: 2
-      name: cbtn_big_2
-      rect:
-        serializedVersion: 2
-        x: 690
-        y: 0
-        width: 306
-        height: 306
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-    - serializedVersion: 2
-      name: cbtn_big_3
-      rect:
-        serializedVersion: 2
-        x: 1064
-        y: 77
-        width: 196
-        height: 196
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
+    sprites: []
     outline: []
     physicsShape: []
   spritePackingTag: 
