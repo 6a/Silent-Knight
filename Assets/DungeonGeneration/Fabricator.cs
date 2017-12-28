@@ -393,7 +393,6 @@ namespace DungeonGeneration
             {
                 return null;
             }
-            Debug.Log(name);
             return Resources.Load(name) as GameObject;
         }
     }

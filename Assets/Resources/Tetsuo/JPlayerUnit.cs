@@ -20,8 +20,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     Rigidbody m_rb;
     PlayerWeapon m_weapon;
 
-    // Reference to healthbar object
-    HealthBar m_hb;
+    // Reference to ui objects
+    PlayerHealthBar m_healthbar;
+    EnemyHealthBar m_enemyHealthbar;
 
     // Public property used to check knight focus point
     public Vector3 FocusPoint
@@ -120,8 +121,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
             FCTRenderer.AddFCT(FCT_TYPE.HEALTH, "+ " + addedHealth.ToString(), transform.position + Vector3.up, Vector2.down);
 
-            m_hb.UpdateHealthDisplay(Health / m_maxHealth);
-            m_hb.Pulse(true);
+            m_healthbar.UpdateHealthDisplay(Health / m_maxHealth, (int)m_maxHealth);
+            m_healthbar.Pulse(true);
 
             m_nextRegenTick += m_regenTick;
         }
@@ -353,7 +354,10 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         }
         else
         {
+            if (CurrentTarget != null) CurrentTarget.SetRenderTarget(false);
             CurrentTarget = nextTarget;
+            CurrentTarget.SetRenderTarget(true);
+
             GetInRange(nextTarget.GetTargetableInterface());
         }
     }
@@ -370,10 +374,12 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         m_chest = PathingTarget;
 
-        Running = true;
+        m_healthbar = FindObjectOfType<PlayerHealthBar>();
+        m_healthbar.UpdateHealthDisplay(1, (int)m_maxHealth);
 
-        m_hb = FindObjectOfType<HealthBar>();
-        m_hb.Init(m_hpAnchor.transform);
+        m_enemyHealthbar = FindObjectOfType<EnemyHealthBar>();
+
+        Running = true;
 
         UpdatePathTarget(PathingTarget);
         StartCoroutine(RefreshPath());
@@ -390,12 +396,12 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         Health -= Mathf.Max(dmg, 0);
 
-        m_hb.UpdateHealthDisplay(Health / m_maxHealth);
+        m_healthbar.UpdateHealthDisplay(Health / m_maxHealth, (int)m_maxHealth);
         m_nextRegenTick = Time.time + m_regenDelay;
 
         if (Health / m_maxHealth < m_dangerHealthThreshold)
         {
-            m_hb.Pulse(false);
+            m_healthbar.Pulse(false);
         }
 
         if (Health <= 0)
@@ -622,7 +628,14 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     public void Attack(IAttackable target)
     {
-        if (target == null) return;
+        if (target == null)
+        {
+            m_enemyHealthbar.ToggleVisibility(false);
+            return;
+        }
+
+        m_enemyHealthbar.ToggleVisibility(true);
+        target.SetRenderTarget(true);
 
         float attackDelay = 1000f / (1000f * m_attacksPerSecond);
 
@@ -696,6 +709,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
                     PathingTarget = m_chest;
                     UpdatePathTarget(PathingTarget);
                     CurrentTarget = null;
+                    m_enemyHealthbar.ToggleVisibility(false);
                 }
             }
 
@@ -761,5 +775,10 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     public Vector3 GetWorldPos()
     {
         return transform.position;
+    }
+
+    public void SetRenderTarget(bool on)
+    {
+        throw new NotImplementedException();
     }
 }

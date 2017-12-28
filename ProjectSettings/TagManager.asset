@@ -19,8 +19,8 @@ TagManager:
   - Tile
   - Projectiles
   - Enemy
-  - 
-  - 
+  - Player
+  - CurrentTarget
   - 
   - 
   - 

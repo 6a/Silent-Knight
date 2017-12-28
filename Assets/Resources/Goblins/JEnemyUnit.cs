@@ -3,6 +3,7 @@ using PathFinding;
 using System;
 using Entities;
 using System.Collections;
+using Localisation;
 
 public enum ENEMY_TYPE { AXE, SPEAR, DAGGER, BOW }
 
@@ -11,6 +12,10 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
     // References to attached components.
     Animator m_animator;
     Rigidbody m_rb;
+
+    // ui references
+    EnemyHealthBar m_healthbar;
+    EnemyTitleTextField m_enemyTextField;
 
     public float Health { get; set; }
 
@@ -29,6 +34,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
     [SerializeField] ENEMY_TYPE m_enemyType;
     [SerializeField] GameObject m_projectile;
     [SerializeField] Transform m_projectileTransform;
+    [Tooltip("0 = en, 1 = jp")][SerializeField] string[] m_unitName;
 
     float m_lastAttackTime;
     bool m_deleted = false;
@@ -133,6 +139,10 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
 
         PathingTarget = FindObjectOfType<JPlayerUnit>();
 
+        m_healthbar = FindObjectOfType<EnemyHealthBar>();
+
+        m_enemyTextField = FindObjectOfType<EnemyTitleTextField>();
+
         StartCoroutine(RefreshPath());
 
         GetInRange(PathingTarget);
@@ -141,6 +151,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
     public void Damage(IAttacker attacker, float dmg, FCT_TYPE type)
     {
         if (IsDead || dmg == 0) return;
+
         // This means we are applying percentage damage
         if (dmg < 0)
         {
@@ -149,6 +160,8 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
 
         dmg *= ((m_currentStatus == STATUS.STUN) ? 2 : 1);
         Health -= dmg;
+
+        m_healthbar.UpdateHealthDisplay(Health / (int)CalcuateUnitHealth(), (int)CalcuateUnitHealth());
 
         var screenPos = Camera.main.WorldToScreenPoint(transform.position);
         var dir = screenPos - Camera.main.WorldToScreenPoint(attacker.GetWorldPos());
@@ -367,4 +380,22 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
     {
         return transform.position;
     }
+
+    public void SetRenderTarget(bool on)
+    {
+        GetComponentInChildren<Camera>().enabled = on;
+
+        if (on)
+        {
+            gameObject.SetLayerRecursively(12);
+            m_healthbar.UpdateHealthDisplay(Health / CalcuateUnitHealth(), (int)CalcuateUnitHealth());
+            m_enemyTextField.UpdateTextData(m_unitName[0], m_unitName[1]);
+        }
+        else
+        {
+            gameObject.SetLayerRecursively(10);
+        }
+    }
+
+
 }

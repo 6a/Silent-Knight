@@ -1,4 +1,6 @@
-﻿Shader "ToonWater/WaterSurface" {
+﻿// Upgrade NOTE: upgraded instancing buffer 'Props' to new syntax.
+
+Shader "ToonWater/WaterSurface" {
 	Properties {
 		_Color ("Color", Color) = (1,1,1,1)
 	}
@@ -21,9 +23,9 @@
 		fixed4 _Color;
 		float4 _ShadowColor;
 
-		UNITY_INSTANCING_CBUFFER_START(Props)
+		UNITY_INSTANCING_BUFFER_START(Props)
 			// put more per-instance properties here
-		UNITY_INSTANCING_CBUFFER_END
+		UNITY_INSTANCING_BUFFER_END(Props)
 
 		struct MySurfaceOutput {
 		fixed3 Albedo;  // diffuse color

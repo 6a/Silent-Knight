@@ -14,5 +14,6 @@ namespace Entities
         void AfflictStatus(STATUS status, float duration);
         Vector3 Position();
         ITargetable GetTargetableInterface();
+        void SetRenderTarget(bool on);
     }
 }

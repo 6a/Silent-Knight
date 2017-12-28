@@ -1,4 +1,6 @@
-﻿Shader "ToonWater/WetGeometry" {
+﻿// Upgrade NOTE: upgraded instancing buffer 'Props' to new syntax.
+
+Shader "ToonWater/WetGeometry" {
 	Properties {
 		_Color ("Color", Color) = (1,1,1,1)
 		_MainTex ("Tex (RGB)", 2D) = "white" {}
@@ -33,9 +35,9 @@
 
 		
 
-		UNITY_INSTANCING_CBUFFER_START(Props)
+		UNITY_INSTANCING_BUFFER_START(Props)
 			// put more per-instance properties here
-		UNITY_INSTANCING_CBUFFER_END
+		UNITY_INSTANCING_BUFFER_END(Props)
 
 	
 
