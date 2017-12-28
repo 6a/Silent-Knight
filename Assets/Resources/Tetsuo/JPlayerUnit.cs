@@ -11,6 +11,8 @@ using System.Collections.Generic;
 public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetable
 {
     public enum ATTACKS { SWORD_SPIN, KICK, SHIELD, PARRY, ULTIMATE }
+    private float[] m_currentSkillCD = new float[5];
+    private float[] m_baseSkillCD = { 5, 10, 5, 8, 10 };
 
     // Variables exposed in the editor.
     [SerializeField] float m_horizontalMod, m_linearMod, m_jumpForce, m_groundTriggerDistance;
@@ -132,6 +134,24 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         if (Buff()) return;
 
         Attack(CurrentTarget);
+
+        UpdateCooldownSpinners();
+    }
+
+    public void UpdateCooldownSpinners()
+    {
+        for (int i = 0; i < m_currentSkillCD.Length; i++)
+        {
+            if (m_currentSkillCD[i] > 0)
+            {
+                m_currentSkillCD[i] = Mathf.Max(m_currentSkillCD[i] - Time.deltaTime, 0);
+
+                var value = m_currentSkillCD[i] / m_baseSkillCD[i];
+                var seconds = m_baseSkillCD[i] - (m_baseSkillCD[i] - m_currentSkillCD[i]);
+
+                GameUIManager.UpdateSpinner((ATTACKS)i, value, seconds);
+            }
+        }
     }
 
     public override void OnFollowPath(float speedPercent)
@@ -144,6 +164,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     public void EnableWCollider()
     {
         m_weapon.Switch(true);
+        StartCooldown(ATTACKS.SWORD_SPIN);
     }
 
     void DisableWCollider()
@@ -268,9 +289,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         // TODO particles
 
         CurrentTarget.AfflictStatus(STATUS.STUN, 2);
+        StartCooldown(ATTACKS.SHIELD);
 
-
-        ToggleSpecial(ATTACKS.SHIELD, false, m_shieldAttackCooldown);
+        ToggleSpecial(false);
         m_lastAttackTime = Time.time - 0.5f;
         OnFollowPath(0);
     }
@@ -287,7 +308,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         CurrentTarget.KnockBack(new Vector2(transform.position.x, transform.position.z), 800);
 
-        ToggleSpecial(ATTACKS.KICK, false, m_kickCooldown);
+        ToggleSpecial(false);
+        StartCooldown(ATTACKS.KICK);
         m_lastAttackTime = Time.time - 0.5f;
         OnFollowPath(0);
     }
@@ -295,7 +317,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     public void UltimateFinished()
     {
         DisableWCollider();
-        ToggleSpecial(ATTACKS.SWORD_SPIN, false);
+        ToggleSpecial(false);
         m_lastAttackTime = Time.time - 0.5f;
         enemiesHit = new List<int>();
         OnFollowPath(0);
@@ -303,20 +325,29 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     public void OnParryFinished()
     {
-        ToggleSpecial(ATTACKS.PARRY, false);
+        ToggleSpecial(false);
 
         if (m_parrySuccess)
         {
             m_lastAttackTime = Time.time - 0.5f;
+            StartCooldown(ATTACKS.PARRY, 0.125f);
         }
         else
         {
             m_lastAttackTime = Time.time + 0.5f;
             StartCoroutine(LockSpecial(1));
+            StartCooldown(ATTACKS.PARRY);
         }
 
         m_isParrying = false;
         OnFollowPath(0);
+    }
+
+    void StartCooldown(ATTACKS attack, float multiplier = 1)
+    {
+        print(attack);
+        var cd = multiplier * m_baseSkillCD[(int)attack];
+        m_currentSkillCD[(int)attack] = cd;
     }
 
     IEnumerator LockSpecial(float duration)
@@ -426,81 +457,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         throw new NotImplementedException();
     }
 
-    void ToggleSpecial(ATTACKS type, bool on, float cooldown = -1)
+    void ToggleSpecial(bool on)
     {
         m_isDoingSpecial = on;
-
-        if (cooldown != -1)
-        {
-            switch (type)
-            {
-                case ATTACKS.SWORD_SPIN:
-                    m_nextUltTime = Time.time + cooldown;
-                    break;
-                case ATTACKS.KICK:
-                    m_nextKickTime = Time.time + cooldown;
-                    break;
-                case ATTACKS.SHIELD:
-                    m_nextShieldAttackTime = Time.time + cooldown;
-                    break;
-                case ATTACKS.PARRY:
-                    m_nextParryTime = Time.time + cooldown;
-                    break;
-                case ATTACKS.ULTIMATE:
-                    m_nextBuffTime = Time.time + cooldown;
-                    break;
-            }
-        }
-    }
-
-    bool CanSpec(ATTACKS type)
-    {
-        switch (type)
-        {
-            case ATTACKS.SWORD_SPIN:
-                return Time.time > m_nextUltTime;
-            case ATTACKS.KICK:
-                return Time.time > m_nextKickTime;
-            case ATTACKS.SHIELD:
-                return Time.time > m_nextShieldAttackTime;
-            case ATTACKS.PARRY:
-                return Time.time > m_nextParryTime;
-            case ATTACKS.ULTIMATE:
-                return Time.time > m_nextBuffTime;
-        }
-
-        return true;
-    }
-
-    public int GetCooldownPercent(ATTACKS type)
-    {
-        int percent = -1;
-
-        switch (type)
-        {
-            case ATTACKS.SWORD_SPIN:
-                percent = (int)(((m_nextUltTime - Time.time) / m_ultCooldown) * 100);
-                break;
-            case ATTACKS.KICK:
-                percent = (int)(((m_nextKickTime - Time.time) / m_kickCooldown) * 100);
-                break;
-            case ATTACKS.SHIELD:
-                percent = (int)(((m_nextShieldAttackTime - Time.time) / m_shieldAttackCooldown) * 100);
-                break;
-            case ATTACKS.PARRY:
-                percent = (int)(((m_nextParryTime - Time.time) / m_parryCooldown) * 100);
-                break;
-            case ATTACKS.ULTIMATE:
-                percent = (int)(((m_nextBuffTime - Time.time) / m_buffCooldown) * 100);
-                break;
-        }
-
-        if (percent != -1)
-        {
-            percent = 100 - Mathf.Clamp(percent, 0, 100);
-        }
-
-        return percent;
     }
 
     void OnTriggerStay(Collider c)
@@ -550,12 +509,19 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     {
         if (!m_isDoingSpecial)
         {
-            if (CanSpec(ATTACKS.SWORD_SPIN) && (Input.GetButtonDown("Parry") || m_simTriggers[(int)ATTACKS.PARRY]))
+            if ((Input.GetButtonDown("Parry") || m_simTriggers[(int)ATTACKS.PARRY]))
             {
-                ToggleSpecial(ATTACKS.PARRY, true, m_parryCooldown);
-                if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
-                TriggerAnimation(ANIMATION.PARRY);
-                return true;
+                if (m_currentSkillCD[(int)ATTACKS.PARRY] <= 0)
+                {
+                    ToggleSpecial(true);
+                    if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
+                    TriggerAnimation(ANIMATION.PARRY);
+                    return true;
+                }
+                else
+                {
+                    GameUIManager.Pulse(ATTACKS.PARRY);
+                }
             }
         }
 
@@ -574,6 +540,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         StartCoroutine(Freeze(0.3f));
 
+
+
         StartCoroutine(BuffTimer(m_buffDuration));
 
         // particles and stuff
@@ -586,26 +554,33 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     public void OnBuffAnimationFinished()
     {
         Speed = m_speedTemp;
-        ToggleSpecial(ATTACKS.ULTIMATE, false);
+        ToggleSpecial(false);
         m_buffInitSystem.SetActive(false);
+        StartCooldown(ATTACKS.ULTIMATE);
     }
 
     public bool Buff()
     {
         if (!m_isDoingSpecial)
         {
-            if (CanSpec(ATTACKS.ULTIMATE) && (Input.GetButtonDown("Ultimate")|| m_simTriggers[(int)ATTACKS.ULTIMATE]))
+            if ((Input.GetButtonDown("Ultimate")|| m_simTriggers[(int)ATTACKS.ULTIMATE]))
             {
-                ToggleSpecial(ATTACKS.ULTIMATE, true, m_buffCooldown);
-                if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
-                TriggerAnimation(ANIMATION.BUFF);
-                m_speedTemp = Speed;
-                Speed = 0;
-                m_buffInitSystem.SetActive(true);
-                return true;
+                if (m_currentSkillCD[(int)ATTACKS.ULTIMATE] <= 0)
+                {
+                    ToggleSpecial(true);
+                    if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
+                    TriggerAnimation(ANIMATION.BUFF);
+                    m_speedTemp = Speed;
+                    Speed = 0;
+                    m_buffInitSystem.SetActive(true);
+                    return true;
+                }
+                else
+                {
+                    GameUIManager.Pulse(ATTACKS.ULTIMATE);
+                }
             }
         }
-
         return false;
     }
 
@@ -657,28 +632,52 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
             if (!m_isDoingSpecial)
             {
-                if (CanSpec(ATTACKS.SWORD_SPIN) && (Input.GetButtonDown("AttackSpin") || m_simTriggers[(int)ATTACKS.SWORD_SPIN]))
+                if ((Input.GetButtonDown("AttackSpin") || m_simTriggers[(int)ATTACKS.SWORD_SPIN]))
                 {
-                    ToggleSpecial(ATTACKS.SWORD_SPIN, true, m_ultCooldown);
-                    if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
-                    TriggerAnimation(ANIMATION.ATTACK_ULTIMATE);
-                    return;
+                    if (m_currentSkillCD[(int)ATTACKS.SWORD_SPIN] <= 0)
+                    {
+                        ToggleSpecial(true);
+                        if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
+                        TriggerAnimation(ANIMATION.ATTACK_ULTIMATE);
+                        return;
+                    }
+                    else
+                    {
+                        GameUIManager.Pulse(ATTACKS.SWORD_SPIN);
+                    }
+
                 }
 
-                if (CanSpec(ATTACKS.KICK) && (Input.GetButtonDown("AttackKick") || m_simTriggers[(int)ATTACKS.KICK]))
+                if ((Input.GetButtonDown("AttackKick") || m_simTriggers[(int)ATTACKS.KICK]))
                 {
-                    ToggleSpecial(ATTACKS.KICK, true, m_kickCooldown);
-                    if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
-                    TriggerAnimation(ANIMATION.ATTACK_KICK);
-                    return;
+                    if (m_currentSkillCD[(int)ATTACKS.KICK] <= 0)
+                    {
+                        ToggleSpecial(true);
+                        if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
+                        TriggerAnimation(ANIMATION.ATTACK_KICK);
+                        return;
+                    }
+                    else
+                    {
+                        GameUIManager.Pulse(ATTACKS.KICK);
+                    }
+
                 }
 
-                if (CanSpec(ATTACKS.SHIELD) && (Input.GetButtonDown("AttackShield") || m_simTriggers[(int)ATTACKS.SHIELD]))
+                if ((Input.GetButtonDown("AttackShield") || m_simTriggers[(int)ATTACKS.SHIELD]))
                 {
-                    ToggleSpecial(ATTACKS.SHIELD, true, m_shieldAttackCooldown);
-                    if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
-                    TriggerAnimation(ANIMATION.ATTACK_SHIELD);
-                    return;
+                    if (m_currentSkillCD[(int)ATTACKS.SHIELD] <= 0)
+                    {
+                        ToggleSpecial(true);
+                        if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
+                        TriggerAnimation(ANIMATION.ATTACK_SHIELD);
+                        return;
+                    }
+                    else
+                    {
+                        GameUIManager.Pulse(ATTACKS.SHIELD);
+                    }
+
                 }
             }
             
@@ -790,13 +789,11 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     public void SimulatePress(ATTACKS type)
     {
-        print("!");
         m_simTriggers[(int)type] = true;
     }
 
     public void SimulateRelease(ATTACKS type)
     {
-        print("!");
         m_simTriggers[(int)type] = false;
     }
 }

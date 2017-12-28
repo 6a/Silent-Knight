@@ -11,6 +11,8 @@ public class GameUIManager : MonoBehaviour
     bool m_isInUltimate;
     JPlayerUnit m_currentPlayer;
 
+    [SerializeField] CooldownSpinner[] m_cooldownSpinners = new CooldownSpinner[6];
+
     static GameUIManager m_instance;
 
     void Awake()
@@ -48,15 +50,13 @@ public class GameUIManager : MonoBehaviour
             m_rUltiButtonAlpha = Mathf.Clamp01(m_rUltiButtonAlpha + 0.01f);
             m_rightSpinner.color = new Color(1, 1, 1, m_rUltiButtonAlpha);
         }
-
-
     }
 
     public IEnumerator SimulateKeyPress(JPlayerUnit.ATTACKS type)
     {
         m_instance.m_currentPlayer.SimulatePress(type);
 
-        yield return new WaitForSecondsRealtime(0.5f);
+        yield return new WaitForEndOfFrame();
 
         m_instance.m_currentPlayer.SimulateRelease(type);
     }
@@ -124,5 +124,31 @@ public class GameUIManager : MonoBehaviour
     public void OnSimpleButtonDown(int button)
     {
         StartCoroutine(SimulateKeyPress((JPlayerUnit.ATTACKS)button));
+    }
+
+    public static void UpdateSpinner(JPlayerUnit.ATTACKS spinner, float fillAmount, float remainingTime, int decimalPlaces = 0)
+    {
+        if ((int)spinner >= (int)JPlayerUnit.ATTACKS.ULTIMATE)
+        {
+            m_instance.m_cooldownSpinners[(int)JPlayerUnit.ATTACKS.ULTIMATE].UpdateRadial(fillAmount, remainingTime, decimalPlaces);
+            m_instance.m_cooldownSpinners[(int)JPlayerUnit.ATTACKS.ULTIMATE + 1].UpdateRadial(fillAmount, remainingTime, decimalPlaces);
+        }
+        else
+        {
+            m_instance.m_cooldownSpinners[(int)spinner].UpdateRadial(fillAmount, remainingTime, decimalPlaces);
+        }
+    }
+
+    public static void Pulse (JPlayerUnit.ATTACKS spinner)
+    {
+        if ((int)spinner >= (int)JPlayerUnit.ATTACKS.ULTIMATE)
+        {
+            m_instance.m_cooldownSpinners[(int)JPlayerUnit.ATTACKS.ULTIMATE].Pulse();
+            m_instance.m_cooldownSpinners[(int)JPlayerUnit.ATTACKS.ULTIMATE + 1].Pulse();
+        }
+        else
+        {
+            m_instance.m_cooldownSpinners[(int)spinner].Pulse();
+        }
     }
 }
