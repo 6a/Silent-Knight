@@ -44,7 +44,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     [SerializeField] float m_attackRange;
     [SerializeField] float m_attacksPerSecond;
     [SerializeField] float m_baseDamage;
-    [SerializeField] float m_level;
+    [SerializeField] int m_level;
+    [SerializeField] int m_xp;
     [SerializeField] float m_baseHealth;
     [SerializeField] float m_buffMultiplier;
     [SerializeField] float m_critChance;
@@ -52,11 +53,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     [SerializeField] float m_regenAmount;
     [SerializeField] float m_regenDelay;
     [SerializeField] float m_regenTick;
-    [SerializeField] float m_shieldAttackCooldown;
-    [SerializeField] float m_ultCooldown;
-    [SerializeField] float m_parryCooldown;
-    [SerializeField] float m_kickCooldown;
-    [SerializeField] float m_buffCooldown;
     [SerializeField] float m_buffDuration;
     [SerializeField] float m_buffRotInterval;
     [SerializeField] float m_buffRotPercentDamage;
@@ -65,7 +61,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     ITargetable m_chest;
 
-    bool m_isDoingSpecial;
     bool m_parrySuccess;
     bool m_applyBuffDamage;
 
@@ -82,6 +77,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     bool m_isParrying;
     bool m_tickRot;
+    bool m_isStartingSpec;
 
     IEnumerator m_currentDamageCoroutine;
     int m_attackState;
@@ -93,7 +89,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         LineRender = GetComponent<LineRenderer>();
         m_weapon = GetComponentInChildren<PlayerWeapon>();
         m_lastAttackTime = -1;
-        Health = (m_baseHealth * (1 + (m_level - 1) * LevelMultipliers.HEALTH));
+        // load xp from memory
+        m_level = LevelScaling.GetLevel(m_xp);
+        Health = LevelScaling.GetScaledHealth(m_level, (int)m_baseHealth);
         m_maxHealth = Health;
         m_attackState = 0;
         m_currentDamageCoroutine = null;
@@ -138,7 +136,37 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         UpdateCooldownSpinners();
     }
 
-    public void UpdateCooldownSpinners()
+    void UpdateLevel(int experienceGained)
+    {
+        m_xp += experienceGained;
+
+        var level = LevelScaling.GetLevel(m_xp);
+
+        float currentLevelXP = LevelScaling.GetXP(level + 1) - LevelScaling.GetXP(level);
+        var fillAmount = (m_xp - LevelScaling.GetXP(level)) / currentLevelXP;
+
+        if (level != m_level)
+        {
+            GameUIManager.TriggerLevelUpAnimation();
+            GameUIManager.UpdatePlayerLevel(level, 0);
+            m_maxHealth = LevelScaling.GetScaledHealth(level, (int)m_baseHealth);
+            for (int i = 0; i < m_currentSkillCD.Length; i++)
+            {
+                m_currentSkillCD[i] = 0;
+                GameUIManager.UpdateSpinner((ATTACKS)i, 0, 0);
+            }
+
+            Health = m_maxHealth;
+        }
+        else
+        {
+            GameUIManager.UpdatePlayerLevel(level, fillAmount);
+        }
+
+        m_level = level;
+    }
+
+    void UpdateCooldownSpinners()
     {
         for (int i = 0; i < m_currentSkillCD.Length; i++)
         {
@@ -253,8 +281,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         var critMultiplier = (isCrit) ? m_critMultiplier : 1;
 
-        var total = m_baseDamage * (1 + (m_level - 1) * LevelMultipliers.DAMAGE) * baseDamageMultiplier * critMultiplier;
-
+        var total = LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage) * critMultiplier;
         var t = (isCrit) ? FCT_TYPE.CRIT : FCT_TYPE.HIT;
 
         enemy.Damage(this, total, t);
@@ -291,9 +318,10 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         CurrentTarget.AfflictStatus(STATUS.STUN, 2);
         StartCooldown(ATTACKS.SHIELD);
 
-        ToggleSpecial(false);
         m_lastAttackTime = Time.time - 0.5f;
         OnFollowPath(0);
+
+
     }
 
     public void OnKick()
@@ -308,7 +336,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         CurrentTarget.KnockBack(new Vector2(transform.position.x, transform.position.z), 800);
 
-        ToggleSpecial(false);
         StartCooldown(ATTACKS.KICK);
         m_lastAttackTime = Time.time - 0.5f;
         OnFollowPath(0);
@@ -317,7 +344,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     public void UltimateFinished()
     {
         DisableWCollider();
-        ToggleSpecial(false);
         m_lastAttackTime = Time.time - 0.5f;
         enemiesHit = new List<int>();
         OnFollowPath(0);
@@ -325,17 +351,12 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     public void OnParryFinished()
     {
-        ToggleSpecial(false);
-
         if (m_parrySuccess)
         {
-            m_lastAttackTime = Time.time - 0.5f;
-            StartCooldown(ATTACKS.PARRY, 0.125f);
+            StartCooldown(ATTACKS.PARRY, 0.125f, 0.5f);
         }
         else
         {
-            m_lastAttackTime = Time.time + 0.5f;
-            StartCoroutine(LockSpecial(1));
             StartCooldown(ATTACKS.PARRY);
         }
 
@@ -343,18 +364,13 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         OnFollowPath(0);
     }
 
-    void StartCooldown(ATTACKS attack, float multiplier = 1)
+    void StartCooldown(ATTACKS attack, float multiplier = 1, float reduceAttackDelay = 0)
     {
         var cd = multiplier * m_baseSkillCD[(int)attack];
         m_currentSkillCD[(int)attack] = cd;
-    }
 
-    IEnumerator LockSpecial(float duration)
-    {
-        m_isDoingSpecial = true;
-        yield return new WaitForSeconds(duration);
-
-        m_isDoingSpecial = false;
+        m_lastAttackTime = Time.time - reduceAttackDelay;
+        m_isStartingSpec = false;
     }
 
     // Helper function that uses a raycast to check if the knight is touching a surface with their feet.
@@ -411,6 +427,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         GameUIManager.SetCurrentPlayerReference(this);
 
+        m_level = LevelScaling.GetLevel(m_xp);
+
         Running = true;
 
         UpdatePathTarget(PathingTarget);
@@ -454,11 +472,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     public void AfflictStatus(STATUS status, float duration)
     {
         throw new NotImplementedException();
-    }
-
-    void ToggleSpecial(bool on)
-    {
-        m_isDoingSpecial = on;
     }
 
     void OnTriggerStay(Collider c)
@@ -506,29 +519,28 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     public bool Parry()
     {
-        if (!m_isDoingSpecial)
+        if (!m_isStartingSpec && (Input.GetButtonDown("Parry") || m_simTriggers[(int)ATTACKS.PARRY]))
         {
-            if ((Input.GetButtonDown("Parry") || m_simTriggers[(int)ATTACKS.PARRY]))
+            if (m_currentSkillCD[(int)ATTACKS.PARRY] <= 0)
             {
-                if (m_currentSkillCD[(int)ATTACKS.PARRY] <= 0)
-                {
-                    ToggleSpecial(true);
-                    if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
-                    TriggerAnimation(ANIMATION.PARRY);
-                    return true;
-                }
-                else
-                {
-                    GameUIManager.Pulse(ATTACKS.PARRY);
-                }
+                m_isStartingSpec = true;
+                if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
+                TriggerAnimation(ANIMATION.PARRY);
+                m_lastAttackTime = Time.time + 10;
+                return true;
+            }
+            else
+            {
+                GameUIManager.Pulse(ATTACKS.PARRY);
             }
         }
 
         return false;
     }
 
-    float m_baseDamageHolder;
 
+
+    float m_baseDamageHolder;
     public void OnBuffStart()
     {
         m_buffEndTime = Time.time + m_buffDuration;
@@ -538,8 +550,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         m_baseDamage *= m_buffMultiplier;
 
         StartCoroutine(Freeze(0.3f));
-
-
 
         StartCoroutine(BuffTimer(m_buffDuration));
 
@@ -553,31 +563,28 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     public void OnBuffAnimationFinished()
     {
         Speed = m_speedTemp;
-        ToggleSpecial(false);
         m_buffInitSystem.SetActive(false);
-        StartCooldown(ATTACKS.ULTIMATE);
+        StartCooldown(ATTACKS.ULTIMATE, 1, 0.8f);
     }
 
     public bool Buff()
     {
-        if (!m_isDoingSpecial)
+        if (!m_isStartingSpec && (Input.GetButtonDown("Ultimate") || m_simTriggers[(int)ATTACKS.ULTIMATE]))
         {
-            if ((Input.GetButtonDown("Ultimate")|| m_simTriggers[(int)ATTACKS.ULTIMATE]))
+            if (m_currentSkillCD[(int)ATTACKS.ULTIMATE] <= 0)
             {
-                if (m_currentSkillCD[(int)ATTACKS.ULTIMATE] <= 0)
-                {
-                    ToggleSpecial(true);
-                    if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
-                    TriggerAnimation(ANIMATION.BUFF);
-                    m_speedTemp = Speed;
-                    Speed = 0;
-                    m_buffInitSystem.SetActive(true);
-                    return true;
-                }
-                else
-                {
-                    GameUIManager.Pulse(ATTACKS.ULTIMATE);
-                }
+                if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
+                m_isStartingSpec = true;
+                TriggerAnimation(ANIMATION.BUFF);
+                m_speedTemp = Speed;
+                Speed = 0;
+                m_buffInitSystem.SetActive(true);
+                m_lastAttackTime = Time.time + 10;
+                return true;
+            }
+            else
+            {
+                GameUIManager.Pulse(ATTACKS.ULTIMATE);
             }
         }
         return false;
@@ -609,114 +616,130 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         if (target == null)
         {
             m_enemyHealthbar.ToggleVisibility(false);
-            return;
-        }
-
-        m_enemyHealthbar.ToggleVisibility(true);
-        target.SetRenderTarget(true);
-
-        float attackDelay = 1000f / (1000f * m_attacksPerSecond);
-
-        var distanceToTarget = Vector3.Distance(transform.position, target.Position());
-        if (distanceToTarget < m_attackRange)
-        {
-            StopMovement();
-            OnFollowPath(0);
-
-            m_nextRegenTick = Time.time + m_regenDelay;
-
-            var targetRotation = Quaternion.LookRotation(target.Position() - transform.position);
-
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 4);
-
-            if (!m_isDoingSpecial)
-            {
-                if ((Input.GetButtonDown("AttackSpin") || m_simTriggers[(int)ATTACKS.SWORD_SPIN]))
-                {
-                    if (m_currentSkillCD[(int)ATTACKS.SWORD_SPIN] <= 0)
-                    {
-                        ToggleSpecial(true);
-                        if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
-                        TriggerAnimation(ANIMATION.ATTACK_ULTIMATE);
-                        return;
-                    }
-                    else
-                    {
-                        GameUIManager.Pulse(ATTACKS.SWORD_SPIN);
-                    }
-
-                }
-
-                if ((Input.GetButtonDown("AttackKick") || m_simTriggers[(int)ATTACKS.KICK]))
-                {
-                    if (m_currentSkillCD[(int)ATTACKS.KICK] <= 0)
-                    {
-                        ToggleSpecial(true);
-                        if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
-                        TriggerAnimation(ANIMATION.ATTACK_KICK);
-                        return;
-                    }
-                    else
-                    {
-                        GameUIManager.Pulse(ATTACKS.KICK);
-                    }
-
-                }
-
-                if ((Input.GetButtonDown("AttackShield") || m_simTriggers[(int)ATTACKS.SHIELD]))
-                {
-                    if (m_currentSkillCD[(int)ATTACKS.SHIELD] <= 0)
-                    {
-                        ToggleSpecial(true);
-                        if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
-                        TriggerAnimation(ANIMATION.ATTACK_SHIELD);
-                        return;
-                    }
-                    else
-                    {
-                        GameUIManager.Pulse(ATTACKS.SHIELD);
-                    }
-
-                }
-            }
-            
-            if (!m_isDoingSpecial && (m_lastAttackTime == -1 || Time.time - m_lastAttackTime > attackDelay))
-            {
-                m_attackState = (m_attackState == 0) ? 1 : 0;
-
-                if (m_attackState == 0)
-                {
-                    TriggerAnimation(ANIMATION.ATTACK_BASIC);
-                    m_currentDamageCoroutine = ApplyDamageDelayed(1, 30, target);
-                    StartCoroutine(m_currentDamageCoroutine);
-                }
-                else
-                {
-                    TriggerAnimation(ANIMATION.ATTACK_SPECIAL);
-                    m_currentDamageCoroutine = ApplyDamageDelayed(1, 30, target);
-                    StartCoroutine(m_currentDamageCoroutine);
-                }
-
-                m_lastAttackTime = Time.time;
-            }
         }
         else
         {
-            if (CurrentTarget == null || distanceToTarget > m_attackRange * 2 || Time.time - m_lastAttackTime > attackDelay + 0.2f)
-            {
-                CurrentTarget = AI.GetNewTarget(transform.position, Platforms.PlayerPlatform);
+            m_enemyHealthbar.ToggleVisibility(true);
+            target.SetRenderTarget(true);
+        }
 
-                if (CurrentTarget == null)
-                {
-                    PathingTarget = m_chest;
-                    UpdatePathTarget(PathingTarget);
-                    CurrentTarget = null;
-                    m_enemyHealthbar.ToggleVisibility(false);
-                }
+        float attackDelay = 1000f / (1000f * m_attacksPerSecond);
+
+        if (!m_isStartingSpec && (Input.GetButtonDown("AttackSpin") || m_simTriggers[(int)ATTACKS.SWORD_SPIN]))
+        {
+            if (m_currentSkillCD[(int)ATTACKS.SWORD_SPIN] <= 0)
+            {
+                if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
+                m_isStartingSpec = true;
+                TriggerAnimation(ANIMATION.ATTACK_ULTIMATE);
+                m_lastAttackTime = Time.time + 10;
+            }
+            else
+            {
+                GameUIManager.Pulse(ATTACKS.SWORD_SPIN);
             }
 
-            if (CurrentTarget != null) GetInRange(CurrentTarget.GetTargetableInterface());
         }
+
+        if (target != null)
+        {
+
+            var distanceToTarget = Vector3.Distance(transform.position, target.Position());
+
+            if (!m_isStartingSpec && (Input.GetButtonDown("AttackKick") || m_simTriggers[(int)ATTACKS.KICK]))
+            {
+                if (m_currentSkillCD[(int)ATTACKS.KICK] <= 0)
+                {
+                    if (distanceToTarget < m_attackRange)
+                    {
+                        if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
+                        m_isStartingSpec = true;
+                        TriggerAnimation(ANIMATION.ATTACK_KICK);
+                        m_lastAttackTime = Time.time + 10;
+                    }
+                }
+                else
+                {
+                    GameUIManager.Pulse(ATTACKS.KICK);
+                }
+
+            }
+
+            if (!m_isStartingSpec && (Input.GetButtonDown("AttackShield") || m_simTriggers[(int)ATTACKS.SHIELD]))
+            {
+                if (m_currentSkillCD[(int)ATTACKS.SHIELD] <= 0)
+                {
+                    if (distanceToTarget < m_attackRange)
+                    {
+                        if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
+                        m_isStartingSpec = true;
+                        TriggerAnimation(ANIMATION.ATTACK_SHIELD);
+                        m_lastAttackTime = Time.time + 10;
+                    }
+                }
+                else
+                {
+                    GameUIManager.Pulse(ATTACKS.SHIELD);
+                }
+
+            }
+
+            if (distanceToTarget < m_attackRange)
+            {
+                StopMovement();
+                OnFollowPath(0);
+
+                m_nextRegenTick = Time.time + m_regenDelay;
+
+                var targetRotation = Quaternion.LookRotation(target.Position() - transform.position);
+
+                transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 4);
+
+
+                if ((m_lastAttackTime == -1 || Time.time - m_lastAttackTime > attackDelay))
+                {
+                    m_attackState = (m_attackState == 0) ? 1 : 0;
+
+                    if (m_attackState == 0)
+                    {
+                        TriggerAnimation(ANIMATION.ATTACK_BASIC);
+                        m_currentDamageCoroutine = ApplyDamageDelayed(1, 30, target);
+                        StartCoroutine(m_currentDamageCoroutine);
+                    }
+                    else
+                    {
+                        TriggerAnimation(ANIMATION.ATTACK_SPECIAL);
+                        m_currentDamageCoroutine = ApplyDamageDelayed(1, 30, target);
+                        StartCoroutine(m_currentDamageCoroutine);
+                    }
+
+                    m_lastAttackTime = Time.time;
+                }
+            }
+            else
+            {
+                if (CurrentTarget == null || distanceToTarget > m_attackRange * 2 || Time.time - m_lastAttackTime > attackDelay + 0.2f)
+                {
+                    CurrentTarget = AI.GetNewTarget(transform.position, Platforms.PlayerPlatform);
+
+                    if (CurrentTarget == null)
+                    {
+                        PathingTarget = m_chest;
+                        UpdatePathTarget(PathingTarget);
+                        CurrentTarget = null;
+                        m_enemyHealthbar.ToggleVisibility(false);
+                    }
+                }
+
+                if (CurrentTarget != null) GetInRange(CurrentTarget.GetTargetableInterface());
+            }
+        }
+
+    }
+
+    public void GiveXp(int xp)
+    {
+        UpdateLevel(xp);
     }
 
     IEnumerator ApplyDamageDelayed(int dmgMultiplier, int frameDelay, IAttackable target)

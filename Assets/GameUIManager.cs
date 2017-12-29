@@ -1,7 +1,7 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
+
 using UnityEngine.UI;
 public class GameUIManager : MonoBehaviour
 {
@@ -12,6 +12,9 @@ public class GameUIManager : MonoBehaviour
     JPlayerUnit m_currentPlayer;
 
     [SerializeField] CooldownSpinner[] m_cooldownSpinners = new CooldownSpinner[6];
+    [SerializeField] TextMeshProUGUI m_playerLevelText, m_enemyLevelText;
+    [SerializeField] Image m_playerLevelFill;
+    [SerializeField] Animation m_levelUpAnimation;
 
     static GameUIManager m_instance;
 
@@ -19,11 +22,6 @@ public class GameUIManager : MonoBehaviour
     {
         m_instance = this;
     }
-
-    void Start ()
-    {
-		
-	}
 	
 	void Update ()
     {
@@ -153,4 +151,17 @@ public class GameUIManager : MonoBehaviour
 
         BorderGlow.Pulse(0.5f, new Color(85f/255f, 220f/255f, 1));
     }
+
+    public static void UpdatePlayerLevel(int level, float fillAmount)
+    {
+        m_instance.m_playerLevelText.text = level.ToString();
+        m_instance.m_playerLevelFill.fillAmount = fillAmount;
+    }
+    
+    public static void TriggerLevelUpAnimation()
+    {
+        m_instance.m_levelUpAnimation.Play();
+    }
+
+    public static void UpdateEnemyLevel(int level) { m_instance.m_enemyLevelText.text = level.ToString(); }
 }

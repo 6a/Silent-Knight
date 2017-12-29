@@ -28,7 +28,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
     [SerializeField] float m_attackRange;
     [SerializeField] float m_attacksPerSecond;
     [SerializeField] float m_baseDamage;
-    [SerializeField] float m_level;
+    [SerializeField] int m_level;
     [SerializeField] float m_baseHealth;
     [SerializeField] SkinnedMeshRenderer m_material;
     [SerializeField] ENEMY_TYPE m_enemyType;
@@ -55,7 +55,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
 
     float CalcuateUnitHealth()
     {
-        return (m_baseHealth * (1 + (m_level - 1) * LevelMultipliers.HEALTH));
+        return LevelScaling.GetScaledHealth(m_level, (int)m_baseHealth);
     }
 
     float m_speedTemp;
@@ -105,6 +105,8 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
 
                     // TODO particles
                 }
+
+                ((JPlayerUnit)CurrentTarget).GiveXp(1000);
 
                 m_deleted = true;
                 Running = false;
@@ -176,6 +178,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
             TriggerAnimation(ANIMATION.DEATH);
             IsDead = true;
             attacker.OnTargetDied(this);
+            ((JPlayerUnit)attacker).GiveXp((int)CalcuateUnitHealth());
         }
     }
 
@@ -323,7 +326,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
     {
         yield return new WaitForSeconds(Time.fixedDeltaTime * frameDelay);
 
-        target.Damage(this, dmgMultiplier * m_baseDamage * (1 + (m_level - 1 ) * LevelMultipliers.DAMAGE), FCT_TYPE.HIT);
+        target.Damage(this, LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage), FCT_TYPE.HIT);
     }
 
     void TriggerAnimation(ANIMATION anim)
