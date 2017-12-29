@@ -81,7 +81,7 @@ namespace PathFinding
             if (wayPoints == null || wayPoints.Length == 0) success = false;
 
             stopWatch.Stop();
-            //UnityEngine.Debug.Log("Path found and sorted in: " + stopWatch.ElapsedMilliseconds + "ms");
+            UnityEngine.Debug.Log("Path found and sorted in: " + stopWatch.ElapsedMilliseconds + "ms");
             callback(new PathResult(wayPoints, success, request.Callback));
         }
 

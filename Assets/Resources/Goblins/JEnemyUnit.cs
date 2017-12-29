@@ -106,7 +106,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
                     // TODO particles
                 }
 
-                ((JPlayerUnit)CurrentTarget).GiveXp(1000);
+                ((JPlayerUnit)CurrentTarget).GiveXp((int)CalcuateUnitHealth());
 
                 m_deleted = true;
                 Running = false;
@@ -119,7 +119,9 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         }
 
         Attack(CurrentTarget);
-	}
+
+        UpdateMovement();
+    }
 
     public override void OnEndRun()
     {
@@ -172,7 +174,6 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
 
         if (Health <= 0)
         {
-            print("Unit died");
             Running = false;
             InterruptAnimator();
             TriggerAnimation(ANIMATION.DEATH);

@@ -18,6 +18,11 @@ public class CooldownSpinner : MonoBehaviour
         m_baseColor = m_sprite.color;
     }
 
+    public float Cooldown()
+    {
+        return m_sprite.fillAmount;
+    }
+
     public void UpdateRadial(float fillAmount, float remainingTime, int decimalPlaces = 0)
     {
         m_sprite.fillAmount = fillAmount;

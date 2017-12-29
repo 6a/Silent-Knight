@@ -28,7 +28,7 @@ public class GameUIManager : MonoBehaviour
         if (m_rUltiButtonAlpha > 0) m_rightSpinner.transform.Rotate(0, 0, m_rUltiButtonAlpha * 4);
         if (m_lUltiButtonAlpha > 0) m_leftSpinner.transform.Rotate(0, 0, -m_lUltiButtonAlpha * 4);
 
-        if ((m_lUltiButtonAlpha >= 1 || m_rUltiButtonAlpha >= 1) && !m_isInUltimate)
+        if ((m_lUltiButtonAlpha >= 1 && m_rUltiButtonAlpha >= 1) && !m_isInUltimate)
         {
             UltiState(true);
 
@@ -37,15 +37,15 @@ public class GameUIManager : MonoBehaviour
             return;
         }
 
-        if (m_lButtonDown)
+        if (m_lButtonDown && m_instance.m_cooldownSpinners[4].Cooldown() == 0)
         {
-            m_lUltiButtonAlpha = Mathf.Clamp01(m_lUltiButtonAlpha + 0.01f);
+            m_lUltiButtonAlpha = Mathf.Clamp01(m_lUltiButtonAlpha + Time.deltaTime);
             m_leftSpinner.color = new Color(1, 1, 1, m_lUltiButtonAlpha);
         }
 
-        if (m_rButtonDown)
+        if (m_rButtonDown && m_instance.m_cooldownSpinners[5].Cooldown() == 0)
         {
-            m_rUltiButtonAlpha = Mathf.Clamp01(m_rUltiButtonAlpha + 0.01f);
+            m_rUltiButtonAlpha = Mathf.Clamp01(m_rUltiButtonAlpha + Time.deltaTime);
             m_rightSpinner.color = new Color(1, 1, 1, m_rUltiButtonAlpha);
         }
     }
@@ -61,7 +61,6 @@ public class GameUIManager : MonoBehaviour
 
     public void OnUltiButtonDown(bool left)
     {
-
         if (left)
         {
             m_lButtonDown = true;
@@ -69,6 +68,11 @@ public class GameUIManager : MonoBehaviour
         else
         {
             m_rButtonDown = true;
+        }
+
+        if (FindObjectOfType<JPlayerUnit>().UltIsOnCooldown())
+        {
+            StartCoroutine(SimulateKeyPress(JPlayerUnit.ATTACKS.ULTIMATE));
         }
     }
 
@@ -78,14 +82,19 @@ public class GameUIManager : MonoBehaviour
         {
             m_lButtonDown = false;
 
-            if (!m_isInUltimate) DisableSpinner(true);
-
+            if (m_instance.m_cooldownSpinners[4].Cooldown() == 0)
+            {
+                DisableSpinner(true); Sparky.ResetIntensity();
+            }
         }
         else
         {
             m_rButtonDown = false;
 
-            if (!m_isInUltimate) DisableSpinner(false);
+            if (m_instance.m_cooldownSpinners[5].Cooldown() == 0)
+            {
+                DisableSpinner(false); Sparky.ResetIntensity();
+            }
         }
     }
 

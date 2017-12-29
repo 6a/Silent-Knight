@@ -84,15 +84,14 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     void Awake()
     {
+        PPM.SaveInt(PPM.KEY_INT.XP, 0);
         m_animator = GetComponent<Animator>();
         m_rb = GetComponent<Rigidbody>();
         LineRender = GetComponent<LineRenderer>();
         m_weapon = GetComponentInChildren<PlayerWeapon>();
         m_lastAttackTime = -1;
-        // load xp from memory
-        m_level = LevelScaling.GetLevel(m_xp);
-        Health = LevelScaling.GetScaledHealth(m_level, (int)m_baseHealth);
-        m_maxHealth = Health;
+        m_xp = PPM.LoadInt(PPM.KEY_INT.XP);
+
         m_attackState = 0;
         m_currentDamageCoroutine = null;
 
@@ -134,11 +133,14 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         Attack(CurrentTarget);
 
         UpdateCooldownSpinners();
+
+        UpdateMovement();
     }
 
-    void UpdateLevel(int experienceGained)
+    void UpdateLevel(int experienceGained, bool init = false)
     {
-        m_xp += experienceGained;
+        if (!init) m_xp += experienceGained;
+        PPM.SaveInt(PPM.KEY_INT.XP, m_xp);
 
         var level = LevelScaling.GetLevel(m_xp);
 
@@ -148,7 +150,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         if (level != m_level)
         {
             GameUIManager.TriggerLevelUpAnimation();
-            GameUIManager.UpdatePlayerLevel(level, 0);
+            GameUIManager.UpdatePlayerLevel(level, fillAmount);
             m_maxHealth = LevelScaling.GetScaledHealth(level, (int)m_baseHealth);
             for (int i = 0; i < m_currentSkillCD.Length; i++)
             {
@@ -157,6 +159,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
             }
 
             Health = m_maxHealth;
+            m_healthbar.UpdateHealthDisplay(1, (int)m_maxHealth);
         }
         else
         {
@@ -302,7 +305,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         var t = (isCrit) ? FCT_TYPE.DOTCRIT : FCT_TYPE.DOTHIT;
 
-        enemy.Damage(this, amount * critMultiplier, t);
+        if (enemy != null) enemy.Damage(this, amount * critMultiplier, t);
     }
 
     public void OnShieldAttack()
@@ -328,13 +331,13 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     {
         if (CurrentTarget == null) return;
 
+        CurrentTarget.KnockBack(new Vector2(transform.position.x, transform.position.z), 800);
+
         ApplyDamage(CurrentTarget, 1);
 
         StartCoroutine(Freeze(0.1f));
 
         // TODO particles
-
-        CurrentTarget.KnockBack(new Vector2(transform.position.x, transform.position.z), 800);
 
         StartCooldown(ATTACKS.KICK);
         m_lastAttackTime = Time.time - 0.5f;
@@ -371,6 +374,11 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         m_lastAttackTime = Time.time - reduceAttackDelay;
         m_isStartingSpec = false;
+    }
+
+    public bool UltIsOnCooldown()
+    {
+        return (m_currentSkillCD[(int)ATTACKS.ULTIMATE] > 0);
     }
 
     // Helper function that uses a raycast to check if the knight is touching a surface with their feet.
@@ -421,6 +429,10 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         m_chest = PathingTarget;
 
         m_healthbar = FindObjectOfType<PlayerHealthBar>();
+
+        UpdateLevel(m_xp, true);
+        m_maxHealth = Health;
+
         m_healthbar.UpdateHealthDisplay(1, (int)m_maxHealth);
 
         m_enemyHealthbar = FindObjectOfType<EnemyHealthBar>();
@@ -538,8 +550,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         return false;
     }
 
-
-
     float m_baseDamageHolder;
     public void OnBuffStart()
     {
@@ -549,7 +559,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         m_baseDamage *= m_buffMultiplier;
 
-        StartCoroutine(Freeze(0.3f));
+        StartCoroutine(Freeze(0.3f, true));
 
         StartCoroutine(BuffTimer(m_buffDuration));
 
@@ -609,6 +619,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         m_applyBuffDamage = false;
 
         GameUIManager.UltiState(false);
+
+        Sparky.ResetIntensity();
     }
 
     public void Attack(IAttackable target)
@@ -740,6 +752,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     public void GiveXp(int xp)
     {
         UpdateLevel(xp);
+
     }
 
     IEnumerator ApplyDamageDelayed(int dmgMultiplier, int frameDelay, IAttackable target)
@@ -751,17 +764,25 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         ApplyDamage(target, dmgMultiplier);
     }
 
-    IEnumerator Freeze(float duration)
+    IEnumerator Freeze(float duration, bool buff = false)
     {
+        if (buff) Sparky.DisableLight();
+
         Time.timeScale = 0f;
         float pauseEndTime = Time.realtimeSinceStartup + duration;
 
-        while (Time.realtimeSinceStartup < pauseEndTime)
+        while (PauseManager.Paused || Time.realtimeSinceStartup < pauseEndTime)
         {
             yield return null;
         }
 
         Time.timeScale = 1;
+
+        if (buff)
+        {
+            Sparky.ResetIntensity();
+            Sparky.AdjustIntensity();
+        }
     }
 
     public void GetInRange(ITargetable target)

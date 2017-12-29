@@ -1,6 +1,8 @@
 ﻿using DungeonGeneration;
 using UnityEngine;
 using PathFinding;
+using System.Collections;
+using System.Diagnostics;
 
 public class DungeonGenerator : MonoBehaviour
 {
@@ -31,7 +33,7 @@ public class DungeonGenerator : MonoBehaviour
     {
         m_grid = FindObjectOfType<ASGrid>();
 
-        m_currentLevel = 2;
+        m_currentLevel = 0;
 
         Generator.Init(m_maxDungeonWidth, m_maxDungeonHeight,
         new PlatformProperties(m_minWidth, m_maxWidth, m_minHeight, m_maxHeight),
@@ -40,7 +42,24 @@ public class DungeonGenerator : MonoBehaviour
 
     void Update ()
     {
+    }
 
+    public bool IsLoadingAsync { get; set; }
+
+    public IEnumerator LoadNextAsync()
+    {
+        Stopwatch s = new Stopwatch();
+        s.Start();
+
+        UpdateDungeon();
+        UpdatePreviewTexture();
+
+        Generator.Fabricate();
+        m_grid.CreateGrid();
+        s.Stop();
+        yield return new WaitForSecondsRealtime(0.1f);
+        IsLoadingAsync = false;
+        print(s.ElapsedMilliseconds);
     }
 
     public void LoadNext()
@@ -54,7 +73,7 @@ public class DungeonGenerator : MonoBehaviour
 
             if (i > 0 && Generator.CurrentDungeon.Nodes.Count == 2 && Generator.CurrentDungeon.Platforms.Count == 10)
             {
-                Debug.Log("Suitable dungeon: " + m_levelSeeds[m_currentLevel]);
+                UnityEngine.Debug.Log("Suitable dungeon: " + m_levelSeeds[m_currentLevel]);
             }
         }
 

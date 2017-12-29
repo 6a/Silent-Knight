@@ -9,6 +9,9 @@ public class Sparky : MonoBehaviour
 
     public bool IsMoving { get; set; }
 
+    static Sparky m_instance;
+    static float m_baseIntensity;
+
     private void Awake()
     {
         m_knight = FindObjectOfType<JPlayerUnit>();
@@ -16,6 +19,8 @@ public class Sparky : MonoBehaviour
         m_vOffset = 0;
         transform.parent = null;
 
+        m_instance = this;
+        m_baseIntensity = m_light.intensity;
         GameManager.OnStartRun += OnStartRun;
     }
 
@@ -109,4 +114,20 @@ public class Sparky : MonoBehaviour
     {
         return (Vector3.Cross((m_knight.transform.position - m_light.transform.position).normalized, m_knight.transform.forward)).y < 0;
     }
+
+    public static void AdjustIntensity()
+    {
+        m_instance.m_light.intensity += 3;
+    }
+
+    public static void ResetIntensity()
+    {
+        m_instance.m_light.intensity = m_baseIntensity;
+    }
+
+    public static void DisableLight()
+    {
+        m_instance.m_light.intensity = 0;
+    }
+
 }

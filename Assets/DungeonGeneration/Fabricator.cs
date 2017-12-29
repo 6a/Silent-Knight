@@ -52,6 +52,7 @@ namespace DungeonGeneration
             oldObjects.Add(GameObject.Find("Tiles"));
             oldObjects.Add(GameObject.FindGameObjectWithTag("Player"));
             oldObjects.Add(GameObject.FindGameObjectWithTag("Chest"));
+            oldObjects.Add(GameObject.Find("Enemies"));
 
             foreach (var ob in oldObjects)
             {
@@ -292,6 +293,8 @@ namespace DungeonGeneration
 
         public void PlaceEnemies()
         {
+            var container = new GameObject("Enemies");
+
             var platformData = Platforms.GetPlatformData();
 
             var aiSet = new Dictionary<int, List<IAttackable>>();
@@ -313,7 +316,7 @@ namespace DungeonGeneration
                 {
                     for (int i = 0; i < numToSpawn; i++)
                     {
-                        int r = UnityEngine.Random.Range(4, 5);
+                        int r = UnityEngine.Random.Range(1, 5);
                         var enemyObj = Resources.Load("Goblins/Goblin " + r) as GameObject;
 
                         var pos = platform.GetRandomLocationOnPlatform(2);
@@ -323,7 +326,7 @@ namespace DungeonGeneration
                         positions.Add(pos);
 
                         GameObject enemy = GameObject.Instantiate(enemyObj, new Vector3(pos.x, 1, pos.y), Quaternion.identity);
-
+                        enemy.transform.parent = container.transform;
                         var enemyClass = enemy.GetComponent<JEnemyUnit>();
 
                         enemyClass.Running = false;

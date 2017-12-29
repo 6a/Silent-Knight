@@ -67,6 +67,8 @@ namespace PathFinding
             m_currentPathCoroutine = null;
         }
 
+        Vector3 m_prevPos;
+
         public IEnumerator RefreshPath()
         {
             while (true)
@@ -75,7 +77,11 @@ namespace PathFinding
 
                 if (!Running || transform == null) continue;
 
-                PathRequestManager.RequestPath(new PathRequest(transform, PathingTarget.TargetTransform(UnitID), OnPathFound));
+                if (m_prevPos != PathingTarget.TargetTransform(UnitID).position)
+                {
+                    PathRequestManager.RequestPath(new PathRequest(transform, PathingTarget.TargetTransform(UnitID), OnPathFound));
+                    m_prevPos = PathingTarget.TargetTransform(UnitID).position;
+                }
             }
         }
 
@@ -145,8 +151,8 @@ namespace PathFinding
         Quaternion newRotation;
         Vector3 nextMovement;
         bool processMovementUpdate;
-
-        void LateUpdate()
+    
+        public void UpdateMovement()
         {
             if (processMovementUpdate)
             {

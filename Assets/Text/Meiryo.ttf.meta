@@ -15,7 +15,7 @@ TrueTypeFontImporter:
   - Meiryo
   fallbackFontReferences: []
   customCharacters: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\u9244\u96C4\u30DD\u30FC\u30BA\u5C04\u624B\u30B4\u30D6\u30EA\u30F3\u65A7\u69CD\u30B9\u30AB\u30A6\u30C80123456789
-    /"
+    /\u518D\u751F\u8A2D\u5B9A\u3084\u3081\u308B"
   fontRenderingMode: 0
   ascentCalculationMode: 1
   useLegacyBoundsCalculation: 0

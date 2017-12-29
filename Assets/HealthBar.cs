@@ -24,7 +24,7 @@ public class HealthBar : MonoBehaviour
     public void UpdateHealthDisplay(float value, int maxHealth)
     {
         m_slider.sizeDelta = new Vector2(value * m_width , m_slider.sizeDelta.y);
-        m_text.text = (int)(maxHealth * value) + FORMAT_TEMPLATE + maxHealth;
+        m_text.text = (maxHealth * value).ToString() + FORMAT_TEMPLATE + maxHealth;
     }
 
     public void Pulse(bool positiveAction)
