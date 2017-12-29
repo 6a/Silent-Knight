@@ -345,7 +345,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     void StartCooldown(ATTACKS attack, float multiplier = 1)
     {
-        print(attack);
         var cd = multiplier * m_baseSkillCD[(int)attack];
         m_currentSkillCD[(int)attack] = cd;
     }

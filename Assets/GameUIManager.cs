@@ -150,5 +150,7 @@ public class GameUIManager : MonoBehaviour
         {
             m_instance.m_cooldownSpinners[(int)spinner].Pulse();
         }
+
+        BorderGlow.Pulse(0.5f, new Color(85f/255f, 220f/255f, 1));
     }
 }
