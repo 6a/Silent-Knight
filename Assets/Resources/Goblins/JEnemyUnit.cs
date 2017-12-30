@@ -401,5 +401,8 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         }
     }
 
-
+    public void SetLevel(int level)
+    {
+        m_level = level;
+    }
 }

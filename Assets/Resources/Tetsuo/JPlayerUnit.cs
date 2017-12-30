@@ -105,6 +105,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     void Update()
     {
+        //print(IsFollowingPath);
+
         if (!Running) return;
 
         if (m_tickRot)
@@ -561,6 +563,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         StartCoroutine(Freeze(0.3f, true));
 
+
+
         StartCoroutine(BuffTimer(m_buffDuration));
 
         // particles and stuff
@@ -587,6 +591,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
                 m_isStartingSpec = true;
                 TriggerAnimation(ANIMATION.BUFF);
                 m_speedTemp = Speed;
+                print(m_speedTemp);
                 Speed = 0;
                 m_buffInitSystem.SetActive(true);
                 m_lastAttackTime = Time.time + 10;
@@ -609,8 +614,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         m_buffSystem.SetActive(true);
 
         yield return new WaitForSeconds(duration - Time.fixedDeltaTime);
-
-        // Turn off animations and stuff
 
         m_buffSystem.SetActive(false);
 

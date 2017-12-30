@@ -97,7 +97,7 @@ namespace PathFinding
                 if (Path == null || !IsFollowingPath)
                 {
                     OnFollowPath(0);
-                    yield return null;
+                    yield return new WaitForFixedUpdate();
                     continue;
                 }
 
@@ -131,12 +131,11 @@ namespace PathFinding
                     var targetRotation = Quaternion.LookRotation(new Vector3(Path.LookPoints[pathIndex].x, transform.position.y, Path.LookPoints[pathIndex].y) - transform.position);
                     newRotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * TurnSpeed);
                     nextMovement = (Vector3.forward * Time.deltaTime * Speed * speedPercent);
-
                     processMovementUpdate = true;
                 }
 
                 OnFollowPath(speedPercent);
-                yield return null;
+                yield return new WaitForFixedUpdate();
             }
         }
 

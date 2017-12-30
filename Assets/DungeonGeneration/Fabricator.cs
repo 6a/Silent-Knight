@@ -156,7 +156,7 @@ namespace DungeonGeneration
                                             tile.transform.Rotate(Vector3.up, -90);
                                             break;
                                         case S_EDGE:
-                                            // No rotation here, just leaving this case in for readibility//tile.transform.Rotate(Vector3.up, 70);
+                                            // No rotation here, just leaving this case in for readibility
                                             break;
                                         case W_EDGE:
                                             tile.transform.Rotate(Vector3.up, 90);
@@ -308,7 +308,7 @@ namespace DungeonGeneration
                 var startNode = new Vector2(Scale((int)m_startNode.x), Scale((int)m_startNode.y));
                 var endNode = new Vector2(Scale((int)m_endNode.x), Scale((int)m_endNode.y));
 
-                int numToSpawn = 2 + m_levelIndex;
+                int numToSpawn = 3 + m_levelIndex;
 
                 var positions = new List<Vector2>();
 
@@ -331,6 +331,15 @@ namespace DungeonGeneration
 
                         enemyClass.Running = false;
 
+                        if (m_levelIndex == 0)
+                        {
+                            enemyClass.SetLevel(1);
+                        }
+                        else
+                        {
+                            enemyClass.SetLevel(((m_levelIndex + 1) * 5) - 5);
+                        }
+                        
                         var enemyClassInterface = enemyClass as IAttackable;
                         enemyClassInterface.ID = eNumber;
                         eNumber++;
