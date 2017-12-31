@@ -8523,7 +8523,8 @@ MonoBehaviour:
   m_loadingBlockBottomParent: {fileID: 132906393}
   m_faderBackground: {fileID: 1763434107}
   m_faderLogo: {fileID: 1164286214}
-  m_loadDelay: 1
+  m_loadDelay: 0
+  m_triggerShatter: 0
 --- !u!4 &1796867378
 Transform:
   m_ObjectHideFlags: 0
@@ -8679,7 +8680,7 @@ MonoBehaviour:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1799433862}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a518318d1b1472a40bc098a0b4d45336, type: 3}
   m_Name: 

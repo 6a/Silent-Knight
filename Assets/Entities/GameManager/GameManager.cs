@@ -17,6 +17,9 @@ public class GameManager : MonoBehaviour
     Image [] m_loadingBlocksBottom, m_loadingBlocksTop;
 
     [SerializeField] float m_loadDelay;
+    [SerializeField] bool m_triggerShatter;
+
+    static GameManager m_instance;
 
     void Awake()
     {
@@ -26,6 +29,7 @@ public class GameManager : MonoBehaviour
         m_generator = FindObjectOfType<DungeonGenerator>();
         OnStartRun += NextLevelSequence;
         GameState = GAMESTATE.START;
+        m_instance = this;
     }
 
     void Start ()
@@ -38,8 +42,31 @@ public class GameManager : MonoBehaviour
 
 	void Update ()
     {
-		
+		if (m_triggerShatter)
+        {
+            m_triggerShatter = false;
+
+            Shatter.StartShatter();
+        }
 	}
+
+    public static void EnableLoadingScreen()
+    {
+        var fc = m_instance.m_faderBackground.color;
+        m_instance.m_faderBackground.color = new Color(fc.r, fc.g, fc.b, 1);
+
+        var lc = m_instance.m_faderLogo.color;
+        m_instance.m_faderLogo.color = new Color(lc.r, lc.g, lc.b, 1);
+
+        for (int i = 0; i < m_instance.m_loadingBlocksBottom.Length; i++)
+        {
+            var bc = m_instance.m_loadingBlocksBottom[i].color;
+            m_instance.m_loadingBlocksBottom[i].color = new Color(bc.r, bc.g, bc.b, 1);
+
+            var tc = m_instance.m_loadingBlocksTop[i].color;
+            m_instance.m_loadingBlocksTop[i].color = new Color(tc.r, tc.g, tc.b, 1);
+        }
+    }
 
     public void NextLevelSequence()
     {

@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 public class Shatter : MonoBehaviour
 {
-    struct Tri
+    class Tri
     {
         public Vector3 Center
         {
@@ -23,6 +23,7 @@ public class Shatter : MonoBehaviour
 
 
         public Vector3 Dir;
+        public Vector3 Rotation;
         public Vector3[] UV;
         public Vector3[] Vertices;
 
@@ -39,57 +40,74 @@ public class Shatter : MonoBehaviour
 
     SimulateShatter m_shatterSim;
 
+    static Shatter m_instance;
 
     public void OnPostRender()
     {
-        StartCoroutine(RenderTriangles());
+
     }
 
     float offset = 0;
     float alpha = 1;
 
+    bool m_underlayEnabled;
+
     IEnumerator RenderTriangles()
     {
-        if (m_tex = null) yield return null;
+        if (m_tex == null) yield return null;
 
-        yield return new WaitForEndOfFrame();
-
-        if (!m_mat)
+        while (true)
         {
-            // Unity has a built-in shader that is useful for drawing
-            // simple colored things. In this case, we just want to use
-            // a blend mode that inverts destination colors.
-            var shader = Shader.Find("J/Shatter");
-            m_mat = new Material(shader);
-            m_mat.hideFlags = HideFlags.HideAndDontSave;
+            yield return new WaitForEndOfFrame();
 
-            m_mat.mainTexture = m_tex;
-            
-        }
-
-        GL.LoadOrtho();
-        m_mat.SetPass(0);
-
-        foreach (var tri in m_triData)
-        {
-            GL.Begin(GL.TRIANGLES);
-
-            for (int i = 0; i < 3; i++)
+            if (!m_underlayEnabled)
             {
-                GL.TexCoord(tri.UV[i]);
-                GL.Vertex(tri.Vertices[i]);
+                GameManager.EnableLoadingScreen();
+                m_underlayEnabled = true;
+
+                Time.timeScale = 1;
             }
 
-            var m = Matrix4x4.Translate(tri.Dir * offset * tri.Speed);
-            // Any other transformations
-            GL.MultMatrix(m);
+            if (!m_mat)
+            {
+                // Unity has a built-in shader that is useful for drawing
+                // simple colored things. In this case, we just want to use
+                // a blend mode that inverts destination colors.
+                var shader = Shader.Find("J/Shatter");
+                m_mat = new Material(shader);
+                m_mat.hideFlags = HideFlags.HideAndDontSave;
 
-            m_mat.SetFloat("_Alpha", alpha);
+                m_mat.mainTexture = m_tex;
+            }
 
-            GL.End();
+            GL.LoadOrtho();
+            m_mat.SetPass(0);
+
+            for (int i = 0; i < m_triData.Count; i++)
+            {
+                GL.Begin(GL.TRIANGLES);
+
+                for (int j = 0; j < 3; j++)
+                {
+                    GL.TexCoord(m_triData[i].UV[j]);
+                    GL.Vertex(m_triData[i].Vertices[j]);
+                }
+
+                var m = Matrix4x4.TRS(m_triData[i].Dir * offset * m_triData[i].Speed, Quaternion.Euler(0, 0, m_triData[i].Rotation.z), Vector3.one);
+
+                // Any other transformations
+                GL.MultMatrix(m);
+
+                m_mat.SetFloat("_Alpha", alpha);
+
+                GL.End();
+                m_triData[i].Rotation.z += 1;
+            }
+
+            alpha -= 0.5f * Time.deltaTime;
+            offset += Time.deltaTime;
+
         }
-        alpha -= 0.5f * Time.deltaTime;
-        offset += Time.deltaTime;
     }
 
     private void OnDrawGizmos()
@@ -115,9 +133,27 @@ public class Shatter : MonoBehaviour
 
     List<Triangle> triangles = new List<Triangle>();
 
-    private void Start()
+    void Awake()
     {
-        //m_shatterSim = FindObjectOfType<SimulateShatter>();
+        m_instance = this;
+    }
+
+    IEnumerator RecordFrame()
+    {
+        yield return new WaitForEndOfFrame();
+        m_tex = ScreenCapture.CaptureScreenshotAsTexture();
+
+        m_tex.filterMode = FilterMode.Point;
+        m_tex.Apply();
+
+        Time.timeScale = 0;
+
+        StartCoroutine(RenderTriangles());
+    }
+
+    public static void StartShatter()
+    {
+        m_instance.m_underlayEnabled = false;
 
         List<Vector2> randomPoints = new List<Vector2>();
 
@@ -168,10 +204,10 @@ public class Shatter : MonoBehaviour
 
         Voronoi voronoi = new Voronoi(randomPoints, colors, new Rect(0, 0, 2, 2));
 
-        triangles = voronoi.Triangles();
+        m_instance.triangles = voronoi.Triangles();
         float speed = 0.05f;
 
-        foreach (var triangle in triangles)
+        foreach (var triangle in m_instance.triangles)
         {
             var v1 = new Vector3(triangle.sites[0].x, triangle.sites[0].y, 0);
             var v2 = new Vector3(triangle.sites[1].x, triangle.sites[1].y, 0);
@@ -179,26 +215,14 @@ public class Shatter : MonoBehaviour
 
             var t = new Tri()
             {
-                Vertices = new Vector3[3] { v1 , v2, v3 },
+                Vertices = new Vector3[3] { v1, v2, v3 },
                 UV = new Vector3[3] { (v1 + Vector3.one) / 2, (v2 + Vector3.one) / 2, (v3 + Vector3.one) / 2 }
             };
             t.Dir = t.Center.normalized;
             t.Speed = speed;
-            m_triData.Add(t);
+            m_instance.m_triData.Add(t);
         }
-        StartCoroutine(RecordFrame());
-    }
 
-    IEnumerator RecordFrame()
-    {
-        yield return new WaitForEndOfFrame();
-        m_tex = ScreenCapture.CaptureScreenshotAsTexture();
-
-        m_tex.filterMode = FilterMode.Point;
-        m_tex.Apply();
-
-        //m_targetMaterial.mainTexture = m_tex;
-
-        //m_shatterSim.Run(m_renderTarget);
+        m_instance.StartCoroutine(m_instance.RecordFrame());
     }
 }

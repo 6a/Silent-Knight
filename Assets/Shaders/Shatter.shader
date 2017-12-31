@@ -41,7 +41,6 @@
 				v2f o;
 
 				o.vertex = mul(UNITY_MATRIX_MV, v.vertex);
-				//o.vertex = UnityObjectToClipPos(o.vertex);
 
 				o.uv = v.uv;
 				return o;
