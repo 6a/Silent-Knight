@@ -68,6 +68,24 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public static void DisableLoadingScreen()
+    {
+        var fc = m_instance.m_faderBackground.color;
+        m_instance.m_faderBackground.color = new Color(fc.r, fc.g, fc.b, 0);
+
+        var lc = m_instance.m_faderLogo.color;
+        m_instance.m_faderLogo.color = new Color(lc.r, lc.g, lc.b, 0);
+
+        for (int i = 0; i < m_instance.m_loadingBlocksBottom.Length; i++)
+        {
+            var bc = m_instance.m_loadingBlocksBottom[i].color;
+            m_instance.m_loadingBlocksBottom[i].color = new Color(bc.r, bc.g, bc.b, 0);
+
+            var tc = m_instance.m_loadingBlocksTop[i].color;
+            m_instance.m_loadingBlocksTop[i].color = new Color(tc.r, tc.g, tc.b, 0);
+        }
+    }
+
     public void NextLevelSequence()
     {
         Debug.Log("GAME MANAGER: Next Level Trigger received");

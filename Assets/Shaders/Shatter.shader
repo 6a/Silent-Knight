@@ -28,7 +28,7 @@
 				float2 uv : TEXCOORD0;
 			};
 		
-			float4x4 _TransformMatrix;
+			half _ScreenRatio;
 
 			struct v2f
 			{
@@ -40,9 +40,24 @@
 			{
 				v2f o;
 
-				o.vertex = mul(UNITY_MATRIX_MV, v.vertex);
+				// write vertex data to local var
+				o.vertex = v.vertex;
 
+				// adjust x to compensate for screen ratio
+				o.vertex.x = o.vertex.x * _ScreenRatio;
+
+				// transform vertex
+				o.vertex = mul(UNITY_MATRIX_MV, o.vertex);
+
+				// revert x value to NDCs
+				o.vertex.x = o.vertex.x / _ScreenRatio;
+				
+				// I don't know why this works but this prevents clipping when rotating 
+				o.vertex.z = 0;
+
+				// Pass in uv coords
 				o.uv = v.uv;
+
 				return o;
 			}
 			

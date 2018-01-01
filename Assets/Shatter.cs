@@ -1,5 +1,4 @@
 ﻿using Delaunay;
-using Delaunay.Geo;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -14,14 +13,14 @@ public class Shatter : MonoBehaviour
         {
             get
             {
-                var x = (Vertices[0].x + Vertices[1].x + Vertices[2].x / 3);
-                var y = (Vertices[0].y + Vertices[1].y + Vertices[2].y / 3);
-                var z = (Vertices[0].z + Vertices[1].z + Vertices[2].z / 3);
+                var x = (Vertices[0].x + Vertices[1].x + Vertices[2].x) / 3;
+                var y = (Vertices[0].y + Vertices[1].y + Vertices[2].y) / 3;
+                var z = (Vertices[0].z + Vertices[1].z + Vertices[2].z) / 3;
                 return new Vector3(x, y, z);
             }
         }
 
-
+        public Matrix4x4 Matrix;
         public Vector3 Dir;
         public Vector3 Rotation;
         public Vector3[] UV;
@@ -41,14 +40,11 @@ public class Shatter : MonoBehaviour
     SimulateShatter m_shatterSim;
 
     static Shatter m_instance;
+    static Coroutine m_currentRenderingRoutine;
 
     public void OnPostRender()
     {
-
     }
-
-    float offset = 0;
-    float alpha = 1;
 
     bool m_underlayEnabled;
 
@@ -56,7 +52,11 @@ public class Shatter : MonoBehaviour
     {
         if (m_tex == null) yield return null;
 
-        while (true)
+        float offset = 0;
+        float alpha = 1;
+        float rotation = 0;
+
+        while (alpha > 0)
         {
             yield return new WaitForEndOfFrame();
 
@@ -70,18 +70,20 @@ public class Shatter : MonoBehaviour
 
             if (!m_mat)
             {
-                // Unity has a built-in shader that is useful for drawing
-                // simple colored things. In this case, we just want to use
-                // a blend mode that inverts destination colors.
                 var shader = Shader.Find("J/Shatter");
                 m_mat = new Material(shader);
                 m_mat.hideFlags = HideFlags.HideAndDontSave;
 
                 m_mat.mainTexture = m_tex;
+
             }
 
             GL.LoadOrtho();
             m_mat.SetPass(0);
+
+            var screenratio = (float)Screen.width / Screen.height;
+            m_mat.SetFloat("_ScreenRatio", screenratio);
+            m_mat.SetFloat("_Alpha", alpha);
 
             for (int i = 0; i < m_triData.Count; i++)
             {
@@ -93,42 +95,45 @@ public class Shatter : MonoBehaviour
                     GL.Vertex(m_triData[i].Vertices[j]);
                 }
 
-                var m = Matrix4x4.TRS(m_triData[i].Dir * offset * m_triData[i].Speed, Quaternion.Euler(0, 0, m_triData[i].Rotation.z), Vector3.one);
+                var c = m_triData[i].Center;
+                c.x *= screenratio;
+                m_triData[i].Matrix = Matrix4x4.Translate(m_triData[i].Dir * offset);
+                m_triData[i].Matrix = m_triData[i].Matrix * Matrix4x4.Translate(c);
+                m_triData[i].Matrix = m_triData[i].Matrix * Matrix4x4.Rotate(Quaternion.Euler(m_triData[i].Rotation * rotation));
+                m_triData[i].Matrix = m_triData[i].Matrix * Matrix4x4.Translate(-c);
 
-                // Any other transformations
-                GL.MultMatrix(m);
-
-                m_mat.SetFloat("_Alpha", alpha);
+                GL.MultMatrix(m_triData[i].Matrix);
 
                 GL.End();
-                m_triData[i].Rotation.z += 1;
             }
-
-            alpha -= 0.5f * Time.deltaTime;
-            offset += Time.deltaTime;
+            alpha -= 0.4f * Time.deltaTime;
+            offset += 0.1f * Time.deltaTime;
+            rotation += 0.4f * Time.deltaTime;
 
         }
+
+        //GameManager.DisableLoadingScreen();
     }
 
     private void OnDrawGizmos()
     {
-        if(triangles.Count > 0)
-        {
-            int c = -1;
+        //if(triangles.Count > 0)
+        //{
+        //    int c = -1;
 
-            foreach (var t in triangles)
-            {
-                c++;
+        //    foreach (var t in triangles)
+        //    {
+        //        c++;
 
-                if (c != 2 || c != 0) continue;
-                Gizmos.color = Color.cyan;
+        //        if (c != 2 || c != 0) continue;
+        //        Gizmos.color = Color.cyan;
 
-                foreach (var site in t.sites)
-                {
-                    Gizmos.DrawSphere(new Vector3(site.x, 0, site.y), 0.01f);
-                }
-            }
-        }
+        //        foreach (var site in t.sites)
+        //        {
+        //            Gizmos.DrawSphere(new Vector3(site.x, 0, site.y), 0.01f);
+        //        }
+        //    }
+        //}
     }
 
     List<Triangle> triangles = new List<Triangle>();
@@ -148,16 +153,22 @@ public class Shatter : MonoBehaviour
 
         Time.timeScale = 0;
 
-        StartCoroutine(RenderTriangles());
+        if (m_currentRenderingRoutine != null) StopCoroutine(m_currentRenderingRoutine);
+
+        m_currentRenderingRoutine = StartCoroutine(RenderTriangles());
     }
 
     public static void StartShatter()
     {
         m_instance.m_underlayEnabled = false;
 
+        m_instance.m_mat = null;
+
         List<Vector2> randomPoints = new List<Vector2>();
 
         List<uint> colors = new List<uint>();
+
+        //Random.InitState(1);
 
         for (int i = 0; i < 20; i++)
         {
@@ -165,8 +176,8 @@ public class Shatter : MonoBehaviour
             colors.Add(0);
         }
 
-        //Add guarunteed edge points
-        for (int i = 0; i < 20; i++)
+        //Add guaranteed edge points
+        for (int i = 0; i < 10; i++)
         {
             var rand = Random.Range(0f, 8f);
 
@@ -196,7 +207,7 @@ public class Shatter : MonoBehaviour
             colors.Add(0);
         }
 
-        // Add guarunteed corners
+        // Add guaranteed corners
         randomPoints.Add(new Vector2(-1, 1)); colors.Add(0);
         randomPoints.Add(new Vector2(1, 1)); colors.Add(0);
         randomPoints.Add(new Vector2(1, -1)); colors.Add(0);
@@ -207,11 +218,15 @@ public class Shatter : MonoBehaviour
         m_instance.triangles = voronoi.Triangles();
         float speed = 0.05f;
 
+        m_instance.m_triData.Clear();
+
+        var screenratio = (float)Screen.width / Screen.height;
+
         foreach (var triangle in m_instance.triangles)
         {
-            var v1 = new Vector3(triangle.sites[0].x, triangle.sites[0].y, 0);
-            var v2 = new Vector3(triangle.sites[1].x, triangle.sites[1].y, 0);
-            var v3 = new Vector3(triangle.sites[2].x, triangle.sites[2].y, 0);
+            var v1 = new Vector3(triangle.sites[0].x/* * screenratio*/, triangle.sites[0].y, 0);
+            var v2 = new Vector3(triangle.sites[1].x/* * screenratio*/, triangle.sites[1].y, 0);
+            var v3 = new Vector3(triangle.sites[2].x/* * screenratio*/, triangle.sites[2].y, 0);
 
             var t = new Tri()
             {
@@ -220,6 +235,7 @@ public class Shatter : MonoBehaviour
             };
             t.Dir = t.Center.normalized;
             t.Speed = speed;
+            t.Rotation = (Random.rotation.eulerAngles * Random.Range(0.8f, 1f));
             m_instance.m_triData.Add(t);
         }
 
