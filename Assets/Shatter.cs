@@ -25,6 +25,7 @@ public class Shatter : MonoBehaviour
         public Vector3 Rotation;
         public Vector3[] UV;
         public Vector3[] Vertices;
+        public Vector3[] BC;
 
         public float Speed;
 
@@ -55,6 +56,8 @@ public class Shatter : MonoBehaviour
         float offset = 0;
         float alpha = 1;
         float rotation = 0;
+        float transformDelay = 0.5f;
+        float transitionTime = 0;
 
         while (alpha > 0)
         {
@@ -75,7 +78,6 @@ public class Shatter : MonoBehaviour
                 m_mat.hideFlags = HideFlags.HideAndDontSave;
 
                 m_mat.mainTexture = m_tex;
-
             }
 
             GL.LoadOrtho();
@@ -89,10 +91,13 @@ public class Shatter : MonoBehaviour
             {
                 GL.Begin(GL.TRIANGLES);
 
+                //print(m_triData[i].BC[0] + " | " + m_triData[i].BC[1] + " | " + m_triData[i].BC[2]);
+
                 for (int j = 0; j < 3; j++)
                 {
-                    GL.TexCoord(m_triData[i].UV[j]);
+                    GL.MultiTexCoord(0, m_triData[i].UV[j]);
                     GL.Vertex(m_triData[i].Vertices[j]);
+                    GL.MultiTexCoord(2, m_triData[i].BC[j]);
                 }
 
                 var c = m_triData[i].Center;
@@ -100,16 +105,24 @@ public class Shatter : MonoBehaviour
                 m_triData[i].Matrix = Matrix4x4.Translate(m_triData[i].Dir * offset);
                 m_triData[i].Matrix = m_triData[i].Matrix * Matrix4x4.Translate(c);
                 m_triData[i].Matrix = m_triData[i].Matrix * Matrix4x4.Rotate(Quaternion.Euler(m_triData[i].Rotation * rotation));
+                m_triData[i].Matrix = m_triData[i].Matrix * Matrix4x4.Scale(new Vector3(0.97f, 0.97f, 0.97f));
                 m_triData[i].Matrix = m_triData[i].Matrix * Matrix4x4.Translate(-c);
 
                 GL.MultMatrix(m_triData[i].Matrix);
 
                 GL.End();
             }
-            alpha -= 0.4f * Time.deltaTime;
-            offset += 0.1f * Time.deltaTime;
-            rotation += 0.4f * Time.deltaTime;
 
+            if (transformDelay < transitionTime)
+            {
+                alpha -= 0.4f * Time.deltaTime;
+                offset += 0.1f * Time.deltaTime;
+                rotation += 0.4f * Time.deltaTime;
+            }
+            else
+            {
+                transitionTime += Time.deltaTime;
+            }
         }
 
         //GameManager.DisableLoadingScreen();
@@ -224,18 +237,23 @@ public class Shatter : MonoBehaviour
 
         foreach (var triangle in m_instance.triangles)
         {
-            var v1 = new Vector3(triangle.sites[0].x/* * screenratio*/, triangle.sites[0].y, 0);
-            var v2 = new Vector3(triangle.sites[1].x/* * screenratio*/, triangle.sites[1].y, 0);
-            var v3 = new Vector3(triangle.sites[2].x/* * screenratio*/, triangle.sites[2].y, 0);
+            var v1 = new Vector3(triangle.sites[0].x, triangle.sites[0].y, 0);
+            var v2 = new Vector3(triangle.sites[1].x, triangle.sites[1].y, 0);
+            var v3 = new Vector3(triangle.sites[2].x, triangle.sites[2].y, 0);
 
             var t = new Tri()
             {
                 Vertices = new Vector3[3] { v1, v2, v3 },
                 UV = new Vector3[3] { (v1 + Vector3.one) / 2, (v2 + Vector3.one) / 2, (v3 + Vector3.one) / 2 }
             };
+            t.BC = new Vector3[3];
+            t.BC[0] = new Vector3(1, 0, 0);
+            t.BC[1] = new Vector3(0, 1, 0);
+            t.BC[2] = new Vector3(0, 0, 1);
             t.Dir = t.Center.normalized;
             t.Speed = speed;
             t.Rotation = (Random.rotation.eulerAngles * Random.Range(0.8f, 1f));
+
             m_instance.m_triData.Add(t);
         }
 
