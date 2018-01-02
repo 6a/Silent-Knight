@@ -84,7 +84,7 @@ public class GameUIManager : MonoBehaviour
 
             if (m_instance.m_cooldownSpinners[4].Cooldown() == 0)
             {
-                DisableSpinner(true); Sparky.ResetIntensity();
+                DisableUltiSpinner(true); Sparky.ResetIntensity();
             }
         }
         else
@@ -93,7 +93,7 @@ public class GameUIManager : MonoBehaviour
 
             if (m_instance.m_cooldownSpinners[5].Cooldown() == 0)
             {
-                DisableSpinner(false); Sparky.ResetIntensity();
+                DisableUltiSpinner(false); Sparky.ResetIntensity();
             }
         }
     }
@@ -104,12 +104,12 @@ public class GameUIManager : MonoBehaviour
 
         if (!state)
         {
-            m_instance.DisableSpinner(true);
-            m_instance.DisableSpinner(false);
+            m_instance.DisableUltiSpinner(true);
+            m_instance.DisableUltiSpinner(false);
         }
     }
 
-    void DisableSpinner(bool left)
+    void DisableUltiSpinner(bool left)
     {
         if (left)
         {
@@ -173,4 +173,14 @@ public class GameUIManager : MonoBehaviour
     }
 
     public static void UpdateEnemyLevel(int level) { m_instance.m_enemyLevelText.text = level.ToString(); }
+
+    public static void Reset()
+    {
+        UltiState(false);
+
+        for (int i = 0; i < m_instance.m_cooldownSpinners.Length; i++)
+        {
+            m_instance.m_cooldownSpinners[i].UpdateRadial(0, 0);
+        }
+    }
 }

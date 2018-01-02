@@ -40,6 +40,11 @@ namespace DungeonGeneration
             m_level = level;
         }
 
+        public static void InitNewLevel(int level)
+        {
+            m_level = level;
+        }
+
         public static void Fabricate()
         {
             var fabricator = new Fabricator(CurrentDungeon, m_scale, m_offset, m_level);

@@ -9,15 +9,21 @@ public class CameraFollow : MonoBehaviour
     JPlayerUnit m_knight;
     [SerializeField] Vector3 m_offset;
 
-    void Start()
+    static CameraFollow m_instance;
+
+    void Awake()
     {
-        
+        m_instance = this;
     }
 
     void LateUpdate()
     {
         if (m_knight == null) m_knight = FindObjectOfType<JPlayerUnit>();
         else transform.position = m_knight.FocusPoint + m_offset;
+    }
 
+    public static void DereferenceKnight()
+    {
+        m_instance.m_knight = null;
     }
 }

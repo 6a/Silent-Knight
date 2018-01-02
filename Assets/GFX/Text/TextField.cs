@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-
 namespace Localisation
 {
     public class TextField : MonoBehaviour
@@ -14,6 +13,8 @@ namespace Localisation
 
         void Start()
         {
+            LocalisationManager.TextFields.Add(this);
+
             UpdateLanguage();
             m_ready = true;
         }

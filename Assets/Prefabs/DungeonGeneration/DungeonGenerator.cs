@@ -33,7 +33,8 @@ public class DungeonGenerator : MonoBehaviour
     {
         m_grid = FindObjectOfType<ASGrid>();
 
-        m_currentLevel = 0;
+        PPM.SaveInt(PPM.KEY_INT.LEVEL, 0); // TODO remove
+        m_currentLevel = PPM.LoadInt(PPM.KEY_INT.LEVEL);
 
         Generator.Init(m_maxDungeonWidth, m_maxDungeonHeight,
         new PlatformProperties(m_minWidth, m_maxWidth, m_minHeight, m_maxHeight),
@@ -43,6 +44,14 @@ public class DungeonGenerator : MonoBehaviour
     void Update ()
     {
     }
+    
+    public void NextLevelSetup()
+    {
+        m_currentLevel++;
+        PPM.SaveInt(PPM.KEY_INT.LEVEL, m_currentLevel);
+        Generator.InitNewLevel(m_currentLevel);
+
+    }
 
     public bool IsLoadingAsync { get; set; }
 
@@ -50,16 +59,17 @@ public class DungeonGenerator : MonoBehaviour
     {
         Stopwatch s = new Stopwatch();
         s.Start();
-
+        // TODO optimise - n+1 loads are much faster, possibly due to memory caching.
         UpdateDungeon();
         UpdatePreviewTexture();
 
         Generator.Fabricate();
+        yield return new WaitForFixedUpdate();
         m_grid.CreateGrid();
         s.Stop();
         yield return new WaitForSecondsRealtime(0.1f);
         IsLoadingAsync = false;
-        print(s.ElapsedMilliseconds);
+        print("Load complete: " +  s.ElapsedMilliseconds + "ms");
     }
 
     public void LoadNext()

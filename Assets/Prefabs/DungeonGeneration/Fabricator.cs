@@ -47,12 +47,15 @@ namespace DungeonGeneration
 
         public void Fabricate()
         {
+            CameraFollow.DereferenceKnight();
+
             var oldObjects = new List<GameObject>();
 
             oldObjects.Add(GameObject.Find("Tiles"));
             oldObjects.Add(GameObject.FindGameObjectWithTag("Player"));
             oldObjects.Add(GameObject.FindGameObjectWithTag("Chest"));
             oldObjects.Add(GameObject.Find("Enemies"));
+            oldObjects.Add(GameObject.Find("Sparky"));
 
             foreach (var ob in oldObjects)
             {
@@ -308,7 +311,7 @@ namespace DungeonGeneration
                 var startNode = new Vector2(Scale((int)m_startNode.x), Scale((int)m_startNode.y));
                 var endNode = new Vector2(Scale((int)m_endNode.x), Scale((int)m_endNode.y));
 
-                int numToSpawn = 3 + m_levelIndex;
+                int numToSpawn = 1; // TODO revert
 
                 var positions = new List<Vector2>();
 
@@ -337,7 +340,7 @@ namespace DungeonGeneration
                         }
                         else
                         {
-                            enemyClass.SetLevel(((m_levelIndex + 1) * 5) - 5);
+                            enemyClass.SetLevel(m_levelIndex * 5);
                         }
                         
                         var enemyClassInterface = enemyClass as IAttackable;

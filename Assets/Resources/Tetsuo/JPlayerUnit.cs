@@ -12,10 +12,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 {
     public enum ATTACKS { SWORD_SPIN, KICK, SHIELD, PARRY, ULTIMATE }
     private float[] m_currentSkillCD = new float[5];
-    private float[] m_baseSkillCD = { 5, 10, 5, 8, 10 };
-
-    // Variables exposed in the editor.
-    [SerializeField] float m_horizontalMod, m_linearMod, m_jumpForce, m_groundTriggerDistance;
+    private float[] m_baseSkillCD = { 10, 20, 5, 20, 60 };
 
     // References to attached components.
     Animator m_animator;
@@ -50,6 +47,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     [SerializeField] float m_buffMultiplier;
     [SerializeField] float m_critChance;
     [SerializeField] float m_critMultiplier;
+    [SerializeField] float m_dodgeChance;
     [SerializeField] float m_regenAmount;
     [SerializeField] float m_regenDelay;
     [SerializeField] float m_regenTick;
@@ -57,9 +55,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     [SerializeField] float m_buffRotInterval;
     [SerializeField] float m_buffRotPercentDamage;
     [SerializeField] float m_dangerHealthThreshold;
-    [SerializeField] GameObject m_buffSystem, m_buffInitSystem, m_hpAnchor;
+    [SerializeField] GameObject m_buffSystem, m_buffInitSystem;
 
-    ITargetable m_chest;
+    ITargetable m_endtarget;
 
     bool m_parrySuccess;
     bool m_applyBuffDamage;
@@ -91,7 +89,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         m_weapon = GetComponentInChildren<PlayerWeapon>();
         m_lastAttackTime = -1;
         m_xp = PPM.LoadInt(PPM.KEY_INT.XP);
-
         m_attackState = 0;
         m_currentDamageCoroutine = null;
 
@@ -132,9 +129,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         if (Buff()) return;
 
-        Attack(CurrentTarget);
-
         UpdateCooldownSpinners();
+
+        Attack(CurrentTarget);
 
         UpdateMovement();
     }
@@ -310,6 +307,24 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         if (enemy != null) enemy.Damage(this, amount * critMultiplier, t);
     }
 
+    public float GetValue(BONUS bonus)
+    {
+        switch (bonus)
+        {
+            case BONUS.CRIT_CHANCE:             return 100 * m_critChance;
+            case BONUS.DAMAGE_BOOST:            return 0; 
+            case BONUS.ULT_DURATION_INCREASE:   return m_buffDuration;
+            case BONUS.CD_KICK:                 return m_baseSkillCD[(int)ATTACKS.KICK];
+            case BONUS.CD_SPIN:                 return m_baseSkillCD[(int)ATTACKS.SWORD_SPIN];
+            case BONUS.CD_SHIELD_BASH:          return m_baseSkillCD[(int)ATTACKS.SHIELD];
+            case BONUS.CD_DEFLECT:              return m_baseSkillCD[(int)ATTACKS.PARRY];
+            case BONUS.CD_ULT:                  return m_baseSkillCD[(int)ATTACKS.ULTIMATE];
+            case BONUS.HEALTH_BOOST:            return LevelScaling.GetScaledHealth(m_level, (int)m_baseHealth);
+            case BONUS.DODGE_CHANCE:            return 100 * m_dodgeChance;
+            default: return 0;
+        }
+    }
+
     public void OnShieldAttack()
     {
         if (CurrentTarget == null) return;
@@ -383,19 +398,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         return (m_currentSkillCD[(int)ATTACKS.ULTIMATE] > 0);
     }
 
-    // Helper function that uses a raycast to check if the knight is touching a surface with their feet.
-    bool IsAirborne()
-    {
-        if (Physics.Raycast(transform.position + (Vector3.up * 0.5f), Vector3.down, m_groundTriggerDistance))
-        {
-            m_animator.SetTrigger("JumpEnd");
-
-            return false;
-        }
-
-        return true;
-    }
-
     public void OnEnterPlatform()
     {
         IAttackable nextTarget;
@@ -404,7 +406,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         if (nextTarget == null)
         {
-            PathingTarget = m_chest;
+            PathingTarget = m_endtarget;
             UpdatePathTarget(PathingTarget);
             CurrentTarget = null;
         }
@@ -428,7 +430,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         PathingTarget = FindObjectOfType<Chest>();
 
-        m_chest = PathingTarget;
+        m_endtarget = PathingTarget;
 
         m_healthbar = FindObjectOfType<PlayerHealthBar>();
 
@@ -447,6 +449,11 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         UpdatePathTarget(PathingTarget);
         StartCoroutine(RefreshPath());
+
+        for (int i = 0; i < 10; i++)
+        {
+            BonusManager.UpdateShopDisplay((BONUS)i, this);
+        }
     }
 
     public override void OnEndRun()
@@ -457,6 +464,13 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     public void Damage(IAttacker attacker, float dmg, FCT_TYPE type)
     {
         if (IsDead) return;
+
+        if (m_dodgeChance > 0 && UnityEngine.Random.Range(0f, 1f) <= m_dodgeChance)
+        {
+            // TODO add some sort of dodge notifier
+            print("Dodged an attack");
+            return;
+        }
 
         Health -= Mathf.Max(dmg, 0);
 
@@ -591,7 +605,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
                 m_isStartingSpec = true;
                 TriggerAnimation(ANIMATION.BUFF);
                 m_speedTemp = Speed;
-                print(m_speedTemp);
                 Speed = 0;
                 m_buffInitSystem.SetActive(true);
                 m_lastAttackTime = Time.time + 10;
@@ -658,7 +671,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         if (target != null)
         {
-
             var distanceToTarget = Vector3.Distance(transform.position, target.Position());
 
             if (!m_isStartingSpec && (Input.GetButtonDown("AttackKick") || m_simTriggers[(int)ATTACKS.KICK]))
@@ -739,7 +751,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
                     if (CurrentTarget == null)
                     {
-                        PathingTarget = m_chest;
+                        PathingTarget = m_endtarget;
                         UpdatePathTarget(PathingTarget);
                         CurrentTarget = null;
                         m_enemyHealthbar.ToggleVisibility(false);
@@ -749,7 +761,18 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
                 if (CurrentTarget != null) GetInRange(CurrentTarget.GetTargetableInterface());
             }
         }
+        else
+        {
+            var targ = new Vector2(m_endtarget.TargetTransform(0).position.x, m_endtarget.TargetTransform(0).position.z);
 
+            if (!IsFollowingPath && Vector2.SqrMagnitude(targ - new Vector2(transform.position.x, transform.position.z)) < 0.1f)
+            {
+
+                Running = false;
+                GameManager.TriggerLevelLoad();
+
+            }
+        }
     }
 
     public void GiveXp(int xp)

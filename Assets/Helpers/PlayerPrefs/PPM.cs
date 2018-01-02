@@ -2,7 +2,7 @@
 
 public static class PPM
 {
-    public enum KEY_INT { XP }
+    public enum KEY_INT { XP, LEVEL, BONUS_CRIT_CHANCE, BONUS_ATTACK_DAMAGE, BONUS_ULT_DUR, BONUS_KICK_CD, BONUS_SPIN_CD, BONUS_BASH_CD, BONUS_DEFLECT_CD, BONUS_ULT_CD, BONUS_HEALTH, BONUS_DODGE_CHANCE }
     public enum KEY_FLOAT { NULL }
     public enum KEY_STR { NULL }
 

@@ -440,7 +440,6 @@ GameObject:
   - component: {fileID: 4461301847769916}
   - component: {fileID: 198002528785927858}
   - component: {fileID: 199865663835548462}
-  - component: {fileID: 114406460196363294}
   m_Layer: 11
   m_Name: Particle revolver
   m_TagString: Untagged
@@ -2259,17 +2258,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11eb6ad5bc1a99846b1ed01e487d1a2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &114406460196363294
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1352634084671620}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 268fb4d91644e42409780f6594097609, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!114 &114667703312261732
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2296,20 +2284,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_pathColor: {r: 0.862069, g: 1, b: 0, a: 1}
-  m_drawPath: 1
+  m_drawPath: 0
   Speed: 4
   TurnDistance: 1
   TurnSpeed: 5
-  PathfindingTickDurationMS: 100
+  PathfindingTickDurationMS: 200
   StoppingDistance: 1
   IsFollowingPath: 1
   CurrentPlatformIndex: 0
   PreviousPos: {x: 0, y: 0, z: 0}
   LineRender: {fileID: 0}
-  m_horizontalMod: 0
-  m_linearMod: 0
-  m_jumpForce: 0
-  m_groundTriggerDistance: 0
   m_attackRange: 1
   m_attacksPerSecond: 1
   m_baseDamage: 20
@@ -2319,6 +2303,7 @@ MonoBehaviour:
   m_buffMultiplier: 2
   m_critChance: 0.1
   m_critMultiplier: 2
+  m_dodgeChance: 0.05
   m_regenAmount: 0.01
   m_regenDelay: 1
   m_regenTick: 0.2
@@ -2328,7 +2313,6 @@ MonoBehaviour:
   m_dangerHealthThreshold: 0
   m_buffSystem: {fileID: 1156342071702214}
   m_buffInitSystem: {fileID: 1257328510344228}
-  m_hpAnchor: {fileID: 0}
 --- !u!114 &114856892161608760
 MonoBehaviour:
   m_ObjectHideFlags: 1

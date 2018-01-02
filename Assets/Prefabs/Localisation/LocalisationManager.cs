@@ -13,7 +13,8 @@ namespace Localisation
 {
     public class LocalisationManager : MonoBehaviour
     {
-        [SerializeField] List<TextField> m_textFields;
+        public static List<TextField> TextFields { get; set; }
+        public static List<DynamicTextField> DynamicFields { get; set; }
         [SerializeField] LANGUAGE m_currentLanguage;
 
         static LocalisationManager m_instance;
@@ -21,11 +22,13 @@ namespace Localisation
         void Awake()
         {
             m_instance = this;
+            TextFields = new List<TextField>();
+            DynamicFields = new List<DynamicTextField>();
         }
 
         public void SetLanguage(LANGUAGE lang)
         {
-            foreach (var tf in m_textFields)
+            foreach (var tf in TextFields)
             {
                 if (tf.isActiveAndEnabled) tf.SetLanguage(lang);
             }

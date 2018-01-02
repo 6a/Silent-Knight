@@ -96,15 +96,43 @@ public class GameManager : MonoBehaviour
         StartCoroutine(LevelStart());
     }
 
-    IEnumerator LevelStart ()
+    public static void ContinueLevelStart()
     {
+        m_instance.m_continueLevelLoad = true;
+    }
+
+    bool m_continueLevelLoad;
+
+    IEnumerator LevelStart(bool shatter = false)
+    {
+        m_continueLevelLoad = false;
+        if (shatter)
+        {
+            Shatter.StartShatter();
+        }
+        else
+        {
+            m_continueLevelLoad = true;
+        }
+
+        while (!m_continueLevelLoad)
+        {
+            yield return null;
+        }
+
         m_generator.IsLoadingAsync = true;
         StartCoroutine(m_generator.LoadNextAsync());
 
         int index = 10;
 
-        while (m_generator.IsLoadingAsync || index < (10 + m_loadDelay / 0.1f))
+        while (m_generator.IsLoadingAsync || index < (10 + m_loadDelay / 0.1f) || (!Shatter.ShatterFinished && shatter))
         {
+            if (!m_generator.IsLoadingAsync)
+            {
+                Shatter.CompleteShatter();
+                GameUIManager.Reset();
+            }
+
             yield return new WaitForSecondsRealtime(0.1f);
 
             int indexCapped = index % (m_loadingBlocksTop.Length);
@@ -116,7 +144,6 @@ public class GameManager : MonoBehaviour
             m_loadingBlocksTop[indexCapped].enabled = false;
 
             index++;
-
         }
 
         float increment = 0.05f;
@@ -142,6 +169,17 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSecondsRealtime(0.05f);
         }
 
+        DisableLoadingScreen();
         OnStartRun();
+    }
+
+    public static void TriggerLevelLoad()
+    {
+        OnStartRun = null;
+
+        m_instance.m_generator.NextLevelSetup();
+
+        m_instance.StartCoroutine(m_instance.LevelStart(true));
+
     }
 }

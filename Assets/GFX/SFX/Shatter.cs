@@ -36,12 +36,14 @@ public class Shatter : MonoBehaviour
 
     static Shatter m_instance;
     static Coroutine m_currentRenderingRoutine;
+    public static bool ShatterFinished;
 
     public void OnPostRender()
     {
     }
 
     bool m_underlayEnabled;
+    bool m_endShatter;
 
     IEnumerator RenderTriangles()
     {
@@ -50,8 +52,7 @@ public class Shatter : MonoBehaviour
         float offset = 0;
         float alpha = 1;
         float rotation = 0;
-        float transformDelay = 0.5f;
-        float transitionTime = 0;
+        m_endShatter = false;
 
         while (alpha > 0)
         {
@@ -105,7 +106,7 @@ public class Shatter : MonoBehaviour
                 GL.End();
             }
 
-            if (transformDelay < transitionTime)
+            if (m_endShatter)
             {
                 alpha -= 0.4f * Time.deltaTime;
                 offset += 0.1f * Time.deltaTime;
@@ -113,32 +114,11 @@ public class Shatter : MonoBehaviour
             }
             else
             {
-                transitionTime += Time.deltaTime;
+                GameManager.ContinueLevelStart();
             }
         }
-
+        ShatterFinished = true;
         //GameManager.DisableLoadingScreen();
-    }
-
-    private void OnDrawGizmos()
-    {
-        //if(triangles.Count > 0)
-        //{
-        //    int c = -1;
-
-        //    foreach (var t in triangles)
-        //    {
-        //        c++;
-
-        //        if (c != 2 || c != 0) continue;
-        //        Gizmos.color = Color.cyan;
-
-        //        foreach (var site in t.sites)
-        //        {
-        //            Gizmos.DrawSphere(new Vector3(site.x, 0, site.y), 0.01f);
-        //        }
-        //    }
-        //}
     }
 
     List<Triangle> triangles = new List<Triangle>();
@@ -163,8 +143,15 @@ public class Shatter : MonoBehaviour
         m_currentRenderingRoutine = StartCoroutine(RenderTriangles());
     }
 
+    public static void CompleteShatter()
+    {
+        m_instance.m_endShatter = true;
+    }
+
     public static void StartShatter()
     {
+        ShatterFinished = false;
+
         m_instance.m_underlayEnabled = false;
 
         m_instance.m_mat = null;

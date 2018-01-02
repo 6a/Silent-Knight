@@ -48,7 +48,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         LineRender = GetComponent<LineRenderer>();
         m_rb = GetComponent<Rigidbody>();
         m_lastAttackTime = -1;
-        Health = CalcuateUnitHealth();
+
         m_currentStatus = STATUS.NONE;
         GameManager.OnStartRun += OnStartRun;
     }
@@ -146,6 +146,8 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         m_healthbar = FindObjectOfType<EnemyHealthBar>();
 
         m_enemyTextField = FindObjectOfType<EnemyTitleTextField>();
+
+        Health = CalcuateUnitHealth();
 
         StartCoroutine(RefreshPath());
 
