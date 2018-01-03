@@ -11,7 +11,7 @@ namespace Localisation
 
         [Tooltip("0 = EN ver, 1 = JP ver")] public string[] m_data = new string[2];
         [SerializeField] Text m_textField;
-        [SerializeField] GameObject m_button;
+        [SerializeField] StatAdjuster m_button;
 
         [Tooltip("0 = EN ver, 1 = JP ver")] public string[] m_altData = new string[2];
 
@@ -59,11 +59,20 @@ namespace Localisation
             m_currentlanguage = lang;
         }
 
-        public void Disable()
+        public void SetButtonState(BONUS_STATE state, bool nopoints = false)
         {
-            m_showingAltData = true;
-            m_button.SetActive(false);
+            if (nopoints)
+            {
+                m_showingAltData = state == BONUS_STATE.AT_MAXIMUM;
+            }
+
+            m_button.SetState(state);
             UpdateLanguage();
+        }
+
+        public void HideButton(bool down)
+        {
+            m_button.HideButton(down);
         }
     }
 }

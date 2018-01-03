@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 4807183384374554}
   - component: {fileID: 114016904425888160}
   - component: {fileID: 114666528346524210}
+  - component: {fileID: 114763721582217970}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -71,3 +72,41 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_pauseScreen: {fileID: 0}
   m_gameScreen: {fileID: 0}
+--- !u!114 &114763721582217970
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1274183397388134}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bfd84b9477d633c4d99205cf670279fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_percentBonusField:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  m_statText:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  m_currentCreditsText: {fileID: 0}
+  m_spentCreditsText: {fileID: 0}
+  m_saveResetButtons:
+  - {fileID: 0}
+  - {fileID: 0}

@@ -15,7 +15,8 @@ public class GameUIManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI m_playerLevelText, m_enemyLevelText;
     [SerializeField] Image m_playerLevelFill;
     [SerializeField] Animation m_levelUpAnimation;
-
+    [SerializeField] GameObject [] m_panels;
+ 
     static GameUIManager m_instance;
 
     void Awake()
@@ -181,6 +182,14 @@ public class GameUIManager : MonoBehaviour
         for (int i = 0; i < m_instance.m_cooldownSpinners.Length; i++)
         {
             m_instance.m_cooldownSpinners[i].UpdateRadial(0, 0);
+        }
+    }
+
+    public static void Show(bool enable)
+    {
+        foreach (var panel in m_instance.m_panels)
+        {
+            panel.SetActive(enable);
         }
     }
 }

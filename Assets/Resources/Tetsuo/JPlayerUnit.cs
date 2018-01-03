@@ -424,6 +424,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     {
         Platforms.RegisterPlayer(this);
 
+        GameUIManager.Show(true);
+
         PreviousPos = transform.position;
 
         CurrentTarget = null;
@@ -450,9 +452,16 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         UpdatePathTarget(PathingTarget);
         StartCoroutine(RefreshPath());
 
+
+
+        UpdateBonusDisplay();
+    }
+
+    public void UpdateBonusDisplay()
+    {
         for (int i = 0; i < 10; i++)
         {
-            BonusManager.UpdateShopDisplay((BONUS)i, this);
+            BonusManager.UpdateBonusDisplay((BONUS)i, this);
         }
     }
 

@@ -38,6 +38,16 @@ namespace Localisation
         {
             return m_instance.m_currentLanguage;
         }
+
+        public static string GetCurrency()
+        {
+            switch (m_instance.m_currentLanguage)
+            {
+                case LANGUAGE.EN:   return "$";
+                case LANGUAGE.JP:   return "￥";
+                default:            return "GIL";
+            }
+        }
     }
 }
 
