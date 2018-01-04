@@ -10,6 +10,7 @@ namespace Entities
     public static class LevelScaling
     {
         const float CONST = 0.05f;
+        const int CREDITS_PER_LEVEL = 3;
 
         public static int GetLevel(int xp)
         {
@@ -29,6 +30,14 @@ namespace Entities
         public static int GetScaledDamage(int level, int baseDamage)
         {
             return baseDamage + ((level - 1) * baseDamage) / 2;
+        }
+
+        public static int CreditsPerLevel
+        {
+            get
+            {
+                return CREDITS_PER_LEVEL;
+            }
         }
     }
 }

@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class PauseManager : MonoBehaviour
 {
-    [SerializeField] GameObject m_pauseScreen, m_gameScreen, m_bonusScreen;
+    [SerializeField] GameObject m_pauseScreen, m_gameScreen, m_bonusScreen, m_settingsScreen;
 
     public static bool Paused;
 
@@ -18,7 +18,7 @@ public class PauseManager : MonoBehaviour
 		
 	}
 
-    // 0 = pausemenu, 1 = bonusmenu
+    // 0 = pausemenu, 1 = bonusmenu, 2 = settings
     public void OnStartPause(int nextScreen)
     {
         m_gameScreen.SetActive(false);
@@ -26,12 +26,25 @@ public class PauseManager : MonoBehaviour
         switch (nextScreen)
         {
             case 0: m_pauseScreen.SetActive(true); break;
-            case 1: m_bonusScreen.SetActive(true); break;
+            case 1:
+                m_bonusScreen.SetActive(true);
+                FindObjectOfType<JPlayerUnit>().UpdateBonusDisplay();
+                break;
+            case 2:
+                m_pauseScreen.SetActive(false);
+                m_settingsScreen.SetActive(true);
+                return;
             default: break;
         }
         Time.timeScale = 0;
         Camera.main.gameObject.GetComponent<UnityStandardAssets.ImageEffects.Blur>().enabled = true;
         Paused = true;
+    }
+
+    public void OnCloseSettings()
+    {
+        m_settingsScreen.SetActive(false);
+        m_pauseScreen.SetActive(true);
     }
 
     // 0 = pausemenu, 1 = bonusmenu

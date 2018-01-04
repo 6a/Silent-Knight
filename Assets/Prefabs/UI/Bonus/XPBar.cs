@@ -33,8 +33,7 @@ public class XPBar : MonoBehaviour
 
         var xpForWholeLevel = xpForNextLevel - xpForPreviousLevel;
 
-        var fractionOfCurrentLevel = Mathf.Clamp01(xpThroughCurrentLevel / xpForWholeLevel);
-
+        var fractionOfCurrentLevel = Mathf.Clamp01(xpThroughCurrentLevel / (float)xpForWholeLevel);
         m_fill.sizeDelta = new Vector2(fractionOfCurrentLevel * m_width, m_fill.sizeDelta.y);
 
         m_xpText.text = xpThroughCurrentLevel + "XP / " + xpForWholeLevel + "XP";

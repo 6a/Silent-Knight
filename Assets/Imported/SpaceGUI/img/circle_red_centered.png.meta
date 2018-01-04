@@ -1,14 +1,9 @@
 fileFormatVersion: 2
-guid: ad2a120f16668f344bab410d41def05a
-timeCreated: 1515067264
+guid: 828e8e008bde8a948bd7442eb31c722f
+timeCreated: 1515085951
 licenseType: Free
 TextureImporter:
-  fileIDToRecycleName:
-    21300000: icon_flags_usa
-    21300002: icon_flags_korea
-    21300004: icon_flags_0
-    21300006: icon_flags_1
-    21300008: icon_flag_jp
+  fileIDToRecycleName: {}
   externalObjects: {}
   serializedVersion: 4
   mipmaps:
@@ -41,11 +36,11 @@ TextureImporter:
     mipBias: -1
     wrapU: 1
     wrapV: 1
-    wrapW: 1
+    wrapW: -1
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 2
+  spriteMode: 1
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -91,79 +86,19 @@ TextureImporter:
     allowsAlphaSplitting: 0
     overridden: 0
     androidETC2FallbackOverride: 0
+  - buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    androidETC2FallbackOverride: 0
   spriteSheet:
     serializedVersion: 2
-    sprites:
-    - serializedVersion: 2
-      name: icon_flags_usa
-      rect:
-        serializedVersion: 2
-        x: 421
-        y: 632
-        width: 128
-        height: 86
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-    - serializedVersion: 2
-      name: icon_flags_korea
-      rect:
-        serializedVersion: 2
-        x: 629
-        y: 631
-        width: 128
-        height: 86
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-    - serializedVersion: 2
-      name: icon_flags_0
-      rect:
-        serializedVersion: 2
-        x: 1460
-        y: 244
-        width: 128
-        height: 86
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-    - serializedVersion: 2
-      name: icon_flags_1
-      rect:
-        serializedVersion: 2
-        x: 1253
-        y: 631
-        width: 127
-        height: 85
-      alignment: 0
-      pivot: {x: 0.5, y: 0.5}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-    - serializedVersion: 2
-      name: icon_flag_jp
-      rect:
-        serializedVersion: 2
-        x: 420
-        y: 51
-        width: 127
-        height: 86
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
+    sprites: []
     outline: []
     physicsShape: []
   spritePackingTag: 

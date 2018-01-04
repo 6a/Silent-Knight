@@ -8,16 +8,6 @@ public class StatAdjuster : MonoBehaviour
 {
     [SerializeField] GameObject m_buttonNegative, m_buttonPositive;
 
-	void Start ()
-    {
-		
-	}
-
-	void Update ()
-    {
-		
-	}
-
     public void HideButton(bool down)
     {
         if (down)

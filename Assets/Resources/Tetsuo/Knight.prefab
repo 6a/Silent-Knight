@@ -2284,11 +2284,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_pathColor: {r: 0.862069, g: 1, b: 0, a: 1}
-  m_drawPath: 0
+  m_drawPath: 1
   Speed: 4
-  TurnDistance: 1
-  TurnSpeed: 5
-  PathfindingTickDurationMS: 200
+  TurnDistance: 0.25
+  TurnSpeed: 7
+  PathfindingTickDurationMS: 100
   StoppingDistance: 1
   IsFollowingPath: 1
   CurrentPlatformIndex: 0

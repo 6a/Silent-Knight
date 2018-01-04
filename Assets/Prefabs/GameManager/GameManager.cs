@@ -128,9 +128,12 @@ public class GameManager : MonoBehaviour
         while (m_generator.IsLoadingAsync || index < (10 + m_loadDelay / 0.1f) || (!Shatter.ShatterFinished && shatter))
         {
             if (!m_generator.IsLoadingAsync)
-            {
-                Shatter.CompleteShatter();
-                GameUIManager.Reset();
+            {   
+                if (shatter)
+                {
+                    Shatter.CompleteShatter();
+                    GameUIManager.Reset();
+                }
             }
 
             yield return new WaitForSecondsRealtime(0.1f);

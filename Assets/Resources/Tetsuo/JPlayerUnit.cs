@@ -159,6 +159,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
             Health = m_maxHealth;
             m_healthbar.UpdateHealthDisplay(1, (int)m_maxHealth);
+
+            if (!init) BonusManager.AddCredits(LevelScaling.CreditsPerLevel, true);
         }
         else
         {

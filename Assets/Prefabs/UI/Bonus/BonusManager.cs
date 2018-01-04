@@ -106,6 +106,7 @@ public class BonusManager : MonoBehaviour
     [SerializeField] Text[] m_statText = new Text[10];
     [SerializeField] Text m_currentCreditsText, m_spentCreditsText;
     [SerializeField] GameObject[] m_saveResetButtons = new GameObject[2];
+    [SerializeField] LinkButton m_linkButton;
 
     List<Bonus> m_bonuses = new List<Bonus>();
 
@@ -138,6 +139,9 @@ public class BonusManager : MonoBehaviour
         col = (m_spentCredits == 0) ? Color.red : new Color(0, 242f / 255f, 1);
         m_spentCreditsText.text = m_spentCredits.ToString();
         m_spentCreditsText.color = col;
+
+        if (m_currentCredits > 0) m_linkButton.Toggle(true);
+        else m_linkButton.Toggle(false);
     }
 
     private void InitBonusMatrix()
@@ -155,7 +159,7 @@ public class BonusManager : MonoBehaviour
         m_bonuses.Add(pb);
 
         // ulti duration+
-        fb = new FlatBonus(1, PPM.LoadInt(PPM.KEY_INT.BONUS_ULT_DUR), 15);
+        fb = new FlatBonus(0.5f, PPM.LoadInt(PPM.KEY_INT.BONUS_ULT_DUR), 30);
         fb.m_suffix = "s";
         m_bonuses.Add(fb);
 
