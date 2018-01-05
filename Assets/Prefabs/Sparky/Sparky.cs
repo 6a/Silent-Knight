@@ -117,12 +117,36 @@ public class Sparky : MonoBehaviour
 
     public static void AdjustIntensity()
     {
-        m_instance.m_light.intensity += 3;
+        m_instance.m_light.intensity = m_baseIntensity + 3;
     }
 
-    public static void ResetIntensity()
+    public static void ResetIntensity(bool smooth = false, float t = 1f)
     {
-        m_instance.m_light.intensity = m_baseIntensity;
+        if (!smooth)
+        {
+            m_instance.m_light.intensity = m_baseIntensity;
+        }
+        else
+        {
+            m_instance.StartCoroutine(m_instance.ResetIntensityAsync(t));
+        }
+
+    }
+
+    IEnumerator ResetIntensityAsync(float t)
+    {
+        var diff = m_light.intensity - m_baseIntensity;
+
+        var increment = diff / (t / Time.deltaTime);
+
+        while (m_light.intensity > m_baseIntensity)
+        {
+            m_light.intensity -= increment;
+            yield return new WaitForEndOfFrame();
+        }
+
+        m_light.intensity = m_baseIntensity;
+
     }
 
     public static void DisableLight()

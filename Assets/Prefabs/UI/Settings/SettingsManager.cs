@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-struct Settings
+public struct Settings
 {
     public float MasterVolume, BGMVolume, FXVolume;
     public int GFXLevel;
@@ -204,6 +204,11 @@ public class SettingsManager : MonoBehaviour
         if ((LANGUAGE)lang == m_currentSettings.Language) return;
         m_currentSettings.Language = (LANGUAGE)lang;
         m_currentSettings.Modified = true;
+    }
+
+    public void OnResetGame()
+    {
+        GameManager.TotalReset();
     }
 
     void UpdateDisplay()

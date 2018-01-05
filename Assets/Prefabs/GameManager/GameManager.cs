@@ -1,5 +1,7 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public delegate void LevelLoadTrigger();
@@ -183,6 +185,48 @@ public class GameManager : MonoBehaviour
         m_instance.m_generator.NextLevelSetup();
 
         m_instance.StartCoroutine(m_instance.LevelStart(true));
+    }
 
+    // Just wipes all saved settings and reloads the game.
+    public static void TotalReset()
+    {
+        OnStartRun = null;
+
+        var intsToReset = Enum.GetNames(typeof(PPM.KEY_INT)).Length;
+
+        var excludes = new PPM.KEY_INT [] { PPM.KEY_INT.LANGUAGE, PPM.KEY_INT.LEVEL_GFX };
+
+        for (int i = 0; i < intsToReset; i++)
+        {
+            if (Array.IndexOf(excludes, (PPM.KEY_INT)i) == -1)
+            {
+                PPM.SaveInt((PPM.KEY_INT)i, 0);
+            }
+        }
+
+        Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
+        Time.timeScale = 1;
+        SceneManager.LoadScene(0);
+    }
+
+    public static void Reincarnate()
+    {
+        OnStartRun = null;
+
+        PPM.SaveInt(PPM.KEY_INT.XP, 0);
+        PPM.SaveInt(PPM.KEY_INT.LEVEL, 0);
+
+        Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
+        Time.timeScale = 1;
+        SceneManager.LoadScene(0);
+    }
+    
+    public static void ReloadLevel()
+    {
+        OnStartRun = null;
+
+        Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
+        Time.timeScale = 1;
+        SceneManager.LoadScene(0);
     }
 }

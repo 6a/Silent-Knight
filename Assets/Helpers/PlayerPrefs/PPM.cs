@@ -20,16 +20,16 @@ public static class PPM
         NULL
     }
 
-    const string KEY_FIRST_RUN = "9qwh10h812d97h120ehj8k";
-
-    const string BOOL_PREFIX = "_BOOLEAN_TYPE_";
-    const string BOOL_TRUE = "1";
-    const string BOOL_FALSE = "0";
     public enum KEY_BOOL
     {
         HAPTIC_FEEDBACK
     }
 
+    const string KEY_FIRST_RUN = "9qwh10h812d97h120ehj8k";
+
+    const string BOOL_PREFIX = "_BOOLEAN_TYPE_";
+    const string BOOL_TRUE = "1";
+    const string BOOL_FALSE = "0";
 
     public static void SaveInt(KEY_INT key, int value)
     {

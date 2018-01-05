@@ -2303,11 +2303,12 @@ MonoBehaviour:
   m_buffMultiplier: 2
   m_critChance: 0.1
   m_critMultiplier: 2
+  m_damageboost: 1
   m_dodgeChance: 0.05
   m_regenAmount: 0.01
   m_regenDelay: 1
   m_regenTick: 0.2
-  m_buffDuration: 5
+  m_ultDuration: 5
   m_buffRotInterval: 1
   m_buffRotPercentDamage: 2
   m_dangerHealthThreshold: 0

@@ -47,11 +47,12 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     [SerializeField] float m_buffMultiplier;
     [SerializeField] float m_critChance;
     [SerializeField] float m_critMultiplier;
+    [SerializeField] float m_damageboost;
     [SerializeField] float m_dodgeChance;
     [SerializeField] float m_regenAmount;
     [SerializeField] float m_regenDelay;
     [SerializeField] float m_regenTick;
-    [SerializeField] float m_buffDuration;
+    [SerializeField] float m_ultDuration;
     [SerializeField] float m_buffRotInterval;
     [SerializeField] float m_buffRotPercentDamage;
     [SerializeField] float m_dangerHealthThreshold;
@@ -150,13 +151,14 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         {
             GameUIManager.TriggerLevelUpAnimation();
             GameUIManager.UpdatePlayerLevel(level, fillAmount);
-            m_maxHealth = LevelScaling.GetScaledHealth(level, (int)m_baseHealth);
+
             for (int i = 0; i < m_currentSkillCD.Length; i++)
             {
                 m_currentSkillCD[i] = 0;
                 GameUIManager.UpdateSpinner((ATTACKS)i, 0, 0);
             }
 
+            m_maxHealth = BonusManager.GetModifiedValue(BONUS.HEALTH_BOOST, LevelScaling.GetScaledHealth(level, (int)m_baseHealth));
             Health = m_maxHealth;
             m_healthbar.UpdateHealthDisplay(1, (int)m_maxHealth);
 
@@ -168,6 +170,13 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         }
 
         m_level = level;
+    }
+
+    public void UpdateHealthDisplay()
+    {
+        m_maxHealth = BonusManager.GetModifiedValue(BONUS.HEALTH_BOOST, LevelScaling.GetScaledHealth(m_level, (int)m_baseHealth));
+        Health = m_maxHealth;
+        m_healthbar.UpdateHealthDisplay(1, (int)m_maxHealth);
     }
 
     void UpdateCooldownSpinners()
@@ -267,7 +276,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         {
             enemiesHit.Add(enemy.ID);
 
-            ApplyDamage(enemy, 5);
+            ApplyDamage(enemy, 3);
 
             StartCoroutine(Freeze(0.1f));
 
@@ -281,11 +290,11 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     {
         var rand = UnityEngine.Random.Range(0f, 1f);
 
-        var isCrit = rand < m_critChance;
-
+        var isCrit = rand < BonusManager.GetModifiedValueFlatAsDecimal(BONUS.CRIT_CHANCE, m_critChance);
         var critMultiplier = (isCrit) ? m_critMultiplier : 1;
 
-        var total = LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage) * critMultiplier;
+        var total = baseDamageMultiplier * GetValue(BONUS.DAMAGE_BOOST) * LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage) * critMultiplier;
+
         var t = (isCrit) ? FCT_TYPE.CRIT : FCT_TYPE.HIT;
 
         enemy.Damage(this, total, t);
@@ -295,7 +304,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     {
         var rand = UnityEngine.Random.Range(0f, 1f);
 
-        var isCrit = rand < m_critChance;
+        var isCrit = rand < BonusManager.GetModifiedValue(BONUS.CRIT_CHANCE, m_critChance);
 
         var critMultiplier = (isCrit) ? m_critMultiplier : 1;
 
@@ -314,8 +323,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         switch (bonus)
         {
             case BONUS.CRIT_CHANCE:             return 100 * m_critChance;
-            case BONUS.DAMAGE_BOOST:            return 0; 
-            case BONUS.ULT_DURATION_INCREASE:   return m_buffDuration;
+            case BONUS.DAMAGE_BOOST:            return m_damageboost;
+            case BONUS.ULT_DURATION_INCREASE:   return m_ultDuration;
             case BONUS.CD_KICK:                 return m_baseSkillCD[(int)ATTACKS.KICK];
             case BONUS.CD_SPIN:                 return m_baseSkillCD[(int)ATTACKS.SWORD_SPIN];
             case BONUS.CD_SHIELD_BASH:          return m_baseSkillCD[(int)ATTACKS.SHIELD];
@@ -336,6 +345,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         StartCoroutine(Freeze(0.1f));
 
         // TODO particles
+
+        if (CurrentTarget == null) return;
 
         CurrentTarget.AfflictStatus(STATUS.STUN, 2);
         StartCooldown(ATTACKS.SHIELD);
@@ -388,7 +399,28 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     void StartCooldown(ATTACKS attack, float multiplier = 1, float reduceAttackDelay = 0)
     {
-        var cd = multiplier * m_baseSkillCD[(int)attack];
+        float cd = 0;
+
+        switch (attack)
+        {
+            case ATTACKS.SWORD_SPIN:
+                cd = multiplier * BonusManager.GetModifiedValue(BONUS.CD_SPIN, m_baseSkillCD[(int)attack]);
+                break;
+            case ATTACKS.KICK:
+                cd = multiplier * BonusManager.GetModifiedValue(BONUS.CD_KICK, m_baseSkillCD[(int)attack]);
+                break;
+            case ATTACKS.SHIELD:
+                cd = multiplier * BonusManager.GetModifiedValue(BONUS.CD_SHIELD_BASH, m_baseSkillCD[(int)attack]);
+                break;
+            case ATTACKS.PARRY:
+                cd = multiplier * BonusManager.GetModifiedValue(BONUS.CD_DEFLECT, m_baseSkillCD[(int)attack]);
+                break;
+            case ATTACKS.ULTIMATE:
+                cd = multiplier * BonusManager.GetModifiedValue(BONUS.CD_ULT, m_baseSkillCD[(int)attack]);
+                break;
+
+        }
+
         m_currentSkillCD[(int)attack] = cd;
 
         m_lastAttackTime = Time.time - reduceAttackDelay;
@@ -454,8 +486,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         UpdatePathTarget(PathingTarget);
         StartCoroutine(RefreshPath());
 
-
-
         UpdateBonusDisplay();
     }
 
@@ -476,9 +506,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     {
         if (IsDead) return;
 
-        if (m_dodgeChance > 0 && UnityEngine.Random.Range(0f, 1f) <= m_dodgeChance)
+        if (UnityEngine.Random.Range(0f, 1f) <= BonusManager.GetModifiedValueFlatAsDecimal(BONUS.DODGE_CHANCE, m_dodgeChance))
         {
-            // TODO add some sort of dodge notifier
             print("Dodged an attack");
             return;
         }
@@ -539,8 +568,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
                 var rand = UnityEngine.Random.Range(0f, 1f);
 
-                var isCrit = rand < m_critChance;
-
+                var isCrit = rand < BonusManager.GetModifiedValue(BONUS.CRIT_CHANCE, m_critChance);
+                print(BonusManager.GetModifiedValue(BONUS.CRIT_CHANCE, m_critChance));
                 var critMultiplier = (isCrit) ? m_critMultiplier : 1;
 
                 projectile.Crit = isCrit;
@@ -580,19 +609,13 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     float m_baseDamageHolder;
     public void OnBuffStart()
     {
-        m_buffEndTime = Time.time + m_buffDuration;
-
         m_baseDamageHolder = m_baseDamage;
 
         m_baseDamage *= m_buffMultiplier;
 
         StartCoroutine(Freeze(0.3f, true));
 
-
-
-        StartCoroutine(BuffTimer(m_buffDuration));
-
-        // particles and stuff
+        StartCoroutine(BuffTimer(m_ultDuration));
 
         m_nextBuffRotTime = Time.time;
     }
@@ -647,7 +670,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         GameUIManager.UltiState(false);
 
-        Sparky.ResetIntensity();
+        Sparky.ResetIntensity(true, 0.5f);
+        Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
+        GameUIManager.ResetAudioTrigger();
     }
 
     public void Attack(IAttackable target)
@@ -781,7 +806,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
                 Running = false;
                 GameManager.TriggerLevelLoad();
-
             }
         }
     }
@@ -789,7 +813,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     public void GiveXp(int xp)
     {
         UpdateLevel(xp);
-
     }
 
     IEnumerator ApplyDamageDelayed(int dmgMultiplier, int frameDelay, IAttackable target)
@@ -808,7 +831,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         Time.timeScale = 0f;
         float pauseEndTime = Time.realtimeSinceStartup + duration;
 
-        while (PauseManager.Paused || Time.realtimeSinceStartup < pauseEndTime)
+        while (PauseManager.Paused() || Time.realtimeSinceStartup < pauseEndTime)
         {
             yield return null;
         }

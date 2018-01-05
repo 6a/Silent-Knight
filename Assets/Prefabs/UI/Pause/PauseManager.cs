@@ -4,19 +4,21 @@ using UnityEngine;
 
 public class PauseManager : MonoBehaviour
 {
-    [SerializeField] GameObject m_pauseScreen, m_gameScreen, m_bonusScreen, m_settingsScreen;
+    [SerializeField] GameObject m_pauseScreen, m_gameScreen, m_bonusScreen, m_settingsScreen, m_resetScreen;
 
-    public static bool Paused;
+    bool m_paused;
 
-	void Start ()
+    static PauseManager m_instance;
+
+    void Awake()
     {
-		
-	}
-	
-	void Update ()
+        m_instance = this;
+    }
+
+    public static bool Paused()
     {
-		
-	}
+        return m_instance.m_paused;
+    }
 
     // 0 = pausemenu, 1 = bonusmenu, 2 = settings
     public void OnStartPause(int nextScreen)
@@ -34,12 +36,16 @@ public class PauseManager : MonoBehaviour
                 m_pauseScreen.SetActive(false);
                 m_settingsScreen.SetActive(true);
                 return;
+            case 3:
+                m_resetScreen.SetActive(true);
+                break;
             default: break;
         }
         Time.timeScale = 0;
         Camera.main.gameObject.GetComponent<UnityStandardAssets.ImageEffects.Blur>().enabled = true;
-        Paused = true;
+        m_paused = true;
     }
+
 
     public void OnCloseSettings()
     {
@@ -52,11 +58,12 @@ public class PauseManager : MonoBehaviour
     {
         m_pauseScreen.SetActive(false);
         m_bonusScreen.SetActive(false);
+        m_resetScreen.SetActive(false);
 
         m_gameScreen.SetActive(true);
 
         Time.timeScale = 1;
         Camera.main.gameObject.GetComponent<UnityStandardAssets.ImageEffects.Blur>().enabled = false;
-        Paused = false;
+        m_paused = false;
     }
 }

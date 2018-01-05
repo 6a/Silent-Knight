@@ -28,6 +28,7 @@ public class Audio : MonoBehaviour
     [SerializeField] AudioSource m_sourceBGMQ, m_sourceBGML, m_sourceFX;
     [SerializeField] AudioMixer m_master;
     [SerializeField] bool m_testBlendUp, m_testBlendDown;
+    [SerializeField] float m_barTime;
 
     const float AUDIO_MIN = -80f;
     const float AUDIO_MAX = 0f;
@@ -36,21 +37,34 @@ public class Audio : MonoBehaviour
     List<AudioSet> m_lib;
     Coroutine m_blendRoutine;
 
+    int m_samplesPerSecond;
+    int m_samplesPerBeat;
+    
     static Audio m_instance;
 
 	void Awake ()
     {
+        if (m_instance)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        DontDestroyOnLoad(gameObject);
+
         m_instance = this;
         m_testBlendUp = false;
         m_testBlendDown = false;
-
-
     }
     void Start()
     {
         SetVolume(AUDIO.BGM, PPM.LoadFloat(PPM.KEY_FLOAT.VOL_BGM));
         SetVolume(AUDIO.FX, PPM.LoadFloat(PPM.KEY_FLOAT.VOL_FX));
         SetVolume(AUDIO.MASTER, PPM.LoadFloat(PPM.KEY_FLOAT.VOL_MASTER));
+
+        m_samplesPerSecond = m_sourceBGMQ.clip.frequency;
+
+        m_samplesPerBeat = (int)((m_barTime * m_samplesPerSecond) / 4);
     }
 
     void Update()
@@ -84,20 +98,48 @@ public class Audio : MonoBehaviour
         m_sourceBGML.volume = voll;
     }
 
-    public static void BlendMusicTo(BGM to, float time = 0.5f)
+    public static void SnapMusicBlend(BGM to)
     {
         if (m_instance.m_blendRoutine != null) m_instance.StopCoroutine(m_instance.m_blendRoutine);
 
-        m_instance.m_blendRoutine = m_instance.StartCoroutine(m_instance.BlendMusicAsync(to, time));
+        if (to == BGM.LOUD)
+        {
+            m_instance.m_sourceBGML.volume = 1f;
+            m_instance.m_sourceBGMQ.volume = 0f;
+        }
+        else
+        {
+            m_instance.m_sourceBGML.volume = 0f;
+            m_instance.m_sourceBGMQ.volume = 1f;
+        }
     }
 
-    IEnumerator BlendMusicAsync(BGM to, float t)
+    public static void BlendMusicTo(BGM to, int beats = 2, bool half = false)
+    {
+
+        if (m_instance.m_blendRoutine != null) m_instance.StopCoroutine(m_instance.m_blendRoutine);
+
+        m_instance.m_blendRoutine = m_instance.StartCoroutine(m_instance.BlendMusicAsync(to, beats, half));
+    }
+
+    IEnumerator BlendMusicAsync(BGM to, int beats, bool half)
     {
         const float STEP = 0.02f;
 
-        var iterations = Mathf.CeilToInt(t / STEP);
+        var headPos = m_sourceBGMQ.timeSamples;
 
-        var increments = (1f / iterations);
+        var playPos = (headPos % m_samplesPerBeat) + m_samplesPerBeat;
+
+        while (m_sourceBGMQ.timeSamples < playPos)
+        {
+            yield return null;
+        }
+
+        var iterations = Mathf.CeilToInt((beats * m_samplesPerBeat / (float)m_samplesPerSecond) / STEP);
+
+        var targetBlend = (half) ? 0.5f : 1f;
+
+        var increments = (targetBlend / iterations);
 
         bool esc = false;
 
@@ -120,17 +162,32 @@ public class Audio : MonoBehaviour
             yield return new WaitForSecondsRealtime(STEP);
         }
 
-        if (to == BGM.LOUD)
+        if (half)
         {
-            m_sourceBGML.volume = 1;
-            m_sourceBGMQ.volume = 0;
+            if (to == BGM.LOUD)
+            {
+                m_sourceBGML.volume = 0.5f;
+                m_sourceBGMQ.volume = 0.5f;
+            }
+            else
+            {
+                m_sourceBGMQ.volume = 0.5f;
+                m_sourceBGML.volume = 0.5f;
+            }
         }
         else
         {
-            m_sourceBGMQ.volume = 1;
-            m_sourceBGML.volume = 0;
+            if (to == BGM.LOUD)
+            {
+                m_sourceBGML.volume = 1;
+                m_sourceBGMQ.volume = 0;
+            }
+            else
+            {
+                m_sourceBGMQ.volume = 1;
+                m_sourceBGML.volume = 0;
+            }
         }
-
     }
 
     // Set volume, range is 0 - 1 (0% > 100%)

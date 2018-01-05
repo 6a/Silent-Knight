@@ -29,6 +29,7 @@ public abstract class Bonus
 
     public abstract float Get(float current);
     public abstract float GetNext(float current);
+    public abstract float GetDecimal(float current);
 
     public void Modify(int times = 1)
     {
@@ -75,11 +76,16 @@ public class PercentBonus : Bonus
         if (next) return Mathf.FloorToInt(((m_percentagePerLevel * (m_times + 1)) * 100));
         else return Mathf.FloorToInt(((m_percentagePerLevel * (m_times)) * 100));
     }
+
+    public override float GetDecimal(float current)
+    {
+        throw new NotImplementedException();
+    }
 }
 
 public class FlatBonus : Bonus
 {
-    float m_increasePerLevel;
+    public float m_increasePerLevel;
 
     public FlatBonus(float increasePerLevel, int times, int limit)
     {
@@ -91,6 +97,11 @@ public class FlatBonus : Bonus
     public override float Get(float current)
     {
         return current + (m_increasePerLevel * m_times);
+    }
+
+    public override float GetDecimal(float current)
+    {
+        return current + ((m_times * m_increasePerLevel) / 100f);
     }
 
     public override float GetNext(float current)
@@ -112,7 +123,7 @@ public class BonusManager : MonoBehaviour
 
     int m_currentCredits;
     int m_spentCredits;
-    int m_totalChange;
+    short[] m_changeVector;
 
     static BonusManager m_instance;
 
@@ -126,7 +137,16 @@ public class BonusManager : MonoBehaviour
 
         UpdateCreditDisplay();
         InitBonusMatrix();
-        m_totalChange = 0;
+        m_changeVector = new short[10];
+    }
+
+    bool ChangesMade ()
+    {
+        foreach (var val in m_changeVector)
+        {
+            if (val != 0) return true;
+        }
+        return true;
     }
 
     private void UpdateCreditDisplay()
@@ -234,9 +254,9 @@ public class BonusManager : MonoBehaviour
 
     public static void UpdateBonusAmount(BONUS bonus, int change)
     {
-        m_instance.m_totalChange += change;
+        m_instance.m_changeVector[(int)bonus] += (short)change;
 
-        if (m_instance.m_totalChange != 0)
+        if (m_instance.ChangesMade())
         {
             m_instance.ToggleSaveResetButtons(true);
         }
@@ -284,6 +304,11 @@ public class BonusManager : MonoBehaviour
         }
     }
 
+    public static float GetModifiedValueFlatAsDecimal(BONUS bonus, float rawValue)
+    {
+        return m_instance.m_bonuses[(int)bonus].GetDecimal(rawValue);
+    }
+
     public static float GetModifiedValue(BONUS bonus, float rawValue, bool next = false)
     {
         if (next) return m_instance.m_bonuses[(int)bonus].GetNext(rawValue);
@@ -311,8 +336,10 @@ public class BonusManager : MonoBehaviour
         PPM.SaveInt(PPM.KEY_INT.CURRENT_CREDITS, m_currentCredits);
         PPM.SaveInt(PPM.KEY_INT.SPENT_CREDITS, m_spentCredits);
 
+        FindObjectOfType<JPlayerUnit>().UpdateHealthDisplay();
+
         ToggleSaveResetButtons(false);
-        m_totalChange = 0;
+        m_changeVector = new short[10];
     }
 
     public void Reset()
@@ -328,7 +355,7 @@ public class BonusManager : MonoBehaviour
         playerRef.UpdateBonusDisplay();
 
         ToggleSaveResetButtons(false);
-        m_totalChange = 0;
+        m_changeVector = new short[10];
     }
 
     // Warning - only use for attack bonus

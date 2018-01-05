@@ -19,6 +19,9 @@ public class GameUIManager : MonoBehaviour
  
     static GameUIManager m_instance;
 
+    bool m_ultCharging;
+    bool m_musicShiftTriggered;
+
     void Awake()
     {
         m_instance = this;
@@ -29,26 +32,42 @@ public class GameUIManager : MonoBehaviour
         if (m_rUltiButtonAlpha > 0) m_rightSpinner.transform.Rotate(0, 0, m_rUltiButtonAlpha * 4);
         if (m_lUltiButtonAlpha > 0) m_leftSpinner.transform.Rotate(0, 0, -m_lUltiButtonAlpha * 4);
 
-        if ((m_lUltiButtonAlpha >= 1 && m_rUltiButtonAlpha >= 1) && !m_isInUltimate)
+        if ((m_lUltiButtonAlpha >= 1 || m_rUltiButtonAlpha >= 1) && !m_isInUltimate) // revert to &&
         {
             UltiState(true);
 
             StartCoroutine(SimulateKeyPress(JPlayerUnit.ATTACKS.ULTIMATE));
 
+            Audio.BlendMusicTo(Audio.BGM.LOUD, 1);
+
             return;
         }
 
+        bool ldown = false, rdown = false;
+
         if (m_lButtonDown && m_instance.m_cooldownSpinners[4].Cooldown() == 0)
         {
+            ldown = true;
             m_lUltiButtonAlpha = Mathf.Clamp01(m_lUltiButtonAlpha + Time.deltaTime);
             m_leftSpinner.color = new Color(1, 1, 1, m_lUltiButtonAlpha);
         }
 
         if (m_rButtonDown && m_instance.m_cooldownSpinners[5].Cooldown() == 0)
         {
+            rdown = true;
             m_rUltiButtonAlpha = Mathf.Clamp01(m_rUltiButtonAlpha + Time.deltaTime);
             m_rightSpinner.color = new Color(1, 1, 1, m_rUltiButtonAlpha);
         }
+
+        if (ldown || rdown) m_ultCharging = true;
+
+        if (!m_musicShiftTriggered && m_ultCharging)
+        {
+            m_musicShiftTriggered = true;
+
+            Audio.BlendMusicTo(Audio.BGM.LOUD, 2, true);
+        }
+
     }
 
     public IEnumerator SimulateKeyPress(JPlayerUnit.ATTACKS type)
@@ -59,6 +78,7 @@ public class GameUIManager : MonoBehaviour
 
         m_instance.m_currentPlayer.SimulateRelease(type);
     }
+
 
     public void OnUltiButtonDown(bool left)
     {
@@ -85,7 +105,7 @@ public class GameUIManager : MonoBehaviour
 
             if (m_instance.m_cooldownSpinners[4].Cooldown() == 0)
             {
-                DisableUltiSpinner(true); Sparky.ResetIntensity();
+                DisableUltiSpinner(true); 
             }
         }
         else
@@ -94,8 +114,15 @@ public class GameUIManager : MonoBehaviour
 
             if (m_instance.m_cooldownSpinners[5].Cooldown() == 0)
             {
-                DisableUltiSpinner(false); Sparky.ResetIntensity();
+                DisableUltiSpinner(false);
             }
+        }
+
+        if (!m_isInUltimate)
+        {
+            Audio.BlendMusicTo(Audio.BGM.QUIET, 1);
+            m_musicShiftTriggered = false;
+            m_ultCharging = false;
         }
     }
 
@@ -191,5 +218,11 @@ public class GameUIManager : MonoBehaviour
         {
             panel.SetActive(enable);
         }
+    }
+
+    public static void ResetAudioTrigger()
+    {
+       m_instance.m_musicShiftTriggered = false;
+       m_instance.m_ultCharging = false;
     }
 }
