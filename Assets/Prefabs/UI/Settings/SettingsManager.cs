@@ -109,6 +109,11 @@ public class SettingsManager : MonoBehaviour
         m_currentSettings = m_defaults;
         m_currentSettings.Modified = true;
 
+        LocalisationManager.SetLanguage(m_currentSettings.Language);
+        Audio.SetVolume(Audio.AUDIO.MASTER, m_currentSettings.MasterVolume);
+        Audio.SetVolume(Audio.AUDIO.BGM, m_currentSettings.BGMVolume);
+        Audio.SetVolume(Audio.AUDIO.FX, m_currentSettings.FXVolume);
+
         RefreshDisplayedValues(m_currentSettings);
     }
 
@@ -118,6 +123,9 @@ public class SettingsManager : MonoBehaviour
         m_instance.m_currentSettings = m_instance.m_previousSettings;
 
         LocalisationManager.SetLanguage(m_currentSettings.Language);
+        Audio.SetVolume(Audio.AUDIO.MASTER, m_currentSettings.MasterVolume);
+        Audio.SetVolume(Audio.AUDIO.BGM, m_currentSettings.BGMVolume);
+        Audio.SetVolume(Audio.AUDIO.FX, m_currentSettings.FXVolume);
 
         m_instance.RefreshDisplayedValues(m_instance.m_currentSettings);
     }
@@ -144,7 +152,7 @@ public class SettingsManager : MonoBehaviour
 
         m_currentSettings.MasterVolume = newVol;
 
-        // TODO add code to actually change volume
+        Audio.SetVolume(Audio.AUDIO.MASTER, newVol);
     }
 
     public void OnChangeBGMVolume(Slider slider)
@@ -155,7 +163,7 @@ public class SettingsManager : MonoBehaviour
 
         m_currentSettings.BGMVolume = newVol;
 
-        // TODO add code to actually change volume
+        Audio.SetVolume(Audio.AUDIO.BGM, newVol);
     }
 
     public void OnChangeFXVolume(Slider slider)
@@ -166,7 +174,7 @@ public class SettingsManager : MonoBehaviour
 
         m_currentSettings.FXVolume = newVol;
 
-        // TODO add code to actually change volume
+        Audio.SetVolume(Audio.AUDIO.FX, newVol);
     }
 
     public void OnChangeGFXSettings(Slider slider)
