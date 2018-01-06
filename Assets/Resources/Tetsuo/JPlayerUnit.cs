@@ -78,7 +78,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     bool m_tickRot;
     bool m_isStartingSpec;
 
-    IEnumerator m_currentDamageCoroutine;
     int m_attackState;
 
     void Awake()
@@ -91,7 +90,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         m_lastAttackTime = -1;
         m_xp = PPM.LoadInt(PPM.KEY_INT.XP);
         m_attackState = 0;
-        m_currentDamageCoroutine = null;
 
         GameManager.OnStartRun += OnStartRun;
     }
@@ -103,8 +101,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     void Update()
     {
-        //print(IsFollowingPath);
-
         if (!Running) return;
 
         if (m_tickRot)
@@ -134,6 +130,11 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         Attack(CurrentTarget);
 
+
+    }
+
+    private void FixedUpdate()
+    {
         UpdateMovement();
     }
 
@@ -187,7 +188,28 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
             {
                 m_currentSkillCD[i] = Mathf.Max(m_currentSkillCD[i] - Time.deltaTime, 0);
 
-                var value = m_currentSkillCD[i] / m_baseSkillCD[i];
+                var cd = 0f;
+
+                switch ((ATTACKS)i)
+                {
+                    case ATTACKS.SWORD_SPIN:
+                        cd =  BonusManager.GetModifiedValue(BONUS.CD_SPIN, m_baseSkillCD[i]);
+                        break;
+                    case ATTACKS.KICK:
+                        cd =  BonusManager.GetModifiedValue(BONUS.CD_KICK, m_baseSkillCD[i]);
+                        break;
+                    case ATTACKS.SHIELD:
+                        cd =  BonusManager.GetModifiedValue(BONUS.CD_SHIELD_BASH, m_baseSkillCD[i]);
+                        break;
+                    case ATTACKS.PARRY:
+                        cd =  BonusManager.GetModifiedValue(BONUS.CD_DEFLECT, m_baseSkillCD[i]);
+                        break;
+                    case ATTACKS.ULTIMATE:
+                        cd =  BonusManager.GetModifiedValue(BONUS.CD_ULT, m_baseSkillCD[i]);
+                        break;
+                }
+
+                var value = m_currentSkillCD[i] / cd;
                 var seconds = m_baseSkillCD[i] - (m_baseSkillCD[i] - m_currentSkillCD[i]);
 
                 GameUIManager.UpdateSpinner((ATTACKS)i, value, seconds);
@@ -221,10 +243,10 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         switch (anim)
         {
-            case ANIMATION.ATTACK_BASIC:
+            case ANIMATION.ATTACK_BASIC1:
                 m_animator.SetTrigger("A1Start");
                 break;
-            case ANIMATION.ATTACK_SPECIAL:
+            case ANIMATION.ATTACK_BASIC2:
                 m_animator.SetTrigger("A2Start");
                 break;
             case ANIMATION.ATTACK_ULTIMATE:
@@ -278,9 +300,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
             ApplyDamage(enemy, 3);
 
-            StartCoroutine(Freeze(0.1f));
+            Audio.PlayFX(Audio.FX.SWORD_IMPACT, transform.position);
 
-            // TODO particles
+            StartCoroutine(Freeze(0.1f, false, true));
 
             enemy.KnockBack(new Vector2(transform.position.x, transform.position.z), 400);
         }
@@ -293,7 +315,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         var isCrit = rand < BonusManager.GetModifiedValueFlatAsDecimal(BONUS.CRIT_CHANCE, m_critChance);
         var critMultiplier = (isCrit) ? m_critMultiplier : 1;
 
-        var total = baseDamageMultiplier * GetValue(BONUS.DAMAGE_BOOST) * LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage) * critMultiplier;
+        var dmg = BonusManager.GetModifiedValue(BONUS.DAMAGE_BOOST, LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage));
+
+        var total = baseDamageMultiplier * GetValue(BONUS.DAMAGE_BOOST) * dmg  * critMultiplier;
 
         var t = (isCrit) ? FCT_TYPE.CRIT : FCT_TYPE.HIT;
 
@@ -338,40 +362,49 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     public void OnShieldAttack()
     {
-        if (CurrentTarget == null) return;
+        try
+        {
+            ApplyDamage(CurrentTarget, 2);
 
-        ApplyDamage(CurrentTarget, 2);
+            Audio.PlayFX(Audio.FX.SHIELD_SLAM, transform.position);
 
-        StartCoroutine(Freeze(0.1f));
+            StartCoroutine(Freeze(0.1f, false, true));
 
-        // TODO particles
+            // TODO particles
 
-        if (CurrentTarget == null) return;
+            CurrentTarget.AfflictStatus(STATUS.STUN, 2);
+            StartCooldown(ATTACKS.SHIELD);
 
-        CurrentTarget.AfflictStatus(STATUS.STUN, 2);
-        StartCooldown(ATTACKS.SHIELD);
-
-        m_lastAttackTime = Time.time - 0.5f;
-        OnFollowPath(0);
-
-
+            m_lastAttackTime = Time.time - 0.5f;
+            OnFollowPath(0);
+        }
+        catch (Exception)
+        {
+            m_isStartingSpec = false;
+            m_lastAttackTime = Time.time - 0.5f;
+        }
     }
 
     public void OnKick()
     {
-        if (CurrentTarget == null) return;
+        try
+        {
+            ApplyDamage(CurrentTarget, 1);
+            StartCoroutine(Freeze(0.1f, false, true));
 
-        CurrentTarget.KnockBack(new Vector2(transform.position.x, transform.position.z), 800);
+            CurrentTarget.KnockBack(new Vector2(transform.position.x, transform.position.z), 800);
+            Audio.PlayFX(Audio.FX.KICK, transform.position);
 
-        ApplyDamage(CurrentTarget, 1);
+            StartCooldown(ATTACKS.KICK);
+            m_lastAttackTime = Time.time - 0.5f;
+            OnFollowPath(0);
 
-        StartCoroutine(Freeze(0.1f));
-
-        // TODO particles
-
-        StartCooldown(ATTACKS.KICK);
-        m_lastAttackTime = Time.time - 0.5f;
-        OnFollowPath(0);
+        }
+        catch (Exception)
+        {
+            m_isStartingSpec = false;
+            m_lastAttackTime = Time.time - 0.5f;
+        }
     }
 
     public void UltimateFinished()
@@ -418,7 +451,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
             case ATTACKS.ULTIMATE:
                 cd = multiplier * BonusManager.GetModifiedValue(BONUS.CD_ULT, m_baseSkillCD[(int)attack]);
                 break;
-
         }
 
         m_currentSkillCD[(int)attack] = cd;
@@ -564,7 +596,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
             if (projectile.CanBeReflected(this))
             {
-                StartCoroutine(Freeze(0.1f));
+                Audio.PlayFX(Audio.FX.DEFLECT, transform.position);
+
+                StartCoroutine(Freeze(0.1f, false, true));
 
                 var rand = UnityEngine.Random.Range(0f, 1f);
 
@@ -592,7 +626,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
             if (m_currentSkillCD[(int)ATTACKS.PARRY] <= 0)
             {
                 m_isStartingSpec = true;
-                if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
                 TriggerAnimation(ANIMATION.PARRY);
                 m_lastAttackTime = Time.time + 10;
                 return true;
@@ -613,7 +646,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         m_baseDamage *= m_buffMultiplier;
 
-        StartCoroutine(Freeze(0.3f, true));
+        StartCoroutine(Freeze(0.3f, true, true));
 
         StartCoroutine(BuffTimer(m_ultDuration));
 
@@ -629,13 +662,17 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         StartCooldown(ATTACKS.ULTIMATE, 1, 0.8f);
     }
 
+    public void OnFootStep()
+    {
+        Audio.PlayFX(Audio.FX.FOOTSTEP, transform.position);
+    }
+
     public bool Buff()
     {
         if (!m_isStartingSpec && (Input.GetButtonDown("Ultimate") || m_simTriggers[(int)ATTACKS.ULTIMATE]))
         {
             if (m_currentSkillCD[(int)ATTACKS.ULTIMATE] <= 0)
             {
-                if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
                 m_isStartingSpec = true;
                 TriggerAnimation(ANIMATION.BUFF);
                 m_speedTemp = Speed;
@@ -693,7 +730,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         {
             if (m_currentSkillCD[(int)ATTACKS.SWORD_SPIN] <= 0)
             {
-                if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
                 m_isStartingSpec = true;
                 TriggerAnimation(ANIMATION.ATTACK_ULTIMATE);
                 m_lastAttackTime = Time.time + 10;
@@ -715,7 +751,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
                 {
                     if (distanceToTarget < m_attackRange)
                     {
-                        if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
                         m_isStartingSpec = true;
                         TriggerAnimation(ANIMATION.ATTACK_KICK);
                         m_lastAttackTime = Time.time + 10;
@@ -734,7 +769,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
                 {
                     if (distanceToTarget < m_attackRange)
                     {
-                        if (m_currentDamageCoroutine != null) StopCoroutine(m_currentDamageCoroutine);
                         m_isStartingSpec = true;
                         TriggerAnimation(ANIMATION.ATTACK_SHIELD);
                         m_lastAttackTime = Time.time + 10;
@@ -765,15 +799,11 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
                     if (m_attackState == 0)
                     {
-                        TriggerAnimation(ANIMATION.ATTACK_BASIC);
-                        m_currentDamageCoroutine = ApplyDamageDelayed(1, 30, target);
-                        StartCoroutine(m_currentDamageCoroutine);
+                        TriggerAnimation(ANIMATION.ATTACK_BASIC1);
                     }
                     else
                     {
-                        TriggerAnimation(ANIMATION.ATTACK_SPECIAL);
-                        m_currentDamageCoroutine = ApplyDamageDelayed(1, 30, target);
-                        StartCoroutine(m_currentDamageCoroutine);
+                        TriggerAnimation(ANIMATION.ATTACK_BASIC2);
                     }
 
                     m_lastAttackTime = Time.time;
@@ -815,33 +845,34 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         UpdateLevel(xp);
     }
 
-    IEnumerator ApplyDamageDelayed(int dmgMultiplier, int frameDelay, IAttackable target)
+    public void OnSwordSwingConnect()
     {
-        yield return new WaitForSeconds(Time.fixedDeltaTime * frameDelay);
+        Audio.PlayFX(Audio.FX.SWORD_IMPACT, transform.position);
 
-        // dont forget animations and such
-
-        ApplyDamage(target, dmgMultiplier);
+        ApplyDamage(CurrentTarget, 1);
     }
 
-    IEnumerator Freeze(float duration, bool buff = false)
+    IEnumerator Freeze(float duration, bool buff = false, bool vibrate = false)
     {
-        if (buff) Sparky.DisableLight();
-
-        Time.timeScale = 0f;
-        float pauseEndTime = Time.realtimeSinceStartup + duration;
-
-        while (PauseManager.Paused() || Time.realtimeSinceStartup < pauseEndTime)
+        if (SettingsManager.Haptic())
         {
-            yield return null;
-        }
+            if (buff) Sparky.DisableLight();
 
-        Time.timeScale = 1;
+            Time.timeScale = 0f;
+            float pauseEndTime = Time.realtimeSinceStartup + duration;
+            while (PauseManager.Paused() || Time.realtimeSinceStartup < pauseEndTime)
+            {
+                yield return null;
+            }
+            Time.timeScale = 1;
+            if (vibrate) Vibration.Vibrate(Vibration.GenVibratorPattern(0.2f, 50), -1);
+
+        }
 
         if (buff)
         {
             Sparky.ResetIntensity();
-            Sparky.AdjustIntensity();
+            Sparky.IncreaseIntensity();
         }
     }
 

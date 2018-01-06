@@ -26,20 +26,19 @@ public class GameUIManager : MonoBehaviour
     {
         m_instance = this;
     }
-	
-	void Update ()
+
+    void Update ()
     {
         if (m_rUltiButtonAlpha > 0) m_rightSpinner.transform.Rotate(0, 0, m_rUltiButtonAlpha * 4);
         if (m_lUltiButtonAlpha > 0) m_leftSpinner.transform.Rotate(0, 0, -m_lUltiButtonAlpha * 4);
 
-        if ((m_lUltiButtonAlpha >= 1 || m_rUltiButtonAlpha >= 1) && !m_isInUltimate) // revert to &&
+        if ((m_lUltiButtonAlpha >= 1 && m_rUltiButtonAlpha >= 1) && !m_isInUltimate) 
         {
             UltiState(true);
 
             StartCoroutine(SimulateKeyPress(JPlayerUnit.ATTACKS.ULTIMATE));
 
             Audio.BlendMusicTo(Audio.BGM.LOUD, 1);
-
             return;
         }
 
@@ -67,7 +66,6 @@ public class GameUIManager : MonoBehaviour
 
             Audio.BlendMusicTo(Audio.BGM.LOUD, 2, true);
         }
-
     }
 
     public IEnumerator SimulateKeyPress(JPlayerUnit.ATTACKS type)

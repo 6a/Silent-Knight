@@ -1707,6 +1707,52 @@ Prefab:
       propertyPath: m_barTime
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 82651892536777512, guid: 46f02acdfd46a154c81a9048798700e0,
+        type: 2}
+      propertyPath: OutputAudioMixerGroup
+      value: 
+      objectReference: {fileID: 24300002, guid: f52f28b9c5d7dd44c878180c7e48daed,
+        type: 2}
+    - target: {fileID: 82651892536777512, guid: 46f02acdfd46a154c81a9048798700e0,
+        type: 2}
+      propertyPath: reverbZoneMixCustomCurve.m_Curve.Array.data[0].value
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 82651892536777512, guid: 46f02acdfd46a154c81a9048798700e0,
+        type: 2}
+      propertyPath: BypassEffects
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 82651892536777512, guid: 46f02acdfd46a154c81a9048798700e0,
+        type: 2}
+      propertyPath: BypassReverbZones
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 82651892536777512, guid: 46f02acdfd46a154c81a9048798700e0,
+        type: 2}
+      propertyPath: m_PlayOnAwake
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 82651892536777512, guid: 46f02acdfd46a154c81a9048798700e0,
+        type: 2}
+      propertyPath: panLevelCustomCurve.m_Curve.Array.data[0].value
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 82422490864366912, guid: 46f02acdfd46a154c81a9048798700e0,
+        type: 2}
+      propertyPath: m_Volume
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 82422490864366912, guid: 46f02acdfd46a154c81a9048798700e0,
+        type: 2}
+      propertyPath: Priority
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 82969865590165948, guid: 46f02acdfd46a154c81a9048798700e0,
+        type: 2}
+      propertyPath: Priority
+      value: 2
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 46f02acdfd46a154c81a9048798700e0, type: 2}
   m_IsPrefabParent: 0
@@ -5270,6 +5316,11 @@ Prefab:
       propertyPath: m_data.Array.data[0]
       value: Confirm Reset?
       objectReference: {fileID: 0}
+    - target: {fileID: 114405919125872016, guid: ab8dc0c7058703549b612d7ff039dce1,
+        type: 2}
+      propertyPath: m_data.Array.data[1]
+      value: "\u97F3\u97FF\u52B9\u679C\u97F3\u91CF"
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: ab8dc0c7058703549b612d7ff039dce1, type: 2}
   m_IsPrefabParent: 0
@@ -6224,6 +6275,22 @@ Prefab:
     - target: {fileID: 4502321395975748, guid: d1e3d53ad119cc5468f6bd68071c8486, type: 2}
       propertyPath: m_RootOrder
       value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 4331473351005536, guid: d1e3d53ad119cc5468f6bd68071c8486, type: 2}
+      propertyPath: m_LocalRotation.x
+      value: -0.59847516
+      objectReference: {fileID: 0}
+    - target: {fileID: 4331473351005536, guid: d1e3d53ad119cc5468f6bd68071c8486, type: 2}
+      propertyPath: m_LocalRotation.y
+      value: 0.7797492
+      objectReference: {fileID: 0}
+    - target: {fileID: 4331473351005536, guid: d1e3d53ad119cc5468f6bd68071c8486, type: 2}
+      propertyPath: m_LocalRotation.z
+      value: -0.096402206
+      objectReference: {fileID: 0}
+    - target: {fileID: 4331473351005536, guid: d1e3d53ad119cc5468f6bd68071c8486, type: 2}
+      propertyPath: m_LocalRotation.w
+      value: 0.15660599
       objectReference: {fileID: 0}
     - target: {fileID: 1647453438317208, guid: d1e3d53ad119cc5468f6bd68071c8486, type: 2}
       propertyPath: m_IsActive
@@ -10402,6 +10469,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_liveObject: {fileID: 511742968}
+--- !u!1 &1853907810 stripped
+GameObject:
+  m_PrefabParentObject: {fileID: 1510816457314846, guid: 08d6c9944e12adf4cb4a7bd4a3af0ae9,
+    type: 2}
+  m_PrefabInternal: {fileID: 420999508}
+--- !u!114 &1853907819
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1853907810}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6c45cc2bec7e5f349afd83b6f0dd104e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1889548856
 GameObject:
   m_ObjectHideFlags: 0

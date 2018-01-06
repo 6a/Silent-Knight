@@ -57,19 +57,27 @@ public class DungeonGenerator : MonoBehaviour
 
     public IEnumerator LoadNextAsync()
     {
+
         Stopwatch s = new Stopwatch();
         s.Start();
         // TODO optimise - n+1 loads are much faster, possibly due to memory caching.
         UpdateDungeon();
+
+        //print("Dungeon Updated: " + s.ElapsedMilliseconds + "ms");
+
         UpdatePreviewTexture();
 
         Generator.Fabricate();
+        //print("Dungeon fabricated: " + s.ElapsedMilliseconds + "ms");
+
         yield return new WaitForFixedUpdate();
+
         m_grid.CreateGrid();
         s.Stop();
-        yield return new WaitForSecondsRealtime(0.1f);
+
         IsLoadingAsync = false;
-        print("Load complete: " +  s.ElapsedMilliseconds + "ms");
+        //print("Load complete: " +  s.ElapsedMilliseconds + "ms");
+        yield return null;
     }
 
     public void LoadNext()

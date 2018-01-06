@@ -115,7 +115,7 @@ public class Sparky : MonoBehaviour
         return (Vector3.Cross((m_knight.transform.position - m_light.transform.position).normalized, m_knight.transform.forward)).y < 0;
     }
 
-    public static void AdjustIntensity()
+    public static void IncreaseIntensity()
     {
         m_instance.m_light.intensity = m_baseIntensity + 3;
     }

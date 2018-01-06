@@ -240,12 +240,12 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
             case ENEMY_TYPE.AXE:
                 if (rand > 9)
                 {
-                    TriggerAnimation(ANIMATION.ATTACK_BASIC);
+                    TriggerAnimation(ANIMATION.ATTACK_BASIC1);
                     StartCoroutine(ApplyDamageDelayed(1, 7, target));
                 }
                 else if (rand > 2)
                 {
-                    TriggerAnimation(ANIMATION.ATTACK_SPECIAL);
+                    TriggerAnimation(ANIMATION.ATTACK_BASIC2);
                     StartCoroutine(ApplyDamageDelayed(1, 7, target));
                     StartCoroutine(ApplyDamageDelayed(1, 19, target));
                 }
@@ -260,7 +260,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
             case ENEMY_TYPE.SPEAR:
                 if (rand > 2)
                 {
-                    TriggerAnimation(ANIMATION.ATTACK_BASIC);
+                    TriggerAnimation(ANIMATION.ATTACK_BASIC1);
                     StartCoroutine(ApplyDamageDelayed(2, 9, target));
 
                 }
@@ -275,12 +275,12 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
             case ENEMY_TYPE.DAGGER:
                 if (rand > 2)
                 {
-                    TriggerAnimation(ANIMATION.ATTACK_BASIC);
+                    TriggerAnimation(ANIMATION.ATTACK_BASIC1);
                     StartCoroutine(ApplyDamageDelayed(1, 7, target));
                 }
                 else
                 {
-                    TriggerAnimation(ANIMATION.ATTACK_SPECIAL);
+                    TriggerAnimation(ANIMATION.ATTACK_BASIC2);
                     StartCoroutine(ApplyDamageDelayed(2, 7, target));
                     StartCoroutine(ApplyDamageDelayed(2, 19, target));
                 }
@@ -288,7 +288,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
                 m_lastAttackTime = Time.time;
                 break;
             case ENEMY_TYPE.BOW:
-                TriggerAnimation(ANIMATION.ATTACK_BASIC);
+                TriggerAnimation(ANIMATION.ATTACK_BASIC1);
 
                 m_lastAttackTime = Time.time;
                 break;
@@ -330,17 +330,19 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         yield return new WaitForSeconds(Time.fixedDeltaTime * frameDelay);
 
         target.Damage(this, LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage), FCT_TYPE.HIT);
+
+        Audio.PlayFX(Audio.FX.ENEMY_ATTACK_IMPACT, transform.position);
     }
 
     void TriggerAnimation(ANIMATION anim)
     {
         switch (anim)
         {
-            case ANIMATION.ATTACK_BASIC:
+            case ANIMATION.ATTACK_BASIC1:
                 InterruptAnimator();
                 m_animator.SetTrigger("A1Start");
                 break;
-            case ANIMATION.ATTACK_SPECIAL:
+            case ANIMATION.ATTACK_BASIC2:
                 InterruptAnimator();
                 m_animator.SetTrigger("A2Start");
                 break;

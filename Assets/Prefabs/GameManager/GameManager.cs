@@ -101,6 +101,7 @@ public class GameManager : MonoBehaviour
     public static void ContinueLevelStart()
     {
         m_instance.m_continueLevelLoad = true;
+
     }
 
     bool m_continueLevelLoad;

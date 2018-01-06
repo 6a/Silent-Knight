@@ -1,19 +1,23 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
-using UnityEngine.UI;
 
 public struct AudioSet
 {
-    Audio.FX Type;
-    List<AudioClip> Clips;
+    const string m_root = "Audio/FX/";
+
+    public Audio.FX Type;
+    public string File;
+    public int Count;
     public AudioClip Random
     {
         get
         {
-            var ran = UnityEngine.Random.Range(0, Clips.Count);
-            return Clips[ran];
+            var ran = UnityEngine.Random.Range(1, Count + 1);
+            AudioClip c = Resources.Load(m_root + File + ran) as AudioClip;
+            return c;
         }
 
     }
@@ -22,7 +26,7 @@ public struct AudioSet
 public class Audio : MonoBehaviour
 {
     public enum AUDIO { MASTER, BGM, FX }
-    public enum FX { SWORD_IMPACT }
+    public enum FX { SWORD_IMPACT, FOOTSTEP, ENEMY_ATTACK_IMPACT, KICK, SHIELD_SLAM, DEFLECT, LEVEL_CHIME }
     public enum BGM { QUIET, LOUD }
 
     [SerializeField] AudioSource m_sourceBGMQ, m_sourceBGML, m_sourceFX;
@@ -52,6 +56,65 @@ public class Audio : MonoBehaviour
 
         DontDestroyOnLoad(gameObject);
 
+        m_lib = new List<AudioSet>();
+
+        // load lib to memory
+        AudioSet aSet = new AudioSet()
+        {
+            Type = FX.SWORD_IMPACT,
+            File = "player_sword/hit",
+            Count = 5
+        };
+        m_lib.Add(aSet);
+
+        aSet = new AudioSet()
+        {
+            Type = FX.FOOTSTEP,
+            File = "steps/step",
+            Count = 2
+        };
+        m_lib.Add(aSet);
+
+        aSet = new AudioSet()
+        {
+            Type = FX.ENEMY_ATTACK_IMPACT,
+            File = "enemy_attack_hit/HIT",
+            Count = 5
+        };
+        m_lib.Add(aSet);
+
+        aSet = new AudioSet()
+        {
+            Type = FX.KICK,
+            File = "kick/kick",
+            Count = 1
+        };
+        m_lib.Add(aSet);
+
+        aSet = new AudioSet()
+        {
+            Type = FX.SHIELD_SLAM,
+            File = "shield_slam/slam",
+            Count = 1
+        };
+        m_lib.Add(aSet);
+
+        aSet = new AudioSet()
+        {
+            Type = FX.DEFLECT,
+            File = "deflect/deflect",
+            Count = 3
+        };
+        m_lib.Add(aSet);
+
+        aSet = new AudioSet()
+        {
+            Type = FX.LEVEL_CHIME,
+            File = "bells/level_chime",
+            Count = 1
+        };
+        m_lib.Add(aSet);
+
         m_instance = this;
         m_testBlendUp = false;
         m_testBlendDown = false;
@@ -65,11 +128,19 @@ public class Audio : MonoBehaviour
         m_samplesPerSecond = m_sourceBGMQ.clip.frequency;
 
         m_samplesPerBeat = (int)((m_barTime * m_samplesPerSecond) / 4);
+
+        BlendMusicTo(BGM.QUIET, 2);
     }
 
     void Update()
     {
         BlendTest();
+
+        if (m_sourceBGML.timeSamples != m_sourceBGMQ.timeSamples)
+        {
+            m_sourceBGML.timeSamples = m_sourceBGMQ.timeSamples;
+        }
+
     }
 
     private void BlendTest()
@@ -210,17 +281,33 @@ public class Audio : MonoBehaviour
     }
 
     public static void PlayFX(FX type, Vector3? position = null)
-    { 
+    {
         var clip = m_instance.m_lib[(int)type].Random;
 
         if (position.HasValue)
         {
             AudioSource.PlayClipAtPoint(clip, position.Value, m_instance.m_sourceFX.volume);
+
         }
         else
         {
+            m_instance.m_sourceFX.clip = clip;
             m_instance.m_sourceFX.Play();
         }
+    }
+
+    public static void PlayFxAtEndOfBar(FX type)
+    {
+        var clip = m_instance.m_lib[(int)type].Random;
+
+        var headPos = m_instance.m_sourceBGMQ.timeSamples;
+
+        var playPos = (headPos - (headPos % (m_instance.m_samplesPerBeat * 4))) + (m_instance.m_samplesPerBeat * 4);
+
+        var delay = (float)(playPos - headPos) / m_instance.m_samplesPerSecond;
+
+        m_instance.m_sourceFX.clip = clip;
+        m_instance.m_sourceFX.PlayDelayed(delay);
     }
 
     public static void StopFX(bool killAll)
@@ -246,5 +333,45 @@ public class Audio : MonoBehaviour
             dB = -144.0f;
 
         return dB;
+    }
+
+    public static TimingInfo GetTimingInfo()
+    {
+        var x = new TimingInfo()
+        {
+            HeadPos = m_instance.m_sourceBGMQ.timeSamples,
+            SamplesPerBeat = m_instance.m_samplesPerBeat
+        };
+
+        return x;
+    }
+}
+
+public struct TimingInfo
+{
+    public int HeadPos;
+    public int SamplesPerBeat;
+}
+
+// Waits til the end of the backgroudn musics 4-beat bar.
+public class WaitForBeats : CustomYieldInstruction
+{
+    int playPos = -1;
+    float beats;
+
+    public override bool keepWaiting
+    {
+        get
+        {
+            var info = Audio.GetTimingInfo();
+            if (playPos == -1) playPos = ((info.HeadPos - info.HeadPos % (info.SamplesPerBeat * 4))) + (int)(info.SamplesPerBeat * beats);
+
+            return info.HeadPos < playPos;
+        }
+    }
+
+    public WaitForBeats(float beats)
+    {
+        this.beats = beats;
     }
 }

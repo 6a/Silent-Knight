@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class Shatter : MonoBehaviour
 {
@@ -38,17 +37,12 @@ public class Shatter : MonoBehaviour
     static Coroutine m_currentRenderingRoutine;
     public static bool ShatterFinished;
 
-    public void OnPostRender()
-    {
-    }
-
     bool m_underlayEnabled;
     bool m_endShatter;
 
     IEnumerator RenderTriangles()
     {
         if (m_tex == null) yield return null;
-
         float offset = 0;
         float alpha = 1;
         float rotation = 0;
@@ -68,11 +62,12 @@ public class Shatter : MonoBehaviour
 
             if (!m_mat)
             {
-                var shader = Shader.Find("J/Shatter");
-                m_mat = new Material(shader);
-                m_mat.hideFlags = HideFlags.HideAndDontSave;
-
-                m_mat.mainTexture = m_tex;
+                var shader = Resources.Load("Shaders/Shatter") as Shader;
+                m_mat = new Material(shader)
+                {
+                    hideFlags = HideFlags.HideAndDontSave,
+                    mainTexture = m_tex
+                };
             }
 
             GL.LoadOrtho();
@@ -118,7 +113,7 @@ public class Shatter : MonoBehaviour
             }
         }
         ShatterFinished = true;
-        //GameManager.DisableLoadingScreen();
+
     }
 
     List<Triangle> triangles = new List<Triangle>();
@@ -139,7 +134,6 @@ public class Shatter : MonoBehaviour
         Time.timeScale = 0;
 
         if (m_currentRenderingRoutine != null) StopCoroutine(m_currentRenderingRoutine);
-
         m_currentRenderingRoutine = StartCoroutine(RenderTriangles());
     }
 

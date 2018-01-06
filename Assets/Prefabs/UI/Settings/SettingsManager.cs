@@ -109,10 +109,16 @@ public class SettingsManager : MonoBehaviour
         m_currentSettings = m_defaults;
         m_currentSettings.Modified = true;
 
+        UpdateGlobals();
+    }
+
+    private void UpdateGlobals()
+    {
         LocalisationManager.SetLanguage(m_currentSettings.Language);
         Audio.SetVolume(Audio.AUDIO.MASTER, m_currentSettings.MasterVolume);
         Audio.SetVolume(Audio.AUDIO.BGM, m_currentSettings.BGMVolume);
         Audio.SetVolume(Audio.AUDIO.FX, m_currentSettings.FXVolume);
+        GFXQuality.UpdateQuality((GFXQuality.GQUALITY)m_currentSettings.GFXLevel);
 
         RefreshDisplayedValues(m_currentSettings);
     }
@@ -120,14 +126,9 @@ public class SettingsManager : MonoBehaviour
     public void OnBack()
     {
         if (!m_currentSettings.Modified) return;
-        m_instance.m_currentSettings = m_instance.m_previousSettings;
+        m_currentSettings = m_instance.m_previousSettings;
 
-        LocalisationManager.SetLanguage(m_currentSettings.Language);
-        Audio.SetVolume(Audio.AUDIO.MASTER, m_currentSettings.MasterVolume);
-        Audio.SetVolume(Audio.AUDIO.BGM, m_currentSettings.BGMVolume);
-        Audio.SetVolume(Audio.AUDIO.FX, m_currentSettings.FXVolume);
-
-        m_instance.RefreshDisplayedValues(m_instance.m_currentSettings);
+        UpdateGlobals();
     }
 
     public void OnSaveSettings()
@@ -138,6 +139,7 @@ public class SettingsManager : MonoBehaviour
         PPM.SaveInt(PPM.KEY_INT.LEVEL_GFX, m_currentSettings.GFXLevel);
         PPM.SaveBool(PPM.KEY_BOOL.HAPTIC_FEEDBACK, m_currentSettings.HapticFeedback);
         LocalisationManager.SaveLanguage();
+        GFXQuality.UpdateQuality((GFXQuality.GQUALITY)m_currentSettings.GFXLevel);
 
         m_previousSettings = m_currentSettings;
         m_currentSettings.Modified = false;
@@ -185,7 +187,7 @@ public class SettingsManager : MonoBehaviour
 
         m_currentSettings.GFXLevel = newVol;
 
-        // TODO add code to actually change volume
+        // TODO add code to actually change graphics quality
     }
 
     public void OnToggleHaptic(Toggle slider)
@@ -195,8 +197,6 @@ public class SettingsManager : MonoBehaviour
         m_currentSettings.Modified = true;
 
         m_currentSettings.HapticFeedback = on;
-
-        // TODO add code to actually change this
     }
 
     public void OnChangeLanguage(int lang)
@@ -225,5 +225,10 @@ public class SettingsManager : MonoBehaviour
             screen.SetActive(false);
             
         }
+    }
+
+    public static bool Haptic()
+    {
+        return m_instance.m_previousSettings.HapticFeedback;
     }
 }

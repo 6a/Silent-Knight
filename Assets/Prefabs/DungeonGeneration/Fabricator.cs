@@ -1,6 +1,7 @@
 ﻿using Entities;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using UnityEngine;
 
@@ -49,13 +50,14 @@ namespace DungeonGeneration
         {
             CameraFollow.DereferenceKnight();
 
-            var oldObjects = new List<GameObject>();
-
-            oldObjects.Add(GameObject.Find("Tiles"));
-            oldObjects.Add(GameObject.FindGameObjectWithTag("Player"));
-            oldObjects.Add(GameObject.FindGameObjectWithTag("Chest"));
-            oldObjects.Add(GameObject.Find("Enemies"));
-            oldObjects.Add(GameObject.Find("Sparky"));
+            var oldObjects = new List<GameObject>
+            {
+                GameObject.Find("Tiles"),
+                GameObject.FindGameObjectWithTag("Player"),
+                GameObject.FindGameObjectWithTag("Chest"),
+                GameObject.Find("Enemies"),
+                GameObject.Find("Sparky")
+            };
 
             foreach (var ob in oldObjects)
             {
@@ -300,6 +302,7 @@ namespace DungeonGeneration
 
             var platformData = Platforms.GetPlatformData();
 
+
             var aiSet = new Dictionary<int, List<IAttackable>>();
 
             int pNumber = 0;
@@ -311,7 +314,7 @@ namespace DungeonGeneration
                 var startNode = new Vector2(Scale((int)m_startNode.x), Scale((int)m_startNode.y));
                 var endNode = new Vector2(Scale((int)m_endNode.x), Scale((int)m_endNode.y));
 
-                int numToSpawn = 1; // TODO revert
+                int numToSpawn = 2 + m_levelIndex; 
 
                 var positions = new List<Vector2>();
 
@@ -319,6 +322,7 @@ namespace DungeonGeneration
                 {
                     for (int i = 0; i < numToSpawn; i++)
                     {
+
                         int r = UnityEngine.Random.Range(1, 5);
                         var enemyObj = Resources.Load("Goblins/Goblin " + r) as GameObject;
 
@@ -349,6 +353,8 @@ namespace DungeonGeneration
 
                         attackers.Add(enemyClassInterface);
                     }
+
+
                 }
 
                 aiSet.Add(pNumber, attackers);
@@ -357,6 +363,7 @@ namespace DungeonGeneration
             }
 
             AI.LoadAIData(new AISet(aiSet));
+
         }
 
         public void PlaceChestAtEndNode()
