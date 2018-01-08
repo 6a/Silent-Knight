@@ -18,6 +18,7 @@ namespace DungeonGeneration
         Vector2? m_chestDirection;
         GameObject m_playerCharacter;
         GameObject m_chest;
+        GameObject m_boss;
         int m_levelIndex;
 
         Material[] m_platformCorners = new Material[5];
@@ -36,6 +37,7 @@ namespace DungeonGeneration
 
             m_playerCharacter = Resources.Load("Tetsuo/Knight") as GameObject;
             m_chest = Resources.Load("Chest/Chest") as GameObject;
+            m_boss = Resources.Load("Bosses/Boss1") as GameObject;
 
             for (int i = 0; i < m_platformCorners.Length; i++)
             {
@@ -302,27 +304,26 @@ namespace DungeonGeneration
 
             var platformData = Platforms.GetPlatformData();
 
-
             var aiSet = new Dictionary<int, List<IAttackable>>();
 
             int pNumber = 0;
             int eNumber = 1;
             foreach (var platform in platformData)
             {
+
+
                 var attackers = new List<IAttackable>();
 
                 var startNode = new Vector2(Scale((int)m_startNode.x), Scale((int)m_startNode.y));
                 var endNode = new Vector2(Scale((int)m_endNode.x), Scale((int)m_endNode.y));
 
-                int numToSpawn = 2 + m_levelIndex; 
-
+                int numToSpawn = 2 + m_levelIndex;
                 var positions = new List<Vector2>();
 
                 if (!platform.IsInBounds(startNode) && !platform.IsInBounds(endNode))
                 {
                     for (int i = 0; i < numToSpawn; i++)
                     {
-
                         int r = UnityEngine.Random.Range(1, 5);
                         var enemyObj = Resources.Load("Goblins/Goblin " + r) as GameObject;
 
@@ -346,15 +347,37 @@ namespace DungeonGeneration
                         {
                             enemyClass.SetLevel(m_levelIndex * 5);
                         }
-                        
+
                         var enemyClassInterface = enemyClass as IAttackable;
                         enemyClassInterface.ID = eNumber;
                         eNumber++;
+                        attackers.Add(enemyClassInterface);
+                    }
+                }
+                else if (platform.IsInBounds(endNode))
+                {
+                    if (m_levelIndex > 0 && (m_levelIndex + 1) % 5 == 0)
+                    {
+                        var goal = GameObject.Instantiate(m_boss, new Vector3(Scale((int)m_endNode.x), 1, Scale((int)m_endNode.y)), Quaternion.identity);
+
+                        var closestPathBlock = GameObject.FindGameObjectsWithTag("Path").OrderBy(i => (i.transform.position - goal.transform.position).sqrMagnitude).FirstOrDefault();
+
+                        var closestPathTileV2 = new Vector2(closestPathBlock.transform.position.x, closestPathBlock.transform.position.z);
+                        var chestTileV2 = new Vector2(goal.transform.position.x, goal.transform.position.z);
+
+                        Vector2 facingDir = (closestPathTileV2 - chestTileV2).Snap();
+
+                        goal.transform.LookAt(goal.transform.position + new Vector3(facingDir.x, 0, facingDir.y));
+
+                        var enemyClass = goal.GetComponent<JEnemyUnit>();
+                        enemyClass.SetLevel(m_levelIndex * 5);
+                        enemyClass.Running = false;
+
+                        var enemyClassInterface = enemyClass as IAttackable;
+                        enemyClassInterface.ID = eNumber;
 
                         attackers.Add(enemyClassInterface);
                     }
-
-
                 }
 
                 aiSet.Add(pNumber, attackers);
@@ -363,21 +386,22 @@ namespace DungeonGeneration
             }
 
             AI.LoadAIData(new AISet(aiSet));
-
         }
 
-        public void PlaceChestAtEndNode()
+        public void PlaceGoal()
         {
-            GameObject chest = GameObject.Instantiate(m_chest, new Vector3(Scale((int)m_endNode.x), 1, Scale((int)m_endNode.y)), Quaternion.identity);
+            if (m_levelIndex > 0 && (m_levelIndex + 1) % 5 == 0) return;
 
-            var closestPathBlock = GameObject.FindGameObjectsWithTag("Path").OrderBy(i => (i.transform.position - chest.transform.position).sqrMagnitude).FirstOrDefault();
+            var goal = GameObject.Instantiate(m_chest, new Vector3(Scale((int)m_endNode.x), 1, Scale((int)m_endNode.y)), Quaternion.identity);
+
+            var closestPathBlock = GameObject.FindGameObjectsWithTag("Path").OrderBy(i => (i.transform.position - goal.transform.position).sqrMagnitude).FirstOrDefault();
 
             var closestPathTileV2 = new Vector2(closestPathBlock.transform.position.x, closestPathBlock.transform.position.z);
-            var chestTileV2 = new Vector2(chest.transform.position.x, chest.transform.position.z);
+            var chestTileV2 = new Vector2(goal.transform.position.x, goal.transform.position.z);
 
             Vector2 facingDir = (closestPathTileV2 - chestTileV2).Snap();
 
-            chest.transform.LookAt(chest.transform.position + new Vector3(facingDir.x, 0, facingDir.y));
+            goal.transform.LookAt(goal.transform.position + new Vector3(facingDir.x, 0, facingDir.y));
         }
 
         public void PlacePlayerAtStartNode()

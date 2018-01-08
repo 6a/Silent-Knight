@@ -54,7 +54,7 @@ namespace DungeonGeneration
 
             fabricator.PlacePlayerAtStartNode();
 
-            fabricator.PlaceChestAtEndNode();
+            fabricator.PlaceGoal();
 
             fabricator.PlaceEnemies();
 

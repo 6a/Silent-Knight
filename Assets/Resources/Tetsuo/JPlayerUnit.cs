@@ -88,7 +88,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         LineRender = GetComponent<LineRenderer>();
         m_weapon = GetComponentInChildren<PlayerWeapon>();
         m_lastAttackTime = -1;
-        m_xp = PPM.LoadInt(PPM.KEY_INT.XP);
+        //m_xp = PPM.LoadInt(PPM.KEY_INT.XP); // TODO revert
+        m_xp = 10000;
         m_attackState = 0;
 
         GameManager.OnStartRun += OnStartRun;
@@ -497,6 +498,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         CurrentTarget = null;
 
         PathingTarget = FindObjectOfType<Chest>();
+        if (PathingTarget == null)
+            PathingTarget = GameObject.FindGameObjectWithTag("Boss").GetComponent<JEnemyUnit>() as ITargetable;
 
         m_endtarget = PathingTarget;
 
@@ -546,13 +549,11 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         Health -= Mathf.Max(dmg, 0);
 
-        m_healthbar.UpdateHealthDisplay(Health / m_maxHealth, (int)m_maxHealth);
         m_nextRegenTick = Time.time + m_regenDelay;
 
-        if (Health / m_maxHealth < m_dangerHealthThreshold)
-        {
-            m_healthbar.Pulse(false);
-        }
+        FCTRenderer.AddFCT(type, dmg.ToString(), transform.position + Vector3.up);
+
+        m_healthbar.UpdateHealthDisplay(Mathf.Max(Health / m_maxHealth, 0), (int)m_maxHealth);
 
         if (Health <= 0)
         {

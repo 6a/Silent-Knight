@@ -5,7 +5,7 @@ using Entities;
 using System.Collections;
 using Localisation;
 
-public enum ENEMY_TYPE { AXE, SPEAR, DAGGER, BOW }
+public enum ENEMY_TYPE { AXE, SPEAR, DAGGER, BOW, PALADIN }
 
 public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
 {
@@ -167,12 +167,12 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         dmg *= ((m_currentStatus == STATUS.STUN) ? 2 : 1);
         Health -= dmg;
 
-        m_healthbar.UpdateHealthDisplay(Health / (int)CalcuateUnitHealth(), (int)CalcuateUnitHealth());
-
         var screenPos = Camera.main.WorldToScreenPoint(transform.position);
         var dir = screenPos - Camera.main.WorldToScreenPoint(attacker.GetWorldPos());
 
         FCTRenderer.AddFCT(type, dmg.ToString(), transform.position + Vector3.up);
+
+        m_healthbar.UpdateHealthDisplay(Mathf.Max(Health / (int)CalcuateUnitHealth(), 0), (int)CalcuateUnitHealth());
 
         if (Health <= 0)
         {
@@ -181,12 +181,24 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
             TriggerAnimation(ANIMATION.DEATH);
             IsDead = true;
             attacker.OnTargetDied(this);
-            ((JPlayerUnit)attacker).GiveXp((int)CalcuateUnitHealth());
+
+            int xp = (int)CalcuateUnitHealth();
+
+            xp = (m_enemyType > ENEMY_TYPE.BOW) ? xp * 2 : xp;
+
+            ((JPlayerUnit)attacker).GiveXp(xp);
+
+            // TODO launch end of level special cutscene stuff
+            // Load next level
+
+            return;
         }
     }
 
     public void KnockBack(Vector2 sourcePos, float strength)
     {
+        if (m_enemyType > ENEMY_TYPE.BOW) return;
+
         var forceVec = (transform.position - new Vector3(sourcePos.x, transform.position.y, sourcePos.y)).normalized * strength;
         m_rb.AddForce(forceVec);
     }
@@ -292,6 +304,18 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
 
                 m_lastAttackTime = Time.time;
                 break;
+            case ENEMY_TYPE.PALADIN:
+                if (rand > 10)
+                {
+                    TriggerAnimation(ANIMATION.ATTACK_BASIC1);
+                }
+                else
+                {
+                    TriggerAnimation(ANIMATION.ATTACK_ULTIMATE);
+                }
+
+                m_lastAttackTime = Time.time;
+                break;
         }
     }
 
@@ -307,7 +331,6 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
     public void GetInRange(ITargetable target)
     {
         UpdatePathTarget(PathingTarget);
-
     }
 
     public void AfflictStatus(IAttackable target)
@@ -325,11 +348,25 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         return transform.position;
     }
 
+    public void ApplyDamage(int dmgMultiplier)
+    {
+        var target = CurrentTarget;
+
+        try
+        {
+            target.Damage(this, LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage) * dmgMultiplier, FCT_TYPE.ENEMYHIT);
+            Audio.PlayFX(Audio.FX.ENEMY_ATTACK_IMPACT, transform.position);
+        }
+        catch (Exception)
+        {
+        }
+    }
+
     IEnumerator ApplyDamageDelayed(int dmgMultiplier, int frameDelay, IAttackable target)
     {
         yield return new WaitForSeconds(Time.fixedDeltaTime * frameDelay);
 
-        target.Damage(this, LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage), FCT_TYPE.HIT);
+        target.Damage(this, LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage), FCT_TYPE.ENEMYHIT);
 
         Audio.PlayFX(Audio.FX.ENEMY_ATTACK_IMPACT, transform.position);
     }

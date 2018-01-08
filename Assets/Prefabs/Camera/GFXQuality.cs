@@ -23,7 +23,6 @@ public class GFXQuality : MonoBehaviour
 
     public static void UpdateQuality(GQUALITY q)
     {
-        print("!");
         QualitySettings.SetQualityLevel((int)q);
 
         switch (q)

@@ -42,8 +42,7 @@ public class AI : MonoBehaviour
     {
         var potentialTargets = instance.Enemies.GetEnemies(platformID);
 
-        if (potentialTargets == null || potentialTargets.Count == 0 || potentialTargets == null) return null;
-
+        if (potentialTargets == null || potentialTargets.Count == 0) return null;
         IAttackable closest = null;
 
         float minDistance = float.MaxValue;
@@ -77,6 +76,7 @@ public class AISet
     public List<IAttackable> GetEnemies(int platformID)
     {
         if (!Enemies.ContainsKey(platformID)) return null;
+
         return Enemies[platformID];
     }
 
