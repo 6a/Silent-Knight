@@ -187,7 +187,6 @@ public class Audio : MonoBehaviour
 
     public static void BlendMusicTo(BGM to, int beats = 2, bool half = false)
     {
-
         if (m_instance.m_blendRoutine != null) m_instance.StopCoroutine(m_instance.m_blendRoutine);
 
         m_instance.m_blendRoutine = m_instance.StartCoroutine(m_instance.BlendMusicAsync(to, beats, half));

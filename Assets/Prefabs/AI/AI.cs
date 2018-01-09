@@ -33,6 +33,32 @@ public class AI : MonoBehaviour
         }
     }
 
+    public static void PauseUnits()
+    {
+        foreach (var enemyset in instance.Enemies.Enemies)
+        {
+            foreach (var enemy in enemyset.Value)
+            {
+                if (enemy == null) continue;
+                ((PathFindingObject)enemy).GetComponent<Animator>().enabled = false;
+
+            }
+        }
+    }
+
+    public static void UnPauseUnits()
+    {
+        foreach (var enemyset in instance.Enemies.Enemies)
+        {
+            foreach (var enemy in enemyset.Value)
+            {
+                if (enemy == null) continue;
+                ((PathFindingObject)enemy).GetComponent<Animator>().enabled = true;
+
+            }
+        }
+    }
+
     public static void RemoveUnit(int platformID, IAttackable unit)
     {
         instance.Enemies.GetEnemies(platformID).Remove(unit);

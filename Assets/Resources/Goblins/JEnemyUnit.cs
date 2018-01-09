@@ -25,6 +25,8 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
 
     public int ID { get; set; }
 
+    public bool IsBoss { get; set; }
+
     [SerializeField] float m_attackRange;
     [SerializeField] float m_attacksPerSecond;
     [SerializeField] float m_baseDamage;
@@ -42,14 +44,19 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
     float m_statusEndTime;
     STATUS m_currentStatus;
 
+    bool m_bossSequenceInitiated;
+
     void Awake ()
     {
         m_animator = GetComponent<Animator>();
-        LineRender = GetComponent<LineRenderer>();
+        LineRenderer = GetComponent<LineRenderer>();
         m_rb = GetComponent<Rigidbody>();
         m_lastAttackTime = -1;
 
         m_currentStatus = STATUS.NONE;
+
+        m_bossSequenceInitiated = false;
+
         GameManager.OnStartRun += OnStartRun;
     }
 
@@ -63,6 +70,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
 	void Update ()
     {
         if (!Running) return;
+
         switch (m_currentStatus)
         {
             case STATUS.STUN:
@@ -120,6 +128,24 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
 
         Attack(CurrentTarget);
 
+        if (m_enemyType > ENEMY_TYPE.BOW && ! m_bossSequenceInitiated && (transform.position - CurrentTarget.Position()).sqrMagnitude < 20)
+        {
+            Audio.BlendMusicTo(Audio.BGM.LOUD, 4);
+
+            IsFollowingPath = false;
+            (CurrentTarget as JPlayerUnit).IsFollowingPath = false;
+
+            if (!CameraFollow.SwitchViewRear()) return;
+            IsFollowingPath = true;
+            (CurrentTarget as JPlayerUnit).IsFollowingPath = true;
+            (CurrentTarget as JPlayerUnit).SetAttackRange(1.5f);
+
+            return;
+        }
+    }
+
+    private void FixedUpdate()
+    {
         UpdateMovement();
     }
 
@@ -180,7 +206,10 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
             InterruptAnimator();
             TriggerAnimation(ANIMATION.DEATH);
             IsDead = true;
-            attacker.OnTargetDied(this);
+
+            bool isBoss = (m_enemyType > ENEMY_TYPE.BOW);
+
+            attacker.OnTargetDied(this, isBoss);
 
             int xp = (int)CalcuateUnitHealth();
 
@@ -219,7 +248,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
     {
         var distanceToTarget = Vector3.Distance(transform.position, target.Position());
 
-        if (distanceToTarget <= m_attackRange)
+        if (distanceToTarget <= m_attackRange && !target.IsDead)
         {
             StopMovement();
             OnFollowPath(0);
@@ -388,14 +417,29 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
                 m_animator.SetTrigger("A3Start");
                 break;
             case ANIMATION.DEATH:
-                // Particles or stuff
-                AI.RemoveUnit(Platforms.PlayerPlatform, this);
+                if (m_enemyType > ENEMY_TYPE.BOW)
+                {
+                    if (!m_animator.enabled)
+                    {
+                        m_animator.enabled = true;
+                        m_material.material.color = Color.white;
+                        Speed = m_speedTemp;
+                    }
 
-                transform.position = new Vector3(0, -1000, 0);
+                    InterruptAnimator();
+                    m_animator.SetTrigger("DeathStart");
+                }
+                else
+                {
+                    AI.RemoveUnit(Platforms.PlayerPlatform, this);
 
-                Disposal.Dispose(gameObject);
+                    transform.position = new Vector3(0, -1000, 0);
 
-                m_deleted = true;
+                    Disposal.Dispose(gameObject);
+
+                    m_deleted = true;
+                }
+
 
                 break;
         }
@@ -411,9 +455,9 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         m_animator.ResetTrigger("DeathStart");
     }
 
-    public void OnTargetDied(IAttackable target)
+    public void OnTargetDied(IAttackable target, bool boss = false)
     {
-        throw new NotImplementedException();
+
     }
 
     public ITargetable GetTargetableInterface()

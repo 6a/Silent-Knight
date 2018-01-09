@@ -16,6 +16,8 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] GameObject m_loadingBlockTopParent, m_loadingBlockBottomParent;
     [SerializeField] Image m_faderBackground, m_faderLogo;
+    [SerializeField] GameObject m_endOptions;
+    [SerializeField] GameObject m_deathOptions;
     Image [] m_loadingBlocksBottom, m_loadingBlocksTop;
 
     [SerializeField] float m_loadDelay;
@@ -51,6 +53,28 @@ public class GameManager : MonoBehaviour
             Shatter.StartShatter();
         }
 	}
+
+    public static void FadeToBlack(bool death)
+    {
+
+
+        m_instance.StartCoroutine(m_instance.FadeToBlackAsync(death));
+    }
+
+    IEnumerator FadeToBlackAsync(bool death)
+    {
+        float increment = 0.05f;
+
+        while (m_faderBackground.color.a < 1)
+        {
+            var fc = m_faderBackground.color;
+            m_faderBackground.color = new Color(fc.r, fc.g, fc.b, fc.a + increment);
+
+            yield return new WaitForSecondsRealtime(0.05f);
+        }
+
+        m_deathOptions.SetActive(death);
+    }
 
     public static void EnableLoadingScreen()
     {
@@ -101,7 +125,6 @@ public class GameManager : MonoBehaviour
     public static void ContinueLevelStart()
     {
         m_instance.m_continueLevelLoad = true;
-
     }
 
     bool m_continueLevelLoad;
@@ -188,6 +211,35 @@ public class GameManager : MonoBehaviour
         m_instance.StartCoroutine(m_instance.LevelStart(true));
     }
 
+    public static void TriggerEndScreen()
+    {
+        OnStartRun = null;
+        m_instance.StartCoroutine(m_instance.EndScreen());
+    }
+
+    IEnumerator EndScreen()
+    {
+        m_endOptions.SetActive(true);
+
+        for (int i = 0; i < m_loadingBlocksBottom.Length; i++)
+        {
+            m_loadingBlocksBottom[i].enabled = false;
+            m_loadingBlocksTop[i].enabled = false;
+        }
+
+        Shatter.StartShatter();
+
+        yield return new WaitForEndOfFrame();
+        yield return new WaitForEndOfFrame();
+
+        Shatter.CompleteShatter();
+
+        while (!Shatter.ShatterFinished)
+        {
+            yield return null;
+        }
+    }
+
     // Just wipes all saved settings and reloads the game.
     public static void TotalReset()
     {
@@ -230,4 +282,15 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1;
         SceneManager.LoadScene(0);
     }
+
+    public void ReincarnateEnd()
+    {
+        Reincarnate();
+    }
+
+    public void Quit()
+    {
+        Application.Quit();
+    }
+
 }

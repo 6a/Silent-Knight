@@ -8,6 +8,7 @@ namespace Entities
         float Health { get; set; }
         int DeathTime { get; set; }
         bool IsDead { get; set; }
+        bool IsBoss { get; set; }
 
         void Damage(IAttacker attacker, float damage, FCT_TYPE type);
         void KnockBack(Vector2 sourcePos, float strength);

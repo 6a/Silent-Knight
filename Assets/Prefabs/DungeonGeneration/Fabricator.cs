@@ -310,8 +310,6 @@ namespace DungeonGeneration
             int eNumber = 1;
             foreach (var platform in platformData)
             {
-
-
                 var attackers = new List<IAttackable>();
 
                 var startNode = new Vector2(Scale((int)m_startNode.x), Scale((int)m_startNode.y));
@@ -375,6 +373,7 @@ namespace DungeonGeneration
 
                         var enemyClassInterface = enemyClass as IAttackable;
                         enemyClassInterface.ID = eNumber;
+                        enemyClassInterface.IsBoss = true;
 
                         attackers.Add(enemyClassInterface);
                     }

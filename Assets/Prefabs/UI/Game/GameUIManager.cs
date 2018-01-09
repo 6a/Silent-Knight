@@ -70,13 +70,12 @@ public class GameUIManager : MonoBehaviour
 
     public IEnumerator SimulateKeyPress(JPlayerUnit.ATTACKS type)
     {
-        m_instance.m_currentPlayer.SimulatePress(type);
+        m_instance.m_currentPlayer.SimulateInputPress(type);
 
         yield return new WaitForEndOfFrame();
 
-        m_instance.m_currentPlayer.SimulateRelease(type);
+        m_instance.m_currentPlayer.SimulateInputRelease(type);
     }
-
 
     public void OnUltiButtonDown(bool left)
     {

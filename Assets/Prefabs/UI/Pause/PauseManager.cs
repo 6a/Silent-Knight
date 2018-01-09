@@ -24,6 +24,8 @@ public class PauseManager : MonoBehaviour
     public void OnStartPause(int nextScreen)
     {
         m_gameScreen.SetActive(false);
+        FindObjectOfType<JPlayerUnit>().GetComponent<Animator>().enabled = false;
+        AI.PauseUnits();
 
         switch (nextScreen)
         {
@@ -51,6 +53,8 @@ public class PauseManager : MonoBehaviour
     {
         m_settingsScreen.SetActive(false);
         m_pauseScreen.SetActive(true);
+
+        FindObjectOfType<JPlayerUnit>().GetComponent<Animator>().enabled = true;
     }
 
     // 0 = pausemenu, 1 = bonusmenu
@@ -64,6 +68,8 @@ public class PauseManager : MonoBehaviour
 
         Time.timeScale = 1;
         Camera.main.gameObject.GetComponent<UnityStandardAssets.ImageEffects.Blur>().enabled = false;
+        FindObjectOfType<JPlayerUnit>().GetComponent<Animator>().enabled = true;
+        AI.UnPauseUnits();
         m_paused = false;
     }
 }

@@ -14,6 +14,7 @@ namespace PathFinding
         public Path Path { get; set; }
         public ITargetable PathingTarget { get; set; }
         public int UnitID { get; set; }
+        public bool HasReachedBoss { get; set; }
 
         public bool Running { get; set; }
 
@@ -30,7 +31,7 @@ namespace PathFinding
         // Indices of the current node, stored for updating grid to avoid collisions.
         public Vector3 PreviousPos;
 
-        public LineRenderer LineRender;
+        public LineRenderer LineRenderer;
 
         IEnumerator m_currentPathCoroutine;
 
@@ -50,7 +51,7 @@ namespace PathFinding
 
                 if (Path != null && m_drawPath)
                 {
-                    Path.Draw(LineRender, m_pathColor);
+                    Path.Draw(LineRenderer, m_pathColor);
                 }
             }
             else
@@ -116,7 +117,7 @@ namespace PathFinding
                     }
                 }
 
-                if (IsFollowingPath)
+                if (IsFollowingPath && !HasReachedBoss)
                 {
                     if (pathIndex >= Path.SlowdownIndex && StoppingDistance > 0)
                     {
@@ -165,12 +166,6 @@ namespace PathFinding
         {
             IsFollowingPath = false;
             processMovementUpdate = false;
-        }
-
-        public void StartMovement()
-        {
-            IsFollowingPath = true;
-            processMovementUpdate = true;
         }
 
         /// <summary>

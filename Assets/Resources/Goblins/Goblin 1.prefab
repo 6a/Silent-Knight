@@ -1594,7 +1594,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_pathColor: {r: 1, g: 0, b: 0.93103456, a: 1}
   m_drawPath: 0
-  Speed: 3
+  Speed: 2
   TurnDistance: 1.5
   TurnSpeed: 11
   PathfindingTickDurationMS: 200
@@ -1602,10 +1602,10 @@ MonoBehaviour:
   IsFollowingPath: 0
   CurrentPlatformIndex: 0
   PreviousPos: {x: 0, y: 0, z: 0}
-  LineRender: {fileID: 0}
+  LineRenderer: {fileID: 0}
   m_attackRange: 1
   m_attacksPerSecond: 0.5
-  m_baseDamage: 5
+  m_baseDamage: 20
   m_level: 1
   m_baseHealth: 100
   m_material: {fileID: 137107583648415470}

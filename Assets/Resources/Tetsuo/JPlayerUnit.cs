@@ -30,6 +30,21 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         set { FocusPoint = value; }
     }
 
+    public Transform GetReferenceTarget()
+    {
+        return m_refTarget;
+    }
+
+    public Transform GetLookTarget()
+    {
+        return m_lookTarget;
+    }
+
+    public Transform GetDeathAnchor()
+    {
+        return m_deathCamAnchor;
+    }
+
     public float Health { get; set; }
 
     public int DeathTime { get; set; }
@@ -37,6 +52,10 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     public IAttackable CurrentTarget { get; set; }
 
     public int ID { get; set; }
+
+    public bool FoundBoss { get; set; }
+
+    public bool IsBoss { get; set; }
 
     [SerializeField] float m_attackRange;
     [SerializeField] float m_attacksPerSecond;
@@ -57,6 +76,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     [SerializeField] float m_buffRotPercentDamage;
     [SerializeField] float m_dangerHealthThreshold;
     [SerializeField] GameObject m_buffSystem, m_buffInitSystem;
+    [SerializeField] Transform m_refTarget, m_lookTarget;
+    [SerializeField] Transform m_deathCamAnchor;
 
     ITargetable m_endtarget;
 
@@ -82,14 +103,12 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     void Awake()
     {
-        PPM.SaveInt(PPM.KEY_INT.XP, 0);
         m_animator = GetComponent<Animator>();
         m_rb = GetComponent<Rigidbody>();
-        LineRender = GetComponent<LineRenderer>();
+        LineRenderer = GetComponent<LineRenderer>();
         m_weapon = GetComponentInChildren<PlayerWeapon>();
         m_lastAttackTime = -1;
-        //m_xp = PPM.LoadInt(PPM.KEY_INT.XP); // TODO revert
-        m_xp = 10000;
+        m_xp = PPM.LoadInt(PPM.KEY_INT.XP); 
         m_attackState = 0;
 
         GameManager.OnStartRun += OnStartRun;
@@ -123,15 +142,18 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
             m_nextRegenTick += m_regenTick;
         }
 
+        UpdateCooldownSpinners();
+
         if (Parry()) return;
 
         if (Buff()) return;
 
-        UpdateCooldownSpinners();
-
         Attack(CurrentTarget);
+    }
 
-
+    internal void SetAttackRange(float v)
+    {
+        m_attackRange = v;
     }
 
     private void FixedUpdate()
@@ -565,6 +587,11 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         }
     }
 
+    public void OnDeathAnimationFinished()
+    {
+        CameraFollow.SwitchViewDeath();
+    }
+
     public void KnockBack(Vector2 sourcePos, float strength)
     {
         throw new NotImplementedException();
@@ -784,6 +811,11 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
             if (distanceToTarget < m_attackRange)
             {
+                if (target.IsBoss)
+                {
+                    HasReachedBoss = true;
+                }
+
                 StopMovement();
                 OnFollowPath(0);
 
@@ -792,7 +824,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
                 var targetRotation = Quaternion.LookRotation(target.Position() - transform.position);
 
                 transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 4);
-
 
                 if ((m_lastAttackTime == -1 || Time.time - m_lastAttackTime > attackDelay))
                 {
@@ -830,13 +861,20 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         }
         else
         {
-            var targ = new Vector2(m_endtarget.TargetTransform(0).position.x, m_endtarget.TargetTransform(0).position.z);
+            try
+            {
+                var targ = new Vector2(m_endtarget.TargetTransform(0).position.x, m_endtarget.TargetTransform(0).position.z);
 
-            if (!IsFollowingPath && Vector2.SqrMagnitude(targ - new Vector2(transform.position.x, transform.position.z)) < 0.1f)
+                if (!IsFollowingPath && Vector2.SqrMagnitude(targ - new Vector2(transform.position.x, transform.position.z)) < 0.1f)
+                {
+                    Running = false;
+                    GameManager.TriggerLevelLoad();
+                }
+            }
+            catch (Exception)
             {
 
-                Running = false;
-                GameManager.TriggerLevelLoad();
+
             }
         }
     }
@@ -898,11 +936,29 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         return transform.position;
     }
 
-    public void OnTargetDied(IAttackable target)
+    public void OnTargetDied(IAttackable target, bool boss = false)
     {
-        OnEnterPlatform();
+        if (boss)
+        {
+            Running = false;
+            OnFollowPath(0);
+            StopMovement();
+            StartCoroutine(BossDead());
+        }
+        else
+        {
+            OnEnterPlatform();
+        }
+    }
 
-        // XP etc.
+    // TODO boss stuff
+    IEnumerator BossDead()
+    {
+        Audio.BlendMusicTo(Audio.BGM.QUIET, 4);
+
+        yield return new WaitForSecondsRealtime(2);
+
+        GameManager.TriggerEndScreen();
     }
 
     public ITargetable GetTargetableInterface()
@@ -922,12 +978,12 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     bool[] m_simTriggers = new bool[5];
 
-    public void SimulatePress(ATTACKS type)
+    public void SimulateInputPress(ATTACKS type)
     {
         m_simTriggers[(int)type] = true;
     }
 
-    public void SimulateRelease(ATTACKS type)
+    public void SimulateInputRelease(ATTACKS type)
     {
         m_simTriggers[(int)type] = false;
     }
