@@ -1,4 +1,6 @@
-﻿public static class Extension
+﻿using System;
+
+public static class Extension
 {
     public static UnityEngine.Vector2 Snap(this UnityEngine.Vector2 v)
     {
@@ -36,7 +38,19 @@
         return new UnityEngine.Vector2(v.x, v.z);
     }
 
-    public static void SetLayerRecursively(this UnityEngine.GameObject obj, int layer)
+    public static string Format(this float f, string suffix)
+    {
+        const float BILLION = 1000000000;
+        const float MILLION = 1000000;
+        const float THOUSAND = 1000;
+
+        if (f >= BILLION) return Math.Round(f / BILLION, 3).ToString() + "B";
+        else if (f >= MILLION) return Math.Round(f / MILLION, 3).ToString() + "M";
+        else if (f >= THOUSAND) return Math.Round(f / THOUSAND, 2).ToString() + "K";
+        else return Math.Round(f, 1).ToString() + suffix;
+    }
+
+        public static void SetLayerRecursively(this UnityEngine.GameObject obj, int layer)
     {
         obj.layer = layer;
 

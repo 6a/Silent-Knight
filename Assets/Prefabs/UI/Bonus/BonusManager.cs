@@ -227,6 +227,18 @@ public class BonusManager : MonoBehaviour
         if (save) PPM.SaveInt(PPM.KEY_INT.CURRENT_CREDITS, m_instance.m_currentCredits);
     }
 
+    public static bool CanSubtract(BONUS bonus)
+    {
+        if (m_instance.m_spentCredits == 0 || m_instance.m_bonuses[(int)bonus].State() == BONUS_STATE.AT_MINIMUM) return false;
+        return true;
+    }
+
+    public static bool CanAdd(BONUS bonus)
+    {
+        if (m_instance.m_currentCredits == 0 || m_instance.m_bonuses[(int)bonus].State() == BONUS_STATE.AT_MAXIMUM) return false;
+        return true;
+    }
+
     public static void UpdateBonusDisplay(BONUS bonus, JPlayerUnit playerRef)
     {
         m_instance.m_percentBonusField[(int)bonus].SetButtonState(m_instance.m_bonuses[(int)bonus].State());
@@ -242,8 +254,8 @@ public class BonusManager : MonoBehaviour
         }
         else
         {
-            currentValue = Math.Round(GetModifiedValue(bonus, playerRef.GetValue(bonus)), 1) + m_instance.m_bonuses[(int)bonus].m_suffix;
-            nextValue = Math.Round(GetModifiedValue(bonus, playerRef.GetValue(bonus), true), 1) + m_instance.m_bonuses[(int)bonus].m_suffix;
+            currentValue = GetModifiedValue(bonus, playerRef.GetValue(bonus)).Format(m_instance.m_bonuses[(int)bonus].m_suffix);
+            nextValue = GetModifiedValue(bonus, playerRef.GetValue(bonus), true).Format(m_instance.m_bonuses[(int)bonus].m_suffix);
         }
 
         m_instance.m_percentBonusField[(int)bonus].Value1 = currentValue;

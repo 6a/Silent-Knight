@@ -6,7 +6,15 @@ using UnityEngine;
 
 public class StatAdjuster : MonoBehaviour
 {
+    enum BUTTON_STATE { UP, DOWN }
+
     [SerializeField] GameObject m_buttonNegative, m_buttonPositive;
+
+    BUTTON_STATE m_neg, m_pos;
+    BONUS m_type;
+
+    const float DELAY = 0.5f;
+    float m_buttonDownTime = 0;
 
     public void HideButton(bool down)
     {
@@ -43,15 +51,70 @@ public class StatAdjuster : MonoBehaviour
         }
     }
 
-    // gets cast to BONUS enum
-    public void OnAddPoint(int bonusType)
+    void OnAddPoint(BONUS bonusType)
     {
-        BonusManager.UpdateBonusAmount((BONUS)bonusType, 1);
+        if (BonusManager.CanAdd(bonusType))
+        {
+            BonusManager.UpdateBonusAmount(bonusType, 1);
+        }
+        else
+        {
+            m_pos = BUTTON_STATE.UP;
+        }
     }
 
-    // gets cast to BONUS enum
-    public void OnRemovePoint(int bonusType)
+    void OnRemovePoint(BONUS bonusType)
     {
-        BonusManager.UpdateBonusAmount((BONUS)bonusType, -1);
+        if (BonusManager.CanSubtract(bonusType))
+        {
+            BonusManager.UpdateBonusAmount(bonusType, -1);
+        }
+        else
+        {
+            m_neg = BUTTON_STATE.UP;
+        }
     }
+    
+    public void OnRemoveDown(int bonusType)
+    {
+        m_type = (BONUS)bonusType;
+        m_neg = BUTTON_STATE.DOWN;
+        m_buttonDownTime = Time.time;
+
+        OnRemovePoint(m_type);
+    }
+
+    public void OnRemoveUp()
+    {
+        m_neg = BUTTON_STATE.UP;
+    }
+
+    public void OnAddDown(int bonusType)
+    {
+        m_type = (BONUS)bonusType;
+        m_pos = BUTTON_STATE.DOWN;
+        m_buttonDownTime = Time.time;
+
+        OnAddPoint(m_type);
+    }
+
+    public void OnAddUp()
+    {
+        m_pos = BUTTON_STATE.UP;
+    }
+
+    private void Update()
+    {
+        if (m_neg == BUTTON_STATE.DOWN && Time.frameCount % 3 == 0 && Time.time - m_buttonDownTime > DELAY)
+        {
+            OnRemovePoint(m_type);
+        }
+
+        if (m_pos == BUTTON_STATE.DOWN && Time.frameCount % 3 == 0 && Time.time - m_buttonDownTime > DELAY)
+        {
+            OnAddPoint(m_type);
+        }
+
+    }
+
 }
