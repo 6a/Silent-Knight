@@ -16,6 +16,12 @@ public class StatAdjuster : MonoBehaviour
     const float DELAY = 0.5f;
     float m_buttonDownTime = 0;
 
+    void Awake()
+    {
+        m_neg = BUTTON_STATE.UP;
+        m_pos = BUTTON_STATE.UP;
+    }
+
     public void HideButton(bool down)
     {
         if (down)
@@ -79,7 +85,8 @@ public class StatAdjuster : MonoBehaviour
     {
         m_type = (BONUS)bonusType;
         m_neg = BUTTON_STATE.DOWN;
-        m_buttonDownTime = Time.time;
+        m_buttonDownTime = Time.realtimeSinceStartup;
+        print(m_buttonDownTime);
 
         OnRemovePoint(m_type);
     }
@@ -93,7 +100,7 @@ public class StatAdjuster : MonoBehaviour
     {
         m_type = (BONUS)bonusType;
         m_pos = BUTTON_STATE.DOWN;
-        m_buttonDownTime = Time.time;
+        m_buttonDownTime = Time.realtimeSinceStartup;
 
         OnAddPoint(m_type);
     }
@@ -105,12 +112,12 @@ public class StatAdjuster : MonoBehaviour
 
     private void Update()
     {
-        if (m_neg == BUTTON_STATE.DOWN && Time.frameCount % 3 == 0 && Time.time - m_buttonDownTime > DELAY)
+        if (m_neg == BUTTON_STATE.DOWN && Time.frameCount % 3 == 0 && Time.realtimeSinceStartup - m_buttonDownTime > DELAY)
         {
             OnRemovePoint(m_type);
         }
 
-        if (m_pos == BUTTON_STATE.DOWN && Time.frameCount % 3 == 0 && Time.time - m_buttonDownTime > DELAY)
+        if (m_pos == BUTTON_STATE.DOWN && Time.frameCount % 3 == 0 && Time.realtimeSinceStartup - m_buttonDownTime > DELAY)
         {
             OnAddPoint(m_type);
         }

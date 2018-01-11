@@ -112,6 +112,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         m_lastAttackTime = -1;
         m_xp = PPM.LoadInt(PPM.KEY_INT.XP);
         m_attackState = 0;
+        GameManager.RegisterPlayer(this);
 
         GameManager.OnStartRun += OnStartRun;
     }
@@ -748,6 +749,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     {
         m_applyBuffDamage = true;
         StartCoroutine(Freeze(0.3f, true, true));
+
+        Audio.PlayFX(Audio.FX.BIG_IMPACT);
 
         yield return new WaitForSeconds(duration - Time.fixedDeltaTime);
 

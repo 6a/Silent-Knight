@@ -26,7 +26,7 @@ public struct AudioSet
 public class Audio : MonoBehaviour
 {
     public enum AUDIO { MASTER, BGM, FX }
-    public enum FX { SWORD_IMPACT, FOOTSTEP, ENEMY_ATTACK_IMPACT, KICK, SHIELD_SLAM, DEFLECT, LEVEL_CHIME }
+    public enum FX { SWORD_IMPACT, FOOTSTEP, ENEMY_ATTACK_IMPACT, KICK, SHIELD_SLAM, DEFLECT, LEVEL_CHIME, BIG_IMPACT }
     public enum BGM { QUIET, LOUD }
 
     [SerializeField] AudioSource m_sourceBGMQ, m_sourceBGML, m_sourceFX;
@@ -111,6 +111,14 @@ public class Audio : MonoBehaviour
         {
             Type = FX.LEVEL_CHIME,
             File = "bells/level_chime",
+            Count = 1
+        };
+        m_lib.Add(aSet);
+
+        aSet = new AudioSet()
+        {
+            Type = FX.BIG_IMPACT,
+            File = "impact/impact",
             Count = 1
         };
         m_lib.Add(aSet);
@@ -287,7 +295,6 @@ public class Audio : MonoBehaviour
         if (position.HasValue)
         {
             AudioSource.PlayClipAtPoint(clip, position.Value, m_instance.m_sourceFX.volume);
-
         }
         else
         {
@@ -358,7 +365,7 @@ public struct TimingInfo
     public int SamplesPerBeat;
 }
 
-// Waits til the end of the backgroudn musics 4-beat bar.
+// Waits til x beats have finished then returns immediately
 public class WaitForBeats : CustomYieldInstruction
 {
     int playPos = -1;

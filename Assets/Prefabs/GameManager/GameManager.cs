@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using Entities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -23,6 +24,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] float m_loadDelay;
     [SerializeField] bool m_triggerShatter;
 
+    JPlayerUnit m_currentPlayer;
+
     static GameManager m_instance;
 
     void Awake()
@@ -38,11 +41,10 @@ public class GameManager : MonoBehaviour
 
     void Start ()
     {
-        // Startup sequence
         GameState = GAMESTATE.GAMEPLAY;
 
         LoadNext();
-	}
+    }
 
 	void Update ()
     {
@@ -54,10 +56,10 @@ public class GameManager : MonoBehaviour
         }
 	}
 
+    public static void RegisterPlayer(JPlayerUnit reference) { m_instance.m_currentPlayer = reference; }
+
     public static void FadeToBlack(bool death)
     {
-
-
         m_instance.StartCoroutine(m_instance.FadeToBlackAsync(death));
     }
 
@@ -200,6 +202,11 @@ public class GameManager : MonoBehaviour
 
         DisableLoadingScreen();
         OnStartRun();
+    }
+
+    public static JPlayerUnit GetCurrentPlayerReference()
+    {
+        return m_instance.m_currentPlayer;
     }
 
     public static void TriggerLevelLoad()

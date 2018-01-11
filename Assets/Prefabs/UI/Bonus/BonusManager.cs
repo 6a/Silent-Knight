@@ -169,53 +169,43 @@ public class BonusManager : MonoBehaviour
         m_bonuses = new List<Bonus>();
 
         // crit+
-        var fb = new FlatBonus(1, PPM.LoadInt(PPM.KEY_INT.BONUS_CRIT_CHANCE), 70);
-        fb.m_suffix = "%";
+        var fb = new FlatBonus(1, PPM.LoadInt(PPM.KEY_INT.BONUS_CRIT_CHANCE), 70) { m_suffix = "%" };
         m_bonuses.Add(fb);
 
         // damage+
-        var pb = new PercentBonus(0.01f, PPM.LoadInt(PPM.KEY_INT.BONUS_ATTACK_DAMAGE), 0);
-        pb.m_suffix = "%";
+        var pb = new PercentBonus(0.01f, PPM.LoadInt(PPM.KEY_INT.BONUS_ATTACK_DAMAGE), 0) { m_suffix = "%" };
         m_bonuses.Add(pb);
 
         // ulti duration+
-        fb = new FlatBonus(0.5f, PPM.LoadInt(PPM.KEY_INT.BONUS_ULT_DUR), 30);
-        fb.m_suffix = "s";
+        fb = new FlatBonus(0.5f, PPM.LoadInt(PPM.KEY_INT.BONUS_ULT_DUR), 30) { m_suffix = "s" };
         m_bonuses.Add(fb);
 
         // kick cooldown-
-        pb = new PercentBonus(-0.025f, PPM.LoadInt(PPM.KEY_INT.BONUS_KICK_CD), 16);
-        pb.m_suffix = "s";
+        pb = new PercentBonus(-0.025f, PPM.LoadInt(PPM.KEY_INT.BONUS_KICK_CD), 16) { m_suffix = "s" };
         m_bonuses.Add(pb);
 
         // spin cooldown-
-        pb = new PercentBonus(-0.025f, PPM.LoadInt(PPM.KEY_INT.BONUS_SPIN_CD), 16);
-        pb.m_suffix = "s";
+        pb = new PercentBonus(-0.025f, PPM.LoadInt(PPM.KEY_INT.BONUS_SPIN_CD), 16) { m_suffix = "s" };
         m_bonuses.Add(pb);
 
         // bash cooldown-
-        pb = new PercentBonus(-0.025f, PPM.LoadInt(PPM.KEY_INT.BONUS_BASH_CD), 16);
-        pb.m_suffix = "s";
+        pb = new PercentBonus(-0.025f, PPM.LoadInt(PPM.KEY_INT.BONUS_BASH_CD), 16) { m_suffix = "s" };
         m_bonuses.Add(pb);
 
         // deflect cooldown-
-        pb = new PercentBonus(-0.025f, PPM.LoadInt(PPM.KEY_INT.BONUS_DEFLECT_CD), 16);
-        pb.m_suffix = "s";
+        pb = new PercentBonus(-0.025f, PPM.LoadInt(PPM.KEY_INT.BONUS_DEFLECT_CD), 16) { m_suffix = "s" };
         m_bonuses.Add(pb);
 
         // ult cooldown-
-        pb = new PercentBonus(-0.025f, PPM.LoadInt(PPM.KEY_INT.BONUS_ULT_CD), 20);
-        pb.m_suffix = "s";
+        pb = new PercentBonus(-0.025f, PPM.LoadInt(PPM.KEY_INT.BONUS_ULT_CD), 20) { m_suffix = "s" };
         m_bonuses.Add(pb);
 
         // health+
-        pb = new PercentBonus(0.01f, PPM.LoadInt(PPM.KEY_INT.BONUS_HEALTH), 0);
-        pb.m_suffix = "hp";
+        pb = new PercentBonus(0.01f, PPM.LoadInt(PPM.KEY_INT.BONUS_HEALTH), 0) { m_suffix = "hp" };
         m_bonuses.Add(pb);
 
         // dodge+
-        fb = new FlatBonus(1, PPM.LoadInt(PPM.KEY_INT.BONUS_DODGE_CHANCE), 50);
-        fb.m_suffix = "%";
+        fb = new FlatBonus(1, PPM.LoadInt(PPM.KEY_INT.BONUS_DODGE_CHANCE), 50) { m_suffix = "%" };
         m_bonuses.Add(fb);
     }
 

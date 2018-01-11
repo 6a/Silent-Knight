@@ -19,6 +19,7 @@ namespace DungeonGeneration
         GameObject m_playerCharacter;
         GameObject m_chest;
         GameObject m_boss;
+        GameObject[] m_enemies;
         int m_levelIndex;
 
         Material[] m_platformCorners = new Material[5];
@@ -38,6 +39,12 @@ namespace DungeonGeneration
             m_playerCharacter = Resources.Load("Tetsuo/Knight") as GameObject;
             m_chest = Resources.Load("Chest/Chest") as GameObject;
             m_boss = Resources.Load("Bosses/Boss1") as GameObject;
+
+            m_enemies = new GameObject[4];
+            for (int i = 0; i < 4; i++)
+            {
+                m_enemies[i] = Resources.Load("Goblins/Goblin " + (i + 1)) as GameObject;
+            }
 
             for (int i = 0; i < m_platformCorners.Length; i++)
             {
@@ -322,14 +329,15 @@ namespace DungeonGeneration
                 {
                     for (int i = 0; i < numToSpawn; i++)
                     {
-                        int r = UnityEngine.Random.Range(1, 5);
-                        var enemyObj = Resources.Load("Goblins/Goblin " + r) as GameObject;
+                        int r = UnityEngine.Random.Range(0, 4);
 
                         var pos = platform.GetRandomLocationOnPlatform(2);
 
                         if (positions.Contains(pos)) { i--; continue; }
 
                         positions.Add(pos);
+
+                        var enemyObj = m_enemies[r];
 
                         GameObject enemy = GameObject.Instantiate(enemyObj, new Vector3(pos.x, 1, pos.y), Quaternion.identity);
                         enemy.transform.parent = container.transform;

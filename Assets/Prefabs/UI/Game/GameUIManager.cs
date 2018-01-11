@@ -1,4 +1,6 @@
-﻿using System.Collections;
+﻿using Localisation;
+using System;
+using System.Collections;
 using TMPro;
 using UnityEngine;
 
@@ -16,6 +18,8 @@ public class GameUIManager : MonoBehaviour
     [SerializeField] Image m_playerLevelFill;
     [SerializeField] Animation m_levelUpAnimation;
     [SerializeField] GameObject [] m_panels;
+    [SerializeField] EnemyHealthBar m_enemyHealthBar;
+    [SerializeField] EnemyTitleTextField m_enemyTitleTextField;
  
     static GameUIManager m_instance;
 
@@ -169,6 +173,16 @@ public class GameUIManager : MonoBehaviour
         {
             m_instance.m_cooldownSpinners[(int)spinner].UpdateRadial(fillAmount, remainingTime, decimalPlaces);
         }
+    }
+
+    public static EnemyTitleTextField GetEnemyTextField()
+    {
+        return m_instance.m_enemyTitleTextField;
+    }
+
+    public static EnemyHealthBar GetEnemyHealthBarReference()
+    {
+        return m_instance.m_enemyHealthBar;
     }
 
     public static void Pulse (JPlayerUnit.ATTACKS spinner)

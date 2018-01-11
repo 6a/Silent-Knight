@@ -165,13 +165,13 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
     {
         PreviousPos = transform.position;
 
-        CurrentTarget = FindObjectOfType<JPlayerUnit>();
+        CurrentTarget = GameManager.GetCurrentPlayerReference();
 
-        PathingTarget = FindObjectOfType<JPlayerUnit>();
+        PathingTarget = CurrentTarget as ITargetable;
 
-        m_healthbar = FindObjectOfType<EnemyHealthBar>();
+        m_healthbar = GameUIManager.GetEnemyHealthBarReference();
 
-        m_enemyTextField = FindObjectOfType<EnemyTitleTextField>();
+        m_enemyTextField = GameUIManager.GetEnemyTextField();
 
         Health = CalcuateUnitHealth();
 
