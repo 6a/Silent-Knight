@@ -1528,6 +1528,7 @@ MonoBehaviour:
   m_unitName:
   - Goblin Scout
   - "\u30B9\u30AB\u30A6\u30C8\u30B4\u30D6\u30EA\u30F3"
+  m_deathParticle: {fileID: 100008, guid: 72962c00b21ac4b55b359f0ba9afa192, type: 2}
 --- !u!120 &120205317270496346
 LineRenderer:
   m_ObjectHideFlags: 1

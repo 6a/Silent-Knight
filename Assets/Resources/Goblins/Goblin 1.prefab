@@ -1615,6 +1615,7 @@ MonoBehaviour:
   m_unitName:
   - Goblin Axeman
   - "\u65A7\u30B4\u30D6\u30EA\u30F3"
+  m_deathParticle: {fileID: 100008, guid: 72962c00b21ac4b55b359f0ba9afa192, type: 2}
 --- !u!120 &120503341159294666
 LineRenderer:
   m_ObjectHideFlags: 1

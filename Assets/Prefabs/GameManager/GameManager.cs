@@ -114,7 +114,7 @@ public class GameManager : MonoBehaviour
 
     public void NextLevelSequence()
     {
-        Debug.Log("GAME MANAGER: Next Level Trigger received");
+
     }
 
     void LoadNext()

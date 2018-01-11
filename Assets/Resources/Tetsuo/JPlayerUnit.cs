@@ -75,9 +75,11 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     [SerializeField] float m_buffRotInterval;
     [SerializeField] float m_buffRotPercentDamage;
     [SerializeField] float m_dangerHealthThreshold;
-    [SerializeField] GameObject m_buffSystem, m_buffInitSystem;
+    [SerializeField] GameObject m_psBuff, m_psBuffStart, m_psDeflect, m_psSwordClash, m_psKickConnection;
+    [SerializeField] GameObject m_toe, m_swordContact;
     [SerializeField] Transform m_refTarget, m_lookTarget;
     [SerializeField] Transform m_deathCamAnchor;
+    [SerializeField] ParticleSystem m_psSwordSlash;
 
     ITargetable m_endtarget;
 
@@ -134,7 +136,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
             var addedHealth = (m_maxHealth * m_regenAmount);
             Health = Mathf.Clamp(Health + addedHealth, 0, m_maxHealth);
 
-            FCTRenderer.AddFCT(FCT_TYPE.HEALTH, "+ " + addedHealth.ToString(), transform.position + Vector3.up, Vector2.down);
+            FCTRenderer.AddFCT(FCT_TYPE.HEALTH, "+ " + addedHealth.ToString("F0"), transform.position + Vector3.up, Vector2.down);
 
             m_healthbar.UpdateHealthDisplay(Health / m_maxHealth, (int)m_maxHealth);
             m_healthbar.Pulse(true);
@@ -258,6 +260,12 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         m_weapon.Switch(false);
     }
 
+    public void OnSlashStart()
+    {
+        m_psSwordSlash.Stop();
+        m_psSwordSlash.Play();
+    }
+
     // Triggers appropriate animation. Is set to interrupt the current animation, and then trigger
     // the appropriate one.
     private void TriggerAnimation(ANIMATION anim, bool interrupt = true)
@@ -321,30 +329,38 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         {
             enemiesHit.Add(enemy.ID);
 
-            ApplyDamage(enemy, 3);
+            ApplyDamage(enemy, 3, true);
 
             Audio.PlayFX(Audio.FX.SWORD_IMPACT, transform.position);
 
-            StartCoroutine(Freeze(0.1f, false, true));
+            StartCoroutine(Freeze(0.05f, false, true));
+
+            Instantiate(m_psSwordClash, m_swordContact.transform.position, Quaternion.identity);
 
             enemy.KnockBack(new Vector2(transform.position.x, transform.position.z), 400);
         }
     }
 
-    public void ApplyDamage(IAttackable enemy, int baseDamageMultiplier)
+    public void ApplyDamage(IAttackable enemy, int baseDamageMultiplier, bool spin = false)
     {
-        var rand = UnityEngine.Random.Range(0f, 1f);
+        try
+        {
+            var rand = UnityEngine.Random.Range(0f, 1f);
 
-        var isCrit = rand < BonusManager.GetModifiedValueFlatAsDecimal(BONUS.CRIT_CHANCE, m_critChance);
-        var critMultiplier = (isCrit) ? m_critMultiplier : 1;
+            var isCrit = rand < BonusManager.GetModifiedValueFlatAsDecimal(BONUS.CRIT_CHANCE, m_critChance);
+            var critMultiplier = (isCrit) ? m_critMultiplier : 1;
 
-        var dmg = BonusManager.GetModifiedValue(BONUS.DAMAGE_BOOST, LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage));
+            var dmg = BonusManager.GetModifiedValue(BONUS.DAMAGE_BOOST, LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage));
 
-        var total = baseDamageMultiplier * GetValue(BONUS.DAMAGE_BOOST) * dmg  * critMultiplier;
+            var total = baseDamageMultiplier * GetValue(BONUS.DAMAGE_BOOST) * dmg * critMultiplier;
 
-        var t = (isCrit) ? FCT_TYPE.CRIT : FCT_TYPE.HIT;
+            var t = (isCrit) ? FCT_TYPE.CRIT : FCT_TYPE.HIT;
 
-        enemy.Damage(this, total, t);
+            enemy.Damage(this, total, t);
+        }
+        catch (Exception)
+        {
+        }
     }
 
     public void ApplyPercentageDamage(IAttackable enemy, float amount)
@@ -387,15 +403,16 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     {
         try
         {
+            var originalTarget = CurrentTarget.ID;
+
             ApplyDamage(CurrentTarget, 2);
 
             Audio.PlayFX(Audio.FX.SHIELD_SLAM, transform.position);
 
-            StartCoroutine(Freeze(0.1f, false, true));
+            if (originalTarget == CurrentTarget.ID) CurrentTarget.AfflictStatus(STATUS.STUN, 2);
 
-            // TODO particles
+            StartCoroutine(Freeze(0.05f, false, true));
 
-            CurrentTarget.AfflictStatus(STATUS.STUN, 2);
             StartCooldown(ATTACKS.SHIELD);
 
             m_lastAttackTime = Time.time - 0.5f;
@@ -412,11 +429,17 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     {
         try
         {
-            ApplyDamage(CurrentTarget, 1);
-            StartCoroutine(Freeze(0.1f, false, true));
+            var originalTarget = CurrentTarget.ID;
 
-            CurrentTarget.KnockBack(new Vector2(transform.position.x, transform.position.z), 800);
+            ApplyDamage(CurrentTarget, 1);
+
             Audio.PlayFX(Audio.FX.KICK, transform.position);
+
+            StartCoroutine(Freeze(0.05f, false, true));
+
+            Instantiate(m_psKickConnection, m_toe.transform.position, Quaternion.identity);
+
+            if (originalTarget == CurrentTarget.ID) CurrentTarget.KnockBack(new Vector2(transform.position.x, transform.position.z), 800);
 
             StartCooldown(ATTACKS.KICK);
             m_lastAttackTime = Time.time - 0.5f;
@@ -565,7 +588,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         if (UnityEngine.Random.Range(0f, 1f) <= BonusManager.GetModifiedValueFlatAsDecimal(BONUS.DODGE_CHANCE, m_dodgeChance))
         {
-            print("Dodged an attack");
+            FCTRenderer.AddFCT(FCT_TYPE.DODGE, "!", transform.position + (1.1f * Vector3.up), Vector3.up);
             return;
         }
 
@@ -573,7 +596,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         m_nextRegenTick = Time.time + m_regenDelay;
 
-        FCTRenderer.AddFCT(type, dmg.ToString(), transform.position + Vector3.up);
+        FCTRenderer.AddFCT(type, dmg.ToString("F0"), transform.position + Vector3.up);
 
         m_healthbar.UpdateHealthDisplay(Mathf.Max(Health / m_maxHealth, 0), (int)m_maxHealth);
 
@@ -604,6 +627,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     void OnTriggerStay(Collider c)
     {
+        if (!Running) return;
+
         if (m_applyBuffDamage && Time.time >= m_nextBuffRotTime)
         {
             if (c.gameObject.layer == 10 || c.gameObject.layer == 12)
@@ -626,16 +651,19 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
             {
                 Audio.PlayFX(Audio.FX.DEFLECT, transform.position);
 
-                StartCoroutine(Freeze(0.1f, false, true));
+                StartCoroutine(Freeze(0.05f, false, true));
 
                 var rand = UnityEngine.Random.Range(0f, 1f);
 
                 var isCrit = rand < BonusManager.GetModifiedValue(BONUS.CRIT_CHANCE, m_critChance);
-                print(BonusManager.GetModifiedValue(BONUS.CRIT_CHANCE, m_critChance));
                 var critMultiplier = (isCrit) ? m_critMultiplier : 1;
 
                 projectile.Crit = isCrit;
-                projectile.Reflect(this, 5, -1, m_baseDamage * 3 * critMultiplier);
+
+                var dmg = BonusManager.GetModifiedValue(BONUS.DAMAGE_BOOST, LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage));
+
+                projectile.Reflect(this, 5, -1, dmg * 3 * critMultiplier);
+                Instantiate(m_psDeflect, projectile.transform.position, Quaternion.identity);
                 m_parrySuccess = true;
             }
         }
@@ -686,7 +714,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     public void OnBuffAnimationFinished()
     {
         Speed = m_speedTemp;
-        m_buffInitSystem.SetActive(false);
+        m_psBuffStart.SetActive(false);
         StartCooldown(ATTACKS.ULTIMATE, 1, 0.8f);
     }
 
@@ -705,7 +733,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
                 TriggerAnimation(ANIMATION.BUFF);
                 m_speedTemp = Speed;
                 Speed = 0;
-                m_buffInitSystem.SetActive(true);
+                m_psBuffStart.SetActive(true);
                 m_lastAttackTime = Time.time + 10;
                 return true;
             }
@@ -723,11 +751,11 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         yield return new WaitForFixedUpdate();
 
-        m_buffSystem.SetActive(true);
+        m_psBuff.SetActive(true);
 
         yield return new WaitForSeconds(duration - Time.fixedDeltaTime);
 
-        m_buffSystem.SetActive(false);
+        m_psBuff.SetActive(false);
 
         m_baseDamage = m_baseDamageHolder;
 
@@ -828,7 +856,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
                 if ((m_lastAttackTime == -1 || Time.time - m_lastAttackTime > attackDelay))
                 {
                     m_attackState = (m_attackState == 0) ? 1 : 0;
-
                     if (m_attackState == 0)
                     {
                         TriggerAnimation(ANIMATION.ATTACK_BASIC1);
@@ -887,6 +914,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     public void OnSwordSwingConnect()
     {
         Audio.PlayFX(Audio.FX.SWORD_IMPACT, transform.position);
+        Instantiate(m_psSwordClash, m_swordContact.transform.position, Quaternion.identity);
 
         ApplyDamage(CurrentTarget, 1);
     }

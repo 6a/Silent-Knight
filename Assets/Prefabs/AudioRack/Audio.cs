@@ -344,6 +344,11 @@ public class Audio : MonoBehaviour
 
         return x;
     }
+
+    public static float GetFXVolume()
+    {
+        return m_instance.m_sourceFX.volume;
+    }
 }
 
 public struct TimingInfo

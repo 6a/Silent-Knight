@@ -14,6 +14,8 @@ public class PlayerWeapon : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
+
+
         m_knight.OnContactEnemy(other.GetComponent<IAttackable>());
     }
 

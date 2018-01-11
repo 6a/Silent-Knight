@@ -37,6 +37,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
     [SerializeField] GameObject m_projectile;
     [SerializeField] Transform m_projectileTransform;
     [Tooltip("0 = en, 1 = jp")][SerializeField] string[] m_unitName;
+    [SerializeField] GameObject m_deathParticle;
 
     float m_lastAttackTime;
     bool m_deleted = false;
@@ -110,8 +111,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
                 if (offgrid)
                 {
                     transform.position = new Vector3(0, -1000, 0);
-
-                    // TODO particles
+                    if (m_deathParticle) Instantiate(m_deathParticle, transform.position + Vector3.up, Quaternion.identity);
                 }
 
                 ((JPlayerUnit)CurrentTarget).GiveXp((int)CalcuateUnitHealth());
@@ -196,12 +196,14 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         var screenPos = Camera.main.WorldToScreenPoint(transform.position);
         var dir = screenPos - Camera.main.WorldToScreenPoint(attacker.GetWorldPos());
 
-        FCTRenderer.AddFCT(type, dmg.ToString(), transform.position + Vector3.up);
+        FCTRenderer.AddFCT(type, dmg.ToString("F0"), transform.position + Vector3.up);
 
         m_healthbar.UpdateHealthDisplay(Mathf.Max(Health / (int)CalcuateUnitHealth(), 0), (int)CalcuateUnitHealth());
 
         if (Health <= 0)
         {
+            if (m_deathParticle) Instantiate(m_deathParticle, transform.position + Vector3.up, Quaternion.identity);
+
             Running = false;
             InterruptAnimator();
             TriggerAnimation(ANIMATION.DEATH);
@@ -216,9 +218,6 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
             xp = (m_enemyType > ENEMY_TYPE.BOW) ? xp * 2 : xp;
 
             ((JPlayerUnit)attacker).GiveXp(xp);
-
-            // TODO launch end of level special cutscene stuff
-            // Load next level
 
             return;
         }
@@ -354,7 +353,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
 
         var refToScript = newProjectile.GetComponent<Projectile>();
 
-        refToScript.Init(CurrentTarget, this, 2, 5, m_baseDamage);
+        refToScript.Init(CurrentTarget, this, 2, 5, LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage));
     }
 
     public void GetInRange(ITargetable target)
