@@ -340,7 +340,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
             Instantiate(m_psSwordClash, m_swordContact.transform.position, Quaternion.identity);
 
             enemy.KnockBack(new Vector2(transform.position.x, transform.position.z), 400);
-            print("!");
         }
     }
 
@@ -604,7 +603,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         if (Health <= 0)
         {
-            print("Player died");
             Running = false;
             TriggerAnimation(ANIMATION.DEATH);
             IsDead = true;
@@ -763,7 +761,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         GameUIManager.UltiState(false);
 
         Sparky.ResetIntensity(true, 0.5f);
-        Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
+        if(!FoundBoss) Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
         GameUIManager.ResetAudioTrigger();
     }
 

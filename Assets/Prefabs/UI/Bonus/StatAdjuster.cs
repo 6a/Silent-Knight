@@ -86,8 +86,6 @@ public class StatAdjuster : MonoBehaviour
         m_type = (BONUS)bonusType;
         m_neg = BUTTON_STATE.DOWN;
         m_buttonDownTime = Time.realtimeSinceStartup;
-        print(m_buttonDownTime);
-
         OnRemovePoint(m_type);
     }
 

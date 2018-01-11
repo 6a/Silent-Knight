@@ -1888,7 +1888,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1834343394108532}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.61, z: 0}
+  m_LocalPosition: {x: 0, y: 0.8, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4502321395975748}
@@ -2350,12 +2350,12 @@ MonoBehaviour:
   m_baseDamage: 30
   m_level: 0
   m_xp: 0
-  m_baseHealth: 200
+  m_baseHealth: 124141
   m_buffMultiplier: 2
   m_critChance: 0.1
   m_critMultiplier: 2
   m_damageboost: 1
-  m_dodgeChance: 0.95
+  m_dodgeChance: 0.05
   m_regenAmount: 0.01
   m_regenDelay: 1
   m_regenTick: 0.2

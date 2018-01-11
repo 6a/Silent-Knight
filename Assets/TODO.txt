@@ -1,4 +1,6 @@
 TODO
 
-1. Ult trigger is definitely fucked, even after level up (reset) still cant reactive - redo trigger system // changed, TO TEST
-3. Damagea and health needs to scale better I think // changed, TO TEST
+1. Redo ulti trigger and ult system - its fucked and I dont know why.
+2. Noticed the ranger was standing still not firing at some point. Out of range? IDK.
+3. Sometimes there is a lag spike before entering a platform... Which is strange.
+4. Add back button functionality.

@@ -35,17 +35,11 @@ public class CameraFollow : MonoBehaviour
                 const float LS = 4;
 
                 transform.position = Vector3.Lerp(transform.position, m_knight.GetReferenceTarget().position, Time.deltaTime * LS);
-
-                var targetRotation = m_knight.transform.rotation;
-                var newRotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * LS);
+                var targetRotation = Quaternion.LookRotation(m_knight.GetLookTarget().position - transform.position);
+                var newRotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * LS * 0.5f);
                 transform.rotation = newRotation;
-                transform.LookAt(m_knight.GetLookTarget());
             }
-            else if(m_isInDeathView)
-            {
-
-            }
-            else
+            else if (!m_isInDeathView)
             {
                 transform.position = m_knight.FocusPoint + m_offset;
             }
@@ -121,6 +115,7 @@ public class CameraFollow : MonoBehaviour
         m_optimizedBlur.enabled = true;
 
         var startPos = transform.position;
+        var startRot = transform.rotation;
 
         while (lerp < 1)
         {
@@ -131,7 +126,7 @@ public class CameraFollow : MonoBehaviour
             transform.position = Vector3.Lerp(startPos, m_instance.m_knight.GetDeathAnchor().position, lerp);
 
             var targetRotation = Quaternion.LookRotation(m_knight.GetLookTarget().position - m_instance.m_knight.GetDeathAnchor().position);
-            var newRotation = Quaternion.Lerp(transform.rotation, targetRotation, lerp);
+            var newRotation = Quaternion.Lerp(startRot, targetRotation, lerp);
             transform.rotation = newRotation;
 
             yield return new WaitForFixedUpdate();

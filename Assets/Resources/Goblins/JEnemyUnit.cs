@@ -45,7 +45,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
     float m_statusEndTime;
     STATUS m_currentStatus;
 
-    bool m_bossAudioBlendStarted;
+    bool m_bossFightInit;
 
     void Awake ()
     {
@@ -128,9 +128,13 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
 
         if (m_enemyType > ENEMY_TYPE.BOW && (transform.position - CurrentTarget.Position()).sqrMagnitude < 20)
         {
-            if (!m_bossAudioBlendStarted) Audio.BlendMusicTo(Audio.BGM.LOUD, 4);
+            if (!m_bossFightInit)
+            {
+                Audio.BlendMusicTo(Audio.BGM.LOUD, 4);
+                (CurrentTarget as JPlayerUnit).FoundBoss = true;
+            }
 
-            m_bossAudioBlendStarted = true;
+            m_bossFightInit = true;
 
             IsChangingView = true;
             (CurrentTarget as JPlayerUnit).IsChangingView = true;
