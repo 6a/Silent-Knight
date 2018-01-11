@@ -33,7 +33,8 @@ public class DungeonGenerator : MonoBehaviour
     {
         m_grid = FindObjectOfType<ASGrid>();
 
-        m_currentLevel = PPM.LoadInt(PPM.KEY_INT.LEVEL); // TODO revert
+        //m_currentLevel = PPM.LoadInt(PPM.KEY_INT.LEVEL); // TODO revert
+        m_currentLevel = 4;
 
         Generator.Init(m_maxDungeonWidth, m_maxDungeonHeight,
         new PlatformProperties(m_minWidth, m_maxWidth, m_minHeight, m_maxHeight),

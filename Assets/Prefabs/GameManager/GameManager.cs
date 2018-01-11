@@ -219,6 +219,10 @@ public class GameManager : MonoBehaviour
 
     IEnumerator EndScreen()
     {
+        Shatter.StartShatter();
+
+        yield return new WaitForEndOfFrame();
+
         m_endOptions.SetActive(true);
 
         for (int i = 0; i < m_loadingBlocksBottom.Length; i++)
@@ -226,8 +230,6 @@ public class GameManager : MonoBehaviour
             m_loadingBlocksBottom[i].enabled = false;
             m_loadingBlocksTop[i].enabled = false;
         }
-
-        Shatter.StartShatter();
 
         yield return new WaitForEndOfFrame();
         yield return new WaitForEndOfFrame();
@@ -257,8 +259,9 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
         Time.timeScale = 1;
+        Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
+
         SceneManager.LoadScene(0);
     }
 
@@ -269,8 +272,8 @@ public class GameManager : MonoBehaviour
         PPM.SaveInt(PPM.KEY_INT.XP, 0);
         PPM.SaveInt(PPM.KEY_INT.LEVEL, 0);
 
-        Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
         Time.timeScale = 1;
+        Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
         SceneManager.LoadScene(0);
     }
     
@@ -278,8 +281,8 @@ public class GameManager : MonoBehaviour
     {
         OnStartRun = null;
 
-        Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
         Time.timeScale = 1;
+        Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
         SceneManager.LoadScene(0);
     }
 

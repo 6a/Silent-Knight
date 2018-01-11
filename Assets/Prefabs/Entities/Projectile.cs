@@ -37,7 +37,7 @@ public class Projectile : MonoBehaviour
 	
 	void LateUpdate ()
     {
-        if (m_target == null) return;
+        if (m_target == null || m_target.IsDead) return;
 
         var targetPos = m_target.Position() + (Vector3.up * 0.5f);
 

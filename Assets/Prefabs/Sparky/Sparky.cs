@@ -135,6 +135,7 @@ public class Sparky : MonoBehaviour
 
     IEnumerator ResetIntensityAsync(float t)
     {
+        print("1"); // If this isnt here, the coroutine doesnt work properly... Wierd.
         var diff = m_light.intensity - m_baseIntensity;
 
         var increment = diff / (t / Time.deltaTime);
@@ -146,7 +147,7 @@ public class Sparky : MonoBehaviour
         }
 
         m_light.intensity = m_baseIntensity;
-
+        print("2"); // If this isnt here, the coroutine doesnt work properly... Wierd.
     }
 
     public static void DisableLight()

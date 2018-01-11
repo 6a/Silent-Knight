@@ -15,6 +15,7 @@ namespace PathFinding
         public ITargetable PathingTarget { get; set; }
         public int UnitID { get; set; }
         public bool HasReachedBoss { get; set; }
+        public bool IsChangingView { get; set; }
 
         public bool Running { get; set; }
 
@@ -89,13 +90,14 @@ namespace PathFinding
         IEnumerator FollowPath()
         {
             IsFollowingPath = true;
+
             int pathIndex = 0;
 
             float speedPercent = 1;
 
             while (true)
             {
-                if (Path == null || !IsFollowingPath)
+                if (Path == null || !IsFollowingPath || IsChangingView)
                 {
                     OnFollowPath(0);
                     yield return new WaitForFixedUpdate();

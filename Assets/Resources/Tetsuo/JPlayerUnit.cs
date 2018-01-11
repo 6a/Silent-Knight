@@ -110,7 +110,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         LineRenderer = GetComponent<LineRenderer>();
         m_weapon = GetComponentInChildren<PlayerWeapon>();
         m_lastAttackTime = -1;
-        m_xp = PPM.LoadInt(PPM.KEY_INT.XP); 
+        m_xp = PPM.LoadInt(PPM.KEY_INT.XP);
         m_attackState = 0;
 
         GameManager.OnStartRun += OnStartRun;
@@ -271,6 +271,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     private void TriggerAnimation(ANIMATION anim, bool interrupt = true)
     {
         if (interrupt) InterruptAnimator();
+        DisableWCollider();
 
         switch (anim)
         {
@@ -338,6 +339,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
             Instantiate(m_psSwordClash, m_swordContact.transform.position, Quaternion.identity);
 
             enemy.KnockBack(new Vector2(transform.position.x, transform.position.z), 400);
+            print("!");
         }
     }
 
@@ -440,7 +442,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
             Instantiate(m_psKickConnection, m_toe.transform.position, Quaternion.identity);
 
             if (originalTarget == CurrentTarget.ID) CurrentTarget.KnockBack(new Vector2(transform.position.x, transform.position.z), 800);
-
             StartCooldown(ATTACKS.KICK);
             m_lastAttackTime = Time.time - 0.5f;
             OnFollowPath(0);
@@ -453,7 +454,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         }
     }
 
-    public void UltimateFinished()
+    public void SwordSpinFinished()
     {
         DisableWCollider();
         m_lastAttackTime = Time.time - 0.5f;
@@ -702,9 +703,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         m_baseDamage *= m_buffMultiplier;
 
-        StartCoroutine(Freeze(0.3f, true, true));
-
-        StartCoroutine(BuffTimer(m_ultDuration));
+        StartCoroutine(BuffTimer(BonusManager.GetModifiedValue(BONUS.ULT_DURATION_INCREASE, m_ultDuration)));
 
         m_nextBuffRotTime = Time.time;
     }
@@ -748,10 +747,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     IEnumerator BuffTimer(float duration)
     {
         m_applyBuffDamage = true;
-
-        yield return new WaitForFixedUpdate();
-
-        m_psBuff.SetActive(true);
+        StartCoroutine(Freeze(0.3f, true, true));
 
         yield return new WaitForSeconds(duration - Time.fixedDeltaTime);
 
@@ -940,6 +936,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         {
             Sparky.ResetIntensity();
             Sparky.IncreaseIntensity();
+            m_psBuff.SetActive(true);
         }
     }
 

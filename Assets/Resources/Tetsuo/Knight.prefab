@@ -2347,7 +2347,7 @@ MonoBehaviour:
   LineRenderer: {fileID: 0}
   m_attackRange: 1
   m_attacksPerSecond: 1
-  m_baseDamage: 20
+  m_baseDamage: 30
   m_level: 0
   m_xp: 0
   m_baseHealth: 200

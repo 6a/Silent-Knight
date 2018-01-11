@@ -1625,7 +1625,7 @@ MonoBehaviour:
   CurrentPlatformIndex: 0
   PreviousPos: {x: 0, y: 0, z: 0}
   LineRenderer: {fileID: 0}
-  m_attackRange: 4
+  m_attackRange: 3
   m_attacksPerSecond: 0.5
   m_baseDamage: 10
   m_level: 1

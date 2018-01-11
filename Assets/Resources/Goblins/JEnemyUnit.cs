@@ -45,7 +45,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
     float m_statusEndTime;
     STATUS m_currentStatus;
 
-    bool m_bossSequenceInitiated;
+    bool m_bossAudioBlendStarted;
 
     void Awake ()
     {
@@ -55,8 +55,6 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         m_lastAttackTime = -1;
 
         m_currentStatus = STATUS.NONE;
-
-        m_bossSequenceInitiated = false;
 
         GameManager.OnStartRun += OnStartRun;
     }
@@ -128,16 +126,18 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
 
         Attack(CurrentTarget);
 
-        if (m_enemyType > ENEMY_TYPE.BOW && ! m_bossSequenceInitiated && (transform.position - CurrentTarget.Position()).sqrMagnitude < 20)
+        if (m_enemyType > ENEMY_TYPE.BOW && (transform.position - CurrentTarget.Position()).sqrMagnitude < 20)
         {
-            Audio.BlendMusicTo(Audio.BGM.LOUD, 4);
+            if (!m_bossAudioBlendStarted) Audio.BlendMusicTo(Audio.BGM.LOUD, 4);
 
-            IsFollowingPath = false;
-            (CurrentTarget as JPlayerUnit).IsFollowingPath = false;
+            m_bossAudioBlendStarted = true;
+
+            IsChangingView = true;
+            (CurrentTarget as JPlayerUnit).IsChangingView = true;
 
             if (!CameraFollow.SwitchViewRear()) return;
-            IsFollowingPath = true;
-            (CurrentTarget as JPlayerUnit).IsFollowingPath = true;
+            IsChangingView = false;
+            (CurrentTarget as JPlayerUnit).IsChangingView = false;
             (CurrentTarget as JPlayerUnit).SetAttackRange(1.5f);
 
             return;
@@ -185,12 +185,15 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         if (IsDead || dmg == 0) return;
 
         // This means we are applying percentage damage
-        if (dmg < 0)
+        bool percentage = dmg < 0;
+
+        if (percentage)
         {
             dmg = CalcuateUnitHealth() * (Mathf.Abs(dmg) / 100f);
         }
 
         dmg *= ((m_currentStatus == STATUS.STUN) ? 2 : 1);
+
         Health -= dmg;
 
         var screenPos = Camera.main.WorldToScreenPoint(transform.position);

@@ -1897,7 +1897,7 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1413102265207190}
-  m_LocalRotation: {x: -0.003966248, y: 0.65012765, z: 0.1687874, w: 0.74083}
+  m_LocalRotation: {x: -0.0039662486, y: 0.6501277, z: 0.16878742, w: 0.74083006}
   m_LocalPosition: {x: -0.00043260754, y: 0.00010514113, z: 0.00020830617}
   m_LocalScale: {x: 1, y: 1, z: 0.9999999}
   m_Children:
@@ -2501,7 +2501,7 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
@@ -2573,6 +2573,7 @@ MonoBehaviour:
   m_unitName:
   - General Hellstorm
   - "\u30D8\u30EB\u30B9\u30C8\u30FC\u30E0\u5927\u5C06"
+  m_deathParticle: {fileID: 0}
 --- !u!120 &120552620059221820
 LineRenderer:
   m_ObjectHideFlags: 1

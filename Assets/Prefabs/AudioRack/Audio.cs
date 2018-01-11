@@ -119,6 +119,7 @@ public class Audio : MonoBehaviour
         m_testBlendUp = false;
         m_testBlendDown = false;
     }
+
     void Start()
     {
         SetVolume(AUDIO.BGM, PPM.LoadFloat(PPM.KEY_FLOAT.VOL_BGM));

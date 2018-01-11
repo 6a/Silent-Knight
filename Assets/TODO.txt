@@ -1,6 +1,4 @@
 TODO
 
-1. Ult trigger is definitely fucked, even after level up (reset) still cant reactive - redo trigger system.
-2. Camera is fucked at boss. Not sure whats going on there.
-3. Damagea and health needs to scale better I think.
-4. Ult cooldown doesnt decrease even when upgraded. Is this the same for all? ( dont think so ) or just ulti?
+1. Ult trigger is definitely fucked, even after level up (reset) still cant reactive - redo trigger system // changed, TO TEST
+3. Damagea and health needs to scale better I think // changed, TO TEST
