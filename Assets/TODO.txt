@@ -1,6 +1,5 @@
+Noticed the ranger was standing still not firing at some point. Out of range? IDK // Probably can ignore this. Only seems to happen on 1 goblin on a particular level.
+Sometimes there is a lag spike before entering a platform... Which is strange. // Mobile only? Probably thread issue.
+
 TODO
 
-1. Redo ulti trigger and ult system - its fucked and I dont know why.
-2. Noticed the ranger was standing still not firing at some point. Out of range? IDK.
-3. Sometimes there is a lag spike before entering a platform... Which is strange.
-4. Add back button functionality.

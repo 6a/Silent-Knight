@@ -11,6 +11,8 @@ namespace DungeonGeneration
     {
         readonly Dungeon m_dungeon;
 
+        const int PLATFORM_MAX_ENEMIES = 6;
+
         public int DungeonScale;
         public int PositionOffset;
 
@@ -26,6 +28,15 @@ namespace DungeonGeneration
         Material[] m_platformEdges = new Material[5];
         Material[] m_paths = new Material[5];
         Material[] m_pathCorners = new Material[5];
+
+        public int SkinIndex
+        {
+            get
+            {
+                return m_levelIndex % 5;
+            }
+            private set { }
+        }
 
         public Fabricator(Dungeon d, int scale, int positionOffset, int lvl)
         {
@@ -53,6 +64,142 @@ namespace DungeonGeneration
                 m_paths[i] = Resources.Load("Materials/PATH" + (i + 1)) as Material;
                 m_pathCorners[i] = Resources.Load("Materials/PATHCORNER" + (i + 1)) as Material;
             }
+        }
+
+        public void UpdateLevel(int level)
+        {
+            m_levelIndex = level;
+        }
+
+        public void FabricateTest()
+        {
+            var oldObjects = new List<GameObject>
+            {
+                GameObject.Find("Tiles"),
+                GameObject.FindGameObjectWithTag("Player"),
+                GameObject.FindGameObjectWithTag("Chest"),
+                GameObject.Find("Enemies"),
+                GameObject.Find("Sparky"),
+                GameObject.Find("Boss")
+            };
+
+            foreach (var ob in oldObjects)
+            {
+                if (ob != null) GameObject.Destroy(ob);
+            }
+
+            var container = new GameObject("Tiles");
+
+            var cubeUV = UVMap();
+
+            for (int i = 0; i < m_dungeon.Count; i++)
+            {
+                for (int j = 0; j < m_dungeon[0].Length; j++)
+                {
+                    var block = GetBlock(m_dungeon[j][i]);
+
+                    if (block)
+                    {
+                        var y = Scale(j);
+                        var x = Scale(i);
+
+                        var tile = UnityEngine.Object.Instantiate(block, new Vector3(x, 0, y), Quaternion.identity, container.transform) as GameObject;
+
+                        var blockState = GetBlockState(j, i);
+
+                        if (blockState > 0)
+                        {
+                            tile.GetComponent<MeshFilter>().mesh.uv = cubeUV;
+
+                            if (m_dungeon[j][i] == m_dungeon.PathChar)
+                            {
+                                if (blockState % 3 == 0)
+                                {
+                                    tile.GetComponent<MeshRenderer>().material = m_pathCorners[SkinIndex];
+
+                                    switch (blockState)
+                                    {
+                                        case NE_CORNER:
+                                            tile.transform.Rotate(Vector3.up, -90);
+                                            break;
+                                        case SE_CORNER:
+                                            // No rotation here, just leaving this case in for readibility
+                                            break;
+                                        case SW_CORNER:
+                                            tile.transform.Rotate(Vector3.up, 90);
+                                            break;
+                                        case NW_CORNER:
+                                            tile.transform.Rotate(Vector3.up, 180);
+                                            break;
+                                    }
+                                }
+                                else
+                                {
+                                    tile.GetComponent<MeshRenderer>().material = m_paths[SkinIndex];
+
+                                    switch (blockState)
+                                    {
+                                        case NS_PATH:
+                                            tile.transform.Rotate(Vector3.up, 180);
+                                            break;
+                                        case WE_PATH:
+                                            tile.transform.Rotate(Vector3.up, -90);
+                                            break;
+                                    }
+                                }
+                            }
+                            else
+                            {
+                                if (blockState % 3 == 0)
+                                {
+                                    tile.GetComponent<MeshRenderer>().material = m_platformCorners[SkinIndex];
+
+                                    switch (blockState)
+                                    {
+                                        case NE_CORNER:
+                                            tile.transform.Rotate(Vector3.up, -90);
+                                            break;
+                                        case SE_CORNER:
+                                            // No rotation here, just leaving this case in for readibility
+                                            break;
+                                        case SW_CORNER:
+                                            tile.transform.Rotate(Vector3.up, 90);
+                                            break;
+                                        case NW_CORNER:
+                                            tile.transform.Rotate(Vector3.up, 180);
+                                            break;
+                                    }
+                                }
+                                else
+                                {
+                                    tile.GetComponent<MeshRenderer>().material = m_platformEdges[SkinIndex];
+
+                                    switch (blockState)
+                                    {
+                                        case N_EDGE:
+                                            tile.transform.Rotate(Vector3.up, 180);
+                                            break;
+                                        case E_EDGE:
+                                            tile.transform.Rotate(Vector3.up, -90);
+                                            break;
+                                        case S_EDGE:
+                                            // No rotation here, just leaving this case in for readibility
+                                            break;
+                                        case W_EDGE:
+                                            tile.transform.Rotate(Vector3.up, 90);
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            PlaceEnemies(true);
+            PlaceGoal();
+            PlacePlayerAtStartNode();
+            Finalise();
         }
 
         public void Fabricate()
@@ -102,7 +249,7 @@ namespace DungeonGeneration
                             {
                                 if (blockState % 3 == 0)
                                 {
-                                    tile.GetComponent<MeshRenderer>().material = m_pathCorners[m_levelIndex];
+                                    tile.GetComponent<MeshRenderer>().material = m_pathCorners[SkinIndex];
 
                                     switch (blockState)
                                     {
@@ -122,7 +269,7 @@ namespace DungeonGeneration
                                 }
                                 else
                                 {
-                                    tile.GetComponent<MeshRenderer>().material = m_paths[m_levelIndex];
+                                    tile.GetComponent<MeshRenderer>().material = m_paths[SkinIndex];
 
                                     switch (blockState)
                                     {
@@ -139,7 +286,7 @@ namespace DungeonGeneration
                             {
                                 if (blockState % 3 == 0)
                                 {
-                                    tile.GetComponent<MeshRenderer>().material = m_platformCorners[m_levelIndex];
+                                    tile.GetComponent<MeshRenderer>().material = m_platformCorners[SkinIndex];
 
                                     switch (blockState)
                                     {
@@ -159,7 +306,7 @@ namespace DungeonGeneration
                                 }
                                 else
                                 {
-                                    tile.GetComponent<MeshRenderer>().material = m_platformEdges[m_levelIndex];
+                                    tile.GetComponent<MeshRenderer>().material = m_platformEdges[SkinIndex];
 
                                     switch (blockState)
                                     {
@@ -305,13 +452,15 @@ namespace DungeonGeneration
             return blockState;
         }
 
-        public void PlaceEnemies()
+        public void PlaceEnemies(bool test = false)
         {
             var container = new GameObject("Enemies");
 
             var platformData = Platforms.GetPlatformData();
 
             var aiSet = new Dictionary<int, List<IAttackable>>();
+
+            UnityEngine.Random.InitState((int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds);
 
             int pNumber = 0;
             int eNumber = 1;
@@ -322,7 +471,7 @@ namespace DungeonGeneration
                 var startNode = new Vector2(Scale((int)m_startNode.x), Scale((int)m_startNode.y));
                 var endNode = new Vector2(Scale((int)m_endNode.x), Scale((int)m_endNode.y));
 
-                int numToSpawn = 2 + m_levelIndex;
+                int numToSpawn = Mathf.Min(2 + m_levelIndex, PLATFORM_MAX_ENEMIES);
                 var positions = new List<Vector2>();
 
                 if (!platform.IsInBounds(startNode) && !platform.IsInBounds(endNode))
@@ -362,7 +511,7 @@ namespace DungeonGeneration
                 }
                 else if (platform.IsInBounds(endNode))
                 {
-                    if (m_levelIndex > 0 && (m_levelIndex + 1) % 5 == 0)
+                    if (SkinIndex > 0 && (SkinIndex + 1) % 5 == 0)
                     {
                         var goal = GameObject.Instantiate(m_boss, new Vector3(Scale((int)m_endNode.x), 1, Scale((int)m_endNode.y)), Quaternion.identity);
 
@@ -384,6 +533,10 @@ namespace DungeonGeneration
                         enemyClassInterface.IsBoss = true;
 
                         attackers.Add(enemyClassInterface);
+
+                        var bossContainer = new GameObject("Boss");
+
+                        enemyClass.gameObject.transform.parent = bossContainer.transform;
                     }
                 }
 
@@ -392,12 +545,12 @@ namespace DungeonGeneration
                 pNumber++;
             }
 
-            AI.LoadAIData(new AISet(aiSet));
+            if (!test) AI.LoadAIData(new AISet(aiSet));
         }
 
         public void PlaceGoal()
         {
-            if (m_levelIndex > 0 && (m_levelIndex + 1) % 5 == 0) return;
+            if (SkinIndex > 0 && (SkinIndex + 1) % 5 == 0) return;
 
             var goal = GameObject.Instantiate(m_chest, new Vector3(Scale((int)m_endNode.x), 1, Scale((int)m_endNode.y)), Quaternion.identity);
 
@@ -432,15 +585,15 @@ namespace DungeonGeneration
 
             if (c == m_dungeon.PlatformChar)
             {
-                name += "Platform/Platform " + (m_levelIndex + 1);
+                name += "Platform/Platform " + (SkinIndex + 1);
             }
             else if (c == m_dungeon.NodeChar)
             {
-                name += "Node/Node " + (m_levelIndex + 1);
+                name += "Node/Node " + (SkinIndex + 1);
             }
             else if (c == m_dungeon.PathChar)
             {
-                name += "Path/Path " + (m_levelIndex + 1);
+                name += "Path/Path " + (SkinIndex + 1);
             }
             else
             {

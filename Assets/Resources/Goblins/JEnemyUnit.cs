@@ -130,7 +130,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         {
             if (!m_bossFightInit)
             {
-                Audio.BlendMusicTo(Audio.BGM.LOUD, 4);
+                Audio.BlendMusicTo(Audio.BGM.LOUD, 1);
                 (CurrentTarget as JPlayerUnit).FoundBoss = true;
             }
 

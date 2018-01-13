@@ -20,11 +20,13 @@ namespace DungeonGeneration
         static int m_scale;
         static int m_offset;
         static int m_level;
+        static int m_lastLevel;
 
         public static Dungeon CurrentDungeon { get; set; }
 
         public static void Init(int width, int height, PlatformProperties platformProperties, 
-        int cycles, int padding, int minPlatforms, char emptyChar, char platformChar, char nodeChar, char pathChar, int scale, int offset, int level)
+        int cycles, int padding, int minPlatforms, char emptyChar, char platformChar, char nodeChar,
+        char pathChar, int scale, int offset, int level)
         {
             m_width = width;
             m_height = height;
@@ -66,6 +68,20 @@ namespace DungeonGeneration
             m_seed = seed;
             Random.InitState(m_seed);
             Generate();
+        }
+
+        public static void GenerateTestDungeon(int seed)
+        {
+            m_seed = seed;
+            Random.InitState(m_seed);
+
+            Generate();
+        }
+
+        public static void FabricateTest(int level)
+        {
+            var fabricator = new Fabricator(CurrentDungeon, m_scale, m_offset, level);
+            fabricator.FabricateTest();
         }
 
         private static void Generate ()

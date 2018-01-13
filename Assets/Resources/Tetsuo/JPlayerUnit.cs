@@ -12,7 +12,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 {
     public enum ATTACKS { SWORD_SPIN, KICK, SHIELD, PARRY, ULTIMATE }
     private float[] m_currentSkillCD = new float[5];
-    private float[] m_baseSkillCD = { 10, 20, 5, 20, 60 };
+    private float[] m_baseSkillCD = { 5, 10, 5, 10, 60 };
 
     // References to attached components.
     Animator m_animator;
@@ -75,7 +75,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     [SerializeField] float m_buffRotInterval;
     [SerializeField] float m_buffRotPercentDamage;
     [SerializeField] float m_dangerHealthThreshold;
-    [SerializeField] GameObject m_psBuff, m_psBuffStart, m_psDeflect, m_psSwordClash, m_psKickConnection;
+    [SerializeField] GameObject m_psBuff, m_psBuffStart, m_psDeflect, m_psSwordClash, m_psKickConnection, m_psHealStart, m_psLevelUp;
     [SerializeField] GameObject m_toe, m_swordContact;
     [SerializeField] Transform m_refTarget, m_lookTarget;
     [SerializeField] Transform m_deathCamAnchor;
@@ -112,9 +112,13 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         m_lastAttackTime = -1;
         m_xp = PPM.LoadInt(PPM.KEY_INT.XP);
         m_attackState = 0;
-        GameManager.RegisterPlayer(this);
 
-        GameManager.OnStartRun += OnStartRun;
+        if (FindObjectOfType<DungeonTest>() == null)
+        {
+            GameManager.RegisterPlayer(this);
+
+            GameManager.OnStartRun += OnStartRun;
+        }
     }
 
     void Start()
@@ -134,6 +138,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         if (Time.time > m_nextRegenTick && Health < m_maxHealth)
         {
+            m_psHealStart.SetActive(false);
+            m_psHealStart.SetActive(true);
+
             var addedHealth = (m_maxHealth * m_regenAmount);
             Health = Mathf.Clamp(Health + addedHealth, 0, m_maxHealth);
 
@@ -189,7 +196,12 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
             Health = m_maxHealth;
             m_healthbar.UpdateHealthDisplay(1, (int)m_maxHealth);
 
-            if (!init) BonusManager.AddCredits(LevelScaling.CreditsPerLevel, true);
+            if (!init)
+            {
+                Instantiate(m_psLevelUp, transform.position, Quaternion.identity);
+
+                BonusManager.AddCredits(LevelScaling.CreditsPerLevel, true);
+            }
         }
         else
         {
@@ -331,7 +343,7 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         {
             enemiesHit.Add(enemy.ID);
 
-            ApplyDamage(enemy, 3, true);
+            ApplyDamage(enemy, 2, true);
 
             Audio.PlayFX(Audio.FX.SWORD_IMPACT, transform.position);
 
@@ -745,7 +757,12 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
     IEnumerator BuffTimer(float duration)
     {
+        Sparky.DisableLight();
+
+        m_psBuff.SetActive(true);
+
         m_applyBuffDamage = true;
+
         StartCoroutine(Freeze(0.3f, true, true));
 
         Audio.PlayFX(Audio.FX.BIG_IMPACT);
@@ -758,11 +775,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         m_applyBuffDamage = false;
 
-        GameUIManager.UltiState(false);
-
         Sparky.ResetIntensity(true, 0.5f);
-        if(!FoundBoss) Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
-        GameUIManager.ResetAudioTrigger();
+
+        if (!FoundBoss) Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
     }
 
     public void Attack(IAttackable target)
@@ -920,8 +935,6 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     {
         if (SettingsManager.Haptic())
         {
-            if (buff) Sparky.DisableLight();
-
             Time.timeScale = 0f;
             float pauseEndTime = Time.realtimeSinceStartup + duration;
             while (PauseManager.Paused() || Time.realtimeSinceStartup < pauseEndTime)
@@ -930,14 +943,12 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
             }
             Time.timeScale = 1;
             if (vibrate) Vibration.Vibrate(Vibration.GenVibratorPattern(0.2f, 50), -1);
-
         }
 
         if (buff)
         {
             Sparky.ResetIntensity();
             Sparky.IncreaseIntensity();
-            m_psBuff.SetActive(true);
         }
     }
 
@@ -966,10 +977,17 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     {
         if (boss)
         {
-            Running = false;
-            OnFollowPath(0);
-            StopMovement();
-            StartCoroutine(BossDead());
+            if ((FindObjectOfType<DungeonGenerator>().IsFinalLevel()))
+            {
+                Running = false;
+                OnFollowPath(0);
+                StopMovement();
+                StartCoroutine(BossDead());
+            }
+            else
+            {
+                GameManager.TriggerLevelLoad();
+            }
         }
         else
         {

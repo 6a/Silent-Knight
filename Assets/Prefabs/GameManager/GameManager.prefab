@@ -22,6 +22,8 @@ GameObject:
   - component: {fileID: 114016904425888160}
   - component: {fileID: 114666528346524210}
   - component: {fileID: 114763721582217970}
+  - component: {fileID: 114251711604694768}
+  - component: {fileID: 114968521820711732}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -57,8 +59,42 @@ MonoBehaviour:
   m_loadingBlockBottomParent: {fileID: 0}
   m_faderBackground: {fileID: 0}
   m_faderLogo: {fileID: 0}
-  m_loadDelay: 0
+  m_endOptions: {fileID: 0}
+  m_deathOptions: {fileID: 0}
+  m_loadDelay: 1
   m_triggerShatter: 0
+--- !u!114 &114251711604694768
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1274183397388134}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4db6336eb7065244a971127b27e4716c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_screens:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  m_buttonSprites:
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  m_buttonSelected: {fileID: 21300000, guid: 810c0b91bef844b4db305a1937dcd870, type: 3}
+  m_buttonNotSelected: {fileID: 21300002, guid: 810c0b91bef844b4db305a1937dcd870,
+    type: 3}
+  m_masterVolumeSlider: {fileID: 0}
+  m_bgmSlider: {fileID: 0}
+  m_fxVolumeSlider: {fileID: 0}
+  m_gfxQualitySlider: {fileID: 0}
+  m_hapticFeedbackToggle: {fileID: 0}
+  m_langSelect: {fileID: 0}
+  m_state: 0
 --- !u!114 &114666528346524210
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -72,6 +108,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_pauseScreen: {fileID: 0}
   m_gameScreen: {fileID: 0}
+  m_bonusScreen: {fileID: 0}
+  m_settingsScreen: {fileID: 0}
+  m_resetScreen: {fileID: 0}
 --- !u!114 &114763721582217970
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -110,3 +149,21 @@ MonoBehaviour:
   m_saveResetButtons:
   - {fileID: 0}
   - {fileID: 0}
+  m_linkButton: {fileID: 0}
+--- !u!114 &114968521820711732
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1274183397388134}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a119391447ddb844190d233d3f0e0b82, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_mainScreen: {fileID: 0}
+  m_confirmReload: {fileID: 0}
+  m_confirmReincarnate: {fileID: 0}
+  m_mainOnDeath: {fileID: 0}
+  m_confirmReloadOnDeath: {fileID: 0}
+  m_confirmReincarnateOnDeath: {fileID: 0}

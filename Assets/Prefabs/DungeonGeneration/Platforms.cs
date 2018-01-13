@@ -39,7 +39,7 @@ public class Platforms : MonoBehaviour
 {
     public static int PlayerPlatform { get; private set; }
 
-    public List<PlatformBounds> m_platformBounds { get; private set; }
+    public List<PlatformBounds> PlatformBounds { get; private set; }
 
     static Platforms instance;
 
@@ -64,7 +64,7 @@ public class Platforms : MonoBehaviour
 
         m_player.CurrentPlatformIndex = PlayerPlatform;
 
-        m_platformBounds[PlayerPlatform].PlayerIsWithinBounds = true;
+        PlatformBounds[PlayerPlatform].PlayerIsWithinBounds = true;
 
         AI.ActivateUnits(PlayerPlatform);
     }
@@ -81,22 +81,22 @@ public class Platforms : MonoBehaviour
 
     public static List<PlatformBounds> GetPlatformData()
     {
-        return instance.m_platformBounds;
+        return instance.PlatformBounds;
     }
 
     public static int GetPlatformId(Vector3 pos)
     {
         int id = -1;
 
-        for (int i = 0; i < instance.m_platformBounds.Count; i++)
+        for (int i = 0; i < instance.PlatformBounds.Count; i++)
         {
-            if (instance.m_platformBounds[i].IsInBounds(new Vector2(pos.x, pos.z)))
+            if (instance.PlatformBounds[i].IsInBounds(new Vector2(pos.x, pos.z)))
             {
                 id = i;
             }
             else
             {
-                instance.m_platformBounds[i].PlayerIsWithinBounds = false;
+                instance.PlatformBounds[i].PlayerIsWithinBounds = false;
             }
         }
 
@@ -105,13 +105,13 @@ public class Platforms : MonoBehaviour
 
     public static void Identify(List<PlatformBounds> platforms)
     {
-        instance.m_platformBounds = new List<PlatformBounds>(platforms);
+        instance.PlatformBounds = new List<PlatformBounds>(platforms);
     }
 
     private void OnDrawGizmos()
     {
-        if (m_platformBounds == null) return;
-        foreach (var platform in m_platformBounds)
+        if (PlatformBounds == null) return;
+        foreach (var platform in PlatformBounds)
         {
             if (platform.PlayerIsWithinBounds) Gizmos.color = Color.green;
             else Gizmos.color = Color.magenta;

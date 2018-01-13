@@ -25,6 +25,8 @@ public class CooldownSpinner : MonoBehaviour
 
     public void UpdateRadial(float fillAmount, float remainingTime, int decimalPlaces = 0)
     {
+        if (PauseManager.Paused()) return;
+
         m_sprite.fillAmount = fillAmount;
         if (fillAmount <= 0)
         {

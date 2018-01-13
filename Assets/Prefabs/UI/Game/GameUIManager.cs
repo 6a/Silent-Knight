@@ -7,10 +7,6 @@ using UnityEngine;
 using UnityEngine.UI;
 public class GameUIManager : MonoBehaviour
 {
-    float m_lUltiButtonAlpha, m_rUltiButtonAlpha;
-    [SerializeField] Image m_leftSpinner, m_rightSpinner;
-    bool m_lButtonDown, m_rButtonDown;
-    bool m_isInUltimate;
     JPlayerUnit m_currentPlayer;
 
     [SerializeField] CooldownSpinner[] m_cooldownSpinners = new CooldownSpinner[6];
@@ -20,11 +16,10 @@ public class GameUIManager : MonoBehaviour
     [SerializeField] GameObject [] m_panels;
     [SerializeField] EnemyHealthBar m_enemyHealthBar;
     [SerializeField] EnemyTitleTextField m_enemyTitleTextField;
- 
-    static GameUIManager m_instance;
 
-    bool m_ultCharging;
-    bool m_musicShiftTriggered;
+    bool m_leftUltButtonDown, m_rightUltButtonDown;
+
+    static GameUIManager m_instance;
 
     void Awake()
     {
@@ -33,43 +28,7 @@ public class GameUIManager : MonoBehaviour
 
     void Update ()
     {
-        if (m_rUltiButtonAlpha > 0) m_rightSpinner.transform.Rotate(0, 0, m_rUltiButtonAlpha * 4);
-        if (m_lUltiButtonAlpha > 0) m_leftSpinner.transform.Rotate(0, 0, -m_lUltiButtonAlpha * 4);
 
-        if ((m_lUltiButtonAlpha >= 1 && m_rUltiButtonAlpha >= 1) && !m_isInUltimate) 
-        {
-            UltiState(true);
-
-            StartCoroutine(SimulateKeyPress(JPlayerUnit.ATTACKS.ULTIMATE));
-
-            Audio.BlendMusicTo(Audio.BGM.LOUD, 1);
-            return;
-        }
-
-        bool ldown = false, rdown = false;
-
-        if (m_lButtonDown && m_instance.m_cooldownSpinners[4].Cooldown() == 0)
-        {
-            ldown = true;
-            m_lUltiButtonAlpha = Mathf.Clamp01(m_lUltiButtonAlpha + Time.deltaTime);
-            m_leftSpinner.color = new Color(1, 1, 1, m_lUltiButtonAlpha);
-        }
-
-        if (m_rButtonDown && m_instance.m_cooldownSpinners[5].Cooldown() == 0)
-        {
-            rdown = true;
-            m_rUltiButtonAlpha = Mathf.Clamp01(m_rUltiButtonAlpha + Time.deltaTime);
-            m_rightSpinner.color = new Color(1, 1, 1, m_rUltiButtonAlpha);
-        }
-
-        if (ldown || rdown) m_ultCharging = true;
-
-        if (!m_musicShiftTriggered && m_ultCharging)
-        {
-            m_musicShiftTriggered = true;
-
-            Audio.BlendMusicTo(Audio.BGM.LOUD, 2, true);
-        }
     }
 
     public IEnumerator SimulateKeyPress(JPlayerUnit.ATTACKS type)
@@ -81,77 +40,31 @@ public class GameUIManager : MonoBehaviour
         m_instance.m_currentPlayer.SimulateInputRelease(type);
     }
 
-    public void OnUltiButtonDown(bool left)
+    public void OnLeftUltButton(bool down)
     {
-        if (left)
-        {
-            m_lButtonDown = true;
-        }
-        else
-        {
-            m_rButtonDown = true;
-        }
+        m_leftUltButtonDown = down;
 
-        if (FindObjectOfType<JPlayerUnit>().UltIsOnCooldown())
+        if (down)
         {
-            StartCoroutine(SimulateKeyPress(JPlayerUnit.ATTACKS.ULTIMATE));
-        }
-    }
-
-    public void OnUltiButtonUp(bool left)
-    {
-        if (left)
-        {
-            m_lButtonDown = false;
-
-            if (m_instance.m_cooldownSpinners[4].Cooldown() == 0)
+            if (m_currentPlayer.UltIsOnCooldown() || (m_rightUltButtonDown && m_leftUltButtonDown))
             {
-                DisableUltiSpinner(true); 
+                StartCoroutine(SimulateKeyPress(JPlayerUnit.ATTACKS.ULTIMATE));
             }
         }
-        else
-        {
-            m_rButtonDown = false;
+    }
+    public void OnRightUltButton(bool down)
+    {
+        m_rightUltButtonDown = down;
 
-            if (m_instance.m_cooldownSpinners[5].Cooldown() == 0)
+        if (down)
+        {
+            if (m_currentPlayer.UltIsOnCooldown() || (m_rightUltButtonDown && m_leftUltButtonDown))
             {
-                DisableUltiSpinner(false);
+                StartCoroutine(SimulateKeyPress(JPlayerUnit.ATTACKS.ULTIMATE));
             }
         }
-
-        if (!m_isInUltimate)
-        {
-            Audio.BlendMusicTo(Audio.BGM.QUIET, 1);
-            m_musicShiftTriggered = false;
-            m_ultCharging = false;
-        }
     }
-
-    public static void UltiState(bool state)
-    {
-        m_instance.m_isInUltimate = state;
-
-        if (!state)
-        {
-            m_instance.DisableUltiSpinner(true);
-            m_instance.DisableUltiSpinner(false);
-        }
-    }
-
-    void DisableUltiSpinner(bool left)
-    {
-        if (left)
-        {
-            m_leftSpinner.color = new Color(1, 1, 1, 0);
-            m_lUltiButtonAlpha = 0;
-        }
-        else
-        {
-            m_rightSpinner.color = new Color(1, 1, 1, 0);
-            m_rUltiButtonAlpha = 0;
-        }
-    }
-
+    
     public static void SetCurrentPlayerReference(JPlayerUnit player)
     {
         m_instance.m_currentPlayer = player;
@@ -215,8 +128,6 @@ public class GameUIManager : MonoBehaviour
 
     public static void Reset()
     {
-        UltiState(false);
-
         for (int i = 0; i < m_instance.m_cooldownSpinners.Length; i++)
         {
             m_instance.m_cooldownSpinners[i].UpdateRadial(0, 0);
@@ -229,11 +140,5 @@ public class GameUIManager : MonoBehaviour
         {
             panel.SetActive(enable);
         }
-    }
-
-    public static void ResetAudioTrigger()
-    {
-       m_instance.m_musicShiftTriggered = false;
-       m_instance.m_ultCharging = false;
     }
 }

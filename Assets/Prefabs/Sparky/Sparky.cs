@@ -130,7 +130,6 @@ public class Sparky : MonoBehaviour
         {
             m_instance.StartCoroutine(m_instance.ResetIntensityAsync(t));
         }
-
     }
 
     IEnumerator ResetIntensityAsync(float t)

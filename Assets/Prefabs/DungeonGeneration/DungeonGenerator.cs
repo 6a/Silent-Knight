@@ -40,8 +40,44 @@ public class DungeonGenerator : MonoBehaviour
         m_cycles, m_padding, m_minPlatforms, m_emptyChar, m_platformChar, m_nodeChar, m_pathChar, m_scale, m_offset, m_currentLevel);
     }
 
-    void Update ()
+    public void DiscoverValidLevels(int iterations, int start, bool fabricate = false, int platforms = 10, int nodes = 2, float wait = 0)
     {
+        m_currentLevel = start;
+
+        StartCoroutine(TestLevels(iterations, start, fabricate, platforms, nodes, wait));
+    }
+
+    IEnumerator TestLevels(int iterations, int start, bool fabricate, int platforms, int nodes, float wait)
+    {
+        var validLevels = new System.Collections.Generic.List<int>();
+
+        for (int i = start; i < iterations + start; i++)
+        {
+            UpdateTestDungeon(i);
+
+            if (i > 0 && Generator.CurrentDungeon.Nodes.Count == nodes && Generator.CurrentDungeon.Platforms.Count == platforms)
+            {
+                UnityEngine.Debug.Log("Suitable dungeon: " + i);
+                FabricateTest(i);
+                validLevels.Add(i);
+            }
+
+            yield return new WaitForSeconds(wait);
+        }
+
+        UnityEngine.Debug.ClearDeveloperConsole();
+        print("SEARCH COMPLETE ------------------------------------");
+        print("SUITABLE LEVELS ------------------------------------");
+
+        foreach (var lvl in validLevels)
+        {
+            print("Level: " + lvl);
+        }
+    }
+
+    public bool IsFinalLevel()
+    {
+        return m_currentLevel == m_levelSeeds.Length - 1;
     }
     
     public void NextLevelSetup()
@@ -49,7 +85,6 @@ public class DungeonGenerator : MonoBehaviour
         m_currentLevel++;
         PPM.SaveInt(PPM.KEY_INT.LEVEL, m_currentLevel);
         Generator.InitNewLevel(m_currentLevel);
-
     }
 
     public bool IsLoadingAsync { get; set; }
@@ -59,15 +94,11 @@ public class DungeonGenerator : MonoBehaviour
 
         Stopwatch s = new Stopwatch();
         s.Start();
-        // TODO optimise - n+1 loads are much faster, possibly due to memory caching.
-        UpdateDungeon();
-
-        //print("Dungeon Updated: " + s.ElapsedMilliseconds + "ms");
+        UpdateDungeon(m_levelSeeds[m_currentLevel]);
 
         UpdatePreviewTexture();
 
         Generator.Fabricate();
-        //print("Dungeon fabricated: " + s.ElapsedMilliseconds + "ms");
 
         yield return new WaitForFixedUpdate();
 
@@ -75,7 +106,6 @@ public class DungeonGenerator : MonoBehaviour
         s.Stop();
 
         IsLoadingAsync = false;
-        //print("Load complete: " +  s.ElapsedMilliseconds + "ms");
         yield return null;
     }
 
@@ -85,7 +115,7 @@ public class DungeonGenerator : MonoBehaviour
         {
             if (i > 0) m_levelSeeds[0]++;
 
-            UpdateDungeon();
+            UpdateDungeon(m_levelSeeds[m_currentLevel]);
             UpdatePreviewTexture();
 
             if (i > 0 && Generator.CurrentDungeon.Nodes.Count == 2 && Generator.CurrentDungeon.Platforms.Count == 10)
@@ -98,9 +128,19 @@ public class DungeonGenerator : MonoBehaviour
         m_grid.CreateGrid();
     }
 
-    void UpdateDungeon()
+    void UpdateTestDungeon(int seed)
     {
-        Generator.GenerateNewDungeon(m_levelSeeds[m_currentLevel]);
+        Generator.GenerateTestDungeon(seed);
+    }
+
+    void FabricateTest(int level)
+    {
+        Generator.FabricateTest(level);
+    }
+
+    void UpdateDungeon(int seed)
+    {
+        Generator.GenerateNewDungeon(seed);
     }
     
     void UpdatePreviewTexture()

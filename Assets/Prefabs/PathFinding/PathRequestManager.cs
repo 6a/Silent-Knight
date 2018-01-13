@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Threading;
+using System.Diagnostics;
 
 namespace PathFinding
 {
@@ -36,7 +37,14 @@ namespace PathFinding
 
     public class PathRequestManager : MonoBehaviour
     {
+        // I realise now that this function doesnt actually run in another thread, it just runs on the main thread.
+        // When trying to make use of actual multi threading via C# ThreadPool, Multiple Unity objects break.
+        // I suspect that, to convert this to true multi-threading, the whole pathfinding system would need to be rebuilt from
+        // scratch without any interaction with Unity based objects. Hence MAX_THREADS being 1.
+        const int MAX_THREADS = 1;
+
         Queue<PathResult> m_results = new Queue<PathResult>();
+        Queue<PathRequest> m_requests = new Queue<PathRequest>();
 
         static PathRequestManager instance;
 
@@ -47,31 +55,42 @@ namespace PathFinding
             m_pathfinder = GetComponent<ASPathFinder>();
             instance = this;
         }
-         void Update()
+
+        void Update()
         {
             if (m_results.Count > 0)
             {
                 var queueCount = m_results.Count;
 
-                lock (m_results)
+                for (int i = 0; i < queueCount; i++)
                 {
-                    for (int i = 0; i < queueCount; i++)
-                    {
-                        var result = m_results.Dequeue();
-                        result.Callback(result.Path, result.Success);
-                    }
+                    var result = m_results.Dequeue();
+                    result.Callback(result.Path, result.Success);
                 }
+            }
+
+            if (m_requests.Count > 0)
+            {
+                var queueCount = Mathf.Min(m_requests.Count, MAX_THREADS);
+
+                for (int i = 0; i < queueCount; i++)
+                {
+                    var req = m_requests.Dequeue();
+
+                    ThreadStart threadStart = delegate
+                    {
+                        instance.m_pathfinder.FindPath(req, instance.FinishedProcessingPath);
+                    };
+
+                    threadStart.Invoke();
+                }
+
             }
         }
 
         public static void RequestPath(PathRequest request)
         {
-            ThreadStart threadStart = delegate
-            {
-                instance.m_pathfinder.FindPath(request, instance.FinishedProcessingPath);
-            };
-
-            threadStart.Invoke();
+            lock (instance.m_requests) instance.m_requests.Enqueue(request);
         }
 
         public void FinishedProcessingPath(PathResult result)
