@@ -58,7 +58,7 @@ public class DungeonGenerator : MonoBehaviour
             if (i > 0 && Generator.CurrentDungeon.Nodes.Count == nodes && Generator.CurrentDungeon.Platforms.Count == platforms)
             {
                 UnityEngine.Debug.Log("Suitable dungeon: " + i);
-                FabricateTest(i);
+                if (fabricate) FabricateTest(i);
                 validLevels.Add(i);
             }
 

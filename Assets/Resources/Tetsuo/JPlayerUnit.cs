@@ -759,13 +759,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
     {
         Sparky.DisableLight();
 
-        m_psBuff.SetActive(true);
-
         m_applyBuffDamage = true;
 
         StartCoroutine(Freeze(0.3f, true, true));
-
-        Audio.PlayFX(Audio.FX.BIG_IMPACT);
 
         yield return new WaitForSeconds(duration - Time.fixedDeltaTime);
 
@@ -775,9 +771,9 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
 
         m_applyBuffDamage = false;
 
-        Sparky.ResetIntensity(true, 0.5f);
-
-        if (!FoundBoss) Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
+        // This coroutine must be started from this script, because about 75% of the time, if you call it directly on 
+        // Sparky, it disappears for some reason. (The Sparky object still exists, so I think it's a bug with Unity).
+        StartCoroutine(Sparky.ResetIntensityAsync(0.5f));
     }
 
     public void Attack(IAttackable target)
@@ -949,6 +945,8 @@ public class JPlayerUnit : PathFindingObject, IAttackable, IAttacker, ITargetabl
         {
             Sparky.ResetIntensity();
             Sparky.IncreaseIntensity();
+            m_psBuff.SetActive(true);
+            Audio.PlayFX(Audio.FX.BIG_IMPACT);
         }
     }
 

@@ -1643,6 +1643,11 @@ Prefab:
       propertyPath: m_resetScreen
       value: 
       objectReference: {fileID: 1519758447}
+    - target: {fileID: 114016904425888160, guid: 85ca9c4b34d81f044b8857fbe6ed8a79,
+        type: 2}
+      propertyPath: m_cursor
+      value: 
+      objectReference: {fileID: 2800000, guid: 59d12a7f925adb54ebb331550cec243b, type: 3}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 85ca9c4b34d81f044b8857fbe6ed8a79, type: 2}
   m_IsPrefabParent: 0

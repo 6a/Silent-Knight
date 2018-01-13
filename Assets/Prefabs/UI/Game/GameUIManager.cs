@@ -46,7 +46,7 @@ public class GameUIManager : MonoBehaviour
 
         if (down)
         {
-            if (m_currentPlayer.UltIsOnCooldown() || (m_rightUltButtonDown && m_leftUltButtonDown))
+            if (m_currentPlayer.UltIsOnCooldown() || (m_rightUltButtonDown || m_leftUltButtonDown))
             {
                 StartCoroutine(SimulateKeyPress(JPlayerUnit.ATTACKS.ULTIMATE));
             }
@@ -58,7 +58,7 @@ public class GameUIManager : MonoBehaviour
 
         if (down)
         {
-            if (m_currentPlayer.UltIsOnCooldown() || (m_rightUltButtonDown && m_leftUltButtonDown))
+            if (m_currentPlayer.UltIsOnCooldown() || (m_rightUltButtonDown || m_leftUltButtonDown))
             {
                 StartCoroutine(SimulateKeyPress(JPlayerUnit.ATTACKS.ULTIMATE));
             }

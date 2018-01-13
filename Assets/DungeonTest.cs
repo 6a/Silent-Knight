@@ -4,9 +4,13 @@ using UnityEngine;
 
 public class DungeonTest : MonoBehaviour
 {
-	void Start ()
+    [SerializeField] private int m_iterations;
+    [SerializeField] private int m_start;
+    [SerializeField] private bool m_fabricate;
+
+    void Start ()
     {
-        GetComponent<DungeonGenerator>().DiscoverValidLevels(100, 0, true);
+        GetComponent<DungeonGenerator>().DiscoverValidLevels(m_iterations, m_start, m_fabricate);
 	}
 
 }

@@ -23,6 +23,7 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] float m_loadDelay;
     [SerializeField] bool m_triggerShatter;
+    [SerializeField] Texture2D m_cursor;
 
     JPlayerUnit m_currentPlayer;
 
@@ -37,6 +38,10 @@ public class GameManager : MonoBehaviour
         OnStartRun += NextLevelSequence;
         GameState = GAMESTATE.START;
         m_instance = this;
+
+#if UNITY_EDITOR
+        Cursor.SetCursor(m_cursor, Vector2.zero, CursorMode.Auto);
+#endif
     }
 
     void Start ()
