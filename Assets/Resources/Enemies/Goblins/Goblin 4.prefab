@@ -1628,17 +1628,17 @@ MonoBehaviour:
   m_attackRange: 3
   m_attacksPerSecond: 0.5
   m_baseDamage: 10
-  m_level: 1
   m_baseHealth: 80
-  m_material: {fileID: 137241913922137498}
   m_enemyType: 3
-  m_projectile: {fileID: 1385678144754502, guid: 9299b930bde58f641a7741912edd87e2,
-    type: 2}
-  m_projectileTransform: {fileID: 4168497391963162}
+  m_level: 1
   m_unitName:
   - Goblin Archer
   - "\u5C04\u624B\u30B4\u30D6\u30EA\u30F3"
-  m_deathParticle: {fileID: 100008, guid: 72962c00b21ac4b55b359f0ba9afa192, type: 2}
+  m_meshRenderer: {fileID: 0}
+  m_projectile: {fileID: 1385678144754502, guid: 9299b930bde58f641a7741912edd87e2,
+    type: 2}
+  m_projectileTransform: {fileID: 4168497391963162}
+  m_psDeath: {fileID: 0}
 --- !u!120 &120180247340752336
 LineRenderer:
   m_ObjectHideFlags: 1

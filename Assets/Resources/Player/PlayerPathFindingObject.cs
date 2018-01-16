@@ -29,13 +29,13 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     PlayerHealthBar m_healthbar;
 
     // Properties
-    public Vector3 FocusPoint { get { return transform.position; } }
     public IAttackable CurrentTarget { get; set; }
+    public int DeathTime { get; set; }
+    public Vector3 FocusPoint { get { return transform.position; } }
+    public float Health { get; set; }
+    public int ID { get; set; }
     public bool IsAtBoss { get; set; }
     public bool IsBossUnit { get; set; }
-    public float Health { get; set; }
-    public int DeathTime { get; set; }
-    public int ID { get; set; }
 
     // Exposed variables for setting unit data
     [SerializeField] float m_attackRange;
@@ -54,20 +54,20 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     [SerializeField] float m_ultRotPercentDamage;
     [SerializeField] float m_ultRotTickDuration;
 
-    // Exposed variables for setting component/child object references
-    [SerializeField] GameObject m_psBuff;
-    [SerializeField] GameObject m_psBuffStart;
-    [SerializeField] GameObject m_psDeflect;
-    [SerializeField] GameObject m_psSwordClash;
-    [SerializeField] GameObject m_psKickConnection;
-    [SerializeField] GameObject m_psHealStart;
-    [SerializeField] GameObject m_psLevelUp;
-    [SerializeField] GameObject m_kickContact;
-    [SerializeField] GameObject m_swordContact;
-    [SerializeField] Transform m_refTarget;
-    [SerializeField] Transform m_lookTarget;
+    // Exposed variables for setting component/child/instantiation object references
     [SerializeField] Transform m_deathCamAnchor;
-    [SerializeField] ParticleSystem m_psSwordSlash;
+    [SerializeField] GameObject m_kickContact;
+    [SerializeField] Transform m_lookTarget;
+    [SerializeField] GameObject m_particleBuff;
+    [SerializeField] GameObject m_particleBuffStart;
+    [SerializeField] GameObject m_particleDeflect;
+    [SerializeField] GameObject m_particleHealStart;
+    [SerializeField] GameObject m_particleKick;
+    [SerializeField] GameObject m_particleLevelUp;
+    [SerializeField] GameObject m_particleSwordClash;
+    [SerializeField] ParticleSystem m_particleSwordSpin;
+    [SerializeField] Transform m_refTarget;
+    [SerializeField] GameObject m_swordContact;
     #endregion 00_MEMBER_VARIABLES_AND_PROPERTIES ---------------------------------------------------------------------------------------------
 
     #region 01_UNITY_OVERRIDES ------------------------------------------------------------------------------------------------------------
@@ -112,8 +112,8 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         // Handle out-of-combat heal ticks
         if (Time.time > m_playerStateData.NextRegenTick && Health < m_playerStateData.MaxHealth)
         {
-            m_psHealStart.SetActive(false);
-            m_psHealStart.SetActive(true);
+            m_particleHealStart.SetActive(false);
+            m_particleHealStart.SetActive(true);
 
             var addedHealth = (m_playerStateData.MaxHealth * m_regenAmount);
             Health = Mathf.Clamp(Health + addedHealth, 0, m_playerStateData.MaxHealth);
@@ -159,7 +159,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
             {
                 m_playerStateData.ShouldTickUlt = true;
 
-                var enemy = c.GetComponent<JEnemyUnit>() as IAttackable;
+                var enemy = c.GetComponent<EnemyPathFindingObject>() as IAttackable;
 
                 ApplyPercentageDamage(enemy, -m_ultRotPercentDamage);
             }
@@ -180,15 +180,15 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
                 var rand = UnityEngine.Random.Range(0f, 1f);
 
-                var isCrit = rand < BonusManager.GetModifiedValue(PROPERTY.CRIT_CHANCE, m_critChance);
+                var isCrit = rand < BonusManager.GetModifiedValue(Enums.PLAYER_STAT.CRIT_CHANCE, m_critChance);
                 var critMultiplier = (isCrit) ? m_critMultiplier : 1;
 
                 projectile.Crit = isCrit;
 
-                var dmg = BonusManager.GetModifiedValue(PROPERTY.DAMAGE_BOOST, LevelScaling.GetScaledDamage(m_playerStateData.Level, (int)m_baseDamage));
+                var dmg = BonusManager.GetModifiedValue(Enums.PLAYER_STAT.DAMAGE_BOOST, LevelScaling.GetScaledDamage(m_playerStateData.Level, (int)m_baseDamage));
 
                 projectile.Reflect(this, 5, -1, dmg * 3 * critMultiplier);
-                Instantiate(m_psDeflect, projectile.transform.position, Quaternion.identity);
+                Instantiate(m_particleDeflect, projectile.transform.position, Quaternion.identity);
                 m_playerStateData.DidDeflect = true;
             }
         }
@@ -240,7 +240,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
             StartCoroutine(ApplyHapticFeedback(0.05f, false, true));
 
-            Instantiate(m_psKickConnection, m_kickContact.transform.position, Quaternion.identity);
+            Instantiate(m_particleKick, m_kickContact.transform.position, Quaternion.identity);
 
             if (originalTarget == CurrentTarget.ID) CurrentTarget.OnKnockBack(new Vector2(transform.position.x, transform.position.z), 800);
             StartAttackCooldown(Enums.PLAYER_ATTACK.KICK);
@@ -258,7 +258,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     public void AnimationTriggerRegularAttack()
     {
         Audio.PlayFX(Audio.FX.SWORD_IMPACT, transform.position);
-        Instantiate(m_psSwordClash, m_swordContact.transform.position, Quaternion.identity);
+        Instantiate(m_particleSwordClash, m_swordContact.transform.position, Quaternion.identity);
 
         ApplyFlatDamage(CurrentTarget, 1);
     }
@@ -273,7 +273,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
             Audio.PlayFX(Audio.FX.SHIELD_SLAM, transform.position);
 
-            if (originalTarget == CurrentTarget.ID) CurrentTarget.OnAfflictStatus(STATUS.STUN, 2);
+            if (originalTarget == CurrentTarget.ID) CurrentTarget.OnAfflict(Enums.AFFLICTION.STUN, 2);
 
             StartCoroutine(ApplyHapticFeedback(0.05f, false, true));
 
@@ -305,14 +305,14 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
     public void AnimationTriggerSpinParticle()
     {
-        m_psSwordSlash.Stop();
-        m_psSwordSlash.Play();
+        m_particleSwordSpin.Stop();
+        m_particleSwordSpin.Play();
     }
 
     public void AnimationTriggerUltimateFinish()
     {
         Speed = m_playerStateData.SpeedTemp;
-        m_psBuffStart.SetActive(false);
+        m_particleBuffStart.SetActive(false);
         StartAttackCooldown(Enums.PLAYER_ATTACK.ULTIMATE, 1, 0.8f);
     }
 
@@ -322,15 +322,14 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
         m_baseDamage *= m_ultMultiplier;
 
-        StartCoroutine(UltimateSequence(BonusManager.GetModifiedValue(PROPERTY.ULT_DURATION_INCREASE, m_ultDuration)));
+        StartCoroutine(UltimateSequence(BonusManager.GetModifiedValue(Enums.PLAYER_STAT.ULT_DURATION_INCREASE, m_ultDuration)));
 
         m_playerStateData.NextUltTick = Time.time;
     }
-
     #endregion 02A_ANIMATION_TRIGGERS -----------------------------------------------------------------------------------------------------
 
     #region 02B_EVENT_HANDLERS ------------------------------------------------------------------------------------------------------------
-    public void OnAfflictStatus(STATUS status, float duration)
+    public void OnAfflict(Enums.AFFLICTION status, float duration)
     {
         throw new NotImplementedException();
     }
@@ -339,7 +338,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     {
         if (IsDead) return;
 
-        if (UnityEngine.Random.Range(0f, 1f) <= BonusManager.GetModifiedValueFlatAsDecimal(PROPERTY.DODGE_CHANCE, m_dodgeChance))
+        if (UnityEngine.Random.Range(0f, 1f) <= BonusManager.GetModifiedValueFlatAsDecimal(Enums.PLAYER_STAT.DODGE_CHANCE, m_dodgeChance))
         {
             FCTRenderer.AddFCT(FCT_TYPE.DODGE, "!", transform.position + (1.1f * Vector3.up), Vector3.up);
             return;
@@ -358,7 +357,6 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
             Running = false;
             TriggerAnimation(ANIMATION.DEATH);
             IsDead = true;
-            attacker.OnTargetDied(this);
         }
     }
 
@@ -430,7 +428,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
             StartCoroutine(ApplyHapticFeedback(0.05f, false, true));
 
-            Instantiate(m_psSwordClash, m_swordContact.transform.position, Quaternion.identity);
+            Instantiate(m_particleSwordClash, m_swordContact.transform.position, Quaternion.identity);
 
             enemy.OnKnockBack(new Vector2(transform.position.x, transform.position.z), 400);
         }
@@ -452,7 +450,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     {
         for (int i = 0; i < 10; i++)
         {
-            BonusManager.UpdateBonusDisplay((PROPERTY)i, this);
+            BonusManager.UpdateBonusDisplay((Enums.PLAYER_STAT)i, this);
         }
     }
 
@@ -460,7 +458,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     {
         var healthPercentage = Mathf.Clamp01(Health / m_playerStateData.MaxHealth);
 
-        m_playerStateData.MaxHealth = BonusManager.GetModifiedValue(PROPERTY.HEALTH_BOOST, LevelScaling.GetScaledHealth(m_playerStateData.Level, (int)m_baseHealth));
+        m_playerStateData.MaxHealth = BonusManager.GetModifiedValue(Enums.PLAYER_STAT.HEALTH_BOOST, LevelScaling.GetScaledHealth(m_playerStateData.Level, (int)m_baseHealth));
 
         Health = m_playerStateData.MaxHealth * healthPercentage;
 
@@ -481,21 +479,21 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
     // Returns the appropriate internal value, after applying all appropriate modifications
     // such as increase due to level, bonus+- etc.
-    public float GetPlayerProperty(PROPERTY bonus)
+    public float GetPlayerProperty(Enums.PLAYER_STAT bonus)
     {
         switch (bonus)
         {
-            case PROPERTY.CRIT_CHANCE: return 100 * m_critChance;
-            case PROPERTY.DAMAGE_BOOST: return m_damageboost;
-            case PROPERTY.ULT_DURATION_INCREASE: return m_ultDuration;
-            case PROPERTY.CD_KICK: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.KICK);
-            case PROPERTY.CD_SPIN: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.SWORD_SPIN);
-            case PROPERTY.CD_SHIELD_BASH: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.SHIELD);
-            case PROPERTY.CD_DEFLECT: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.DEFLECT);
-            case PROPERTY.CD_ULT: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.ULTIMATE);
-            case PROPERTY.HEALTH_BOOST: return LevelScaling.GetScaledHealth(m_playerStateData.Level, (int)m_baseHealth);
-            case PROPERTY.DODGE_CHANCE: return 100 * m_dodgeChance;
-            case PROPERTY.NULL: return -1;
+            case Enums.PLAYER_STAT.CRIT_CHANCE: return 100 * m_critChance;
+            case Enums.PLAYER_STAT.DAMAGE_BOOST: return m_damageboost;
+            case Enums.PLAYER_STAT.ULT_DURATION_INCREASE: return m_ultDuration;
+            case Enums.PLAYER_STAT.CD_KICK: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.KICK);
+            case Enums.PLAYER_STAT.CD_SPIN: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.SWORD_SPIN);
+            case Enums.PLAYER_STAT.CD_SHIELD_BASH: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.SHIELD);
+            case Enums.PLAYER_STAT.CD_DEFLECT: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.DEFLECT);
+            case Enums.PLAYER_STAT.CD_ULT: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.ULTIMATE);
+            case Enums.PLAYER_STAT.HEALTH_BOOST: return LevelScaling.GetScaledHealth(m_playerStateData.Level, (int)m_baseHealth);
+            case Enums.PLAYER_STAT.DODGE_CHANCE: return 100 * m_dodgeChance;
+            case Enums.PLAYER_STAT.NULL: return -1;
             default: return 0;
         }
     }
@@ -546,12 +544,12 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         {
             var rand = UnityEngine.Random.Range(0f, 1f);
 
-            var isCrit = rand < BonusManager.GetModifiedValueFlatAsDecimal(PROPERTY.CRIT_CHANCE, m_critChance);
+            var isCrit = rand < BonusManager.GetModifiedValueFlatAsDecimal(Enums.PLAYER_STAT.CRIT_CHANCE, m_critChance);
             var critMultiplier = (isCrit) ? m_critMultiplier : 1;
 
-            var dmg = BonusManager.GetModifiedValue(PROPERTY.DAMAGE_BOOST, LevelScaling.GetScaledDamage(m_playerStateData.Level, (int)m_baseDamage));
+            var dmg = BonusManager.GetModifiedValue(Enums.PLAYER_STAT.DAMAGE_BOOST, LevelScaling.GetScaledDamage(m_playerStateData.Level, (int)m_baseDamage));
 
-            var total = baseDamageMultiplier * GetPlayerProperty(PROPERTY.DAMAGE_BOOST) * dmg * critMultiplier;
+            var total = baseDamageMultiplier * GetPlayerProperty(Enums.PLAYER_STAT.DAMAGE_BOOST) * dmg * critMultiplier;
 
             var t = (isCrit) ? FCT_TYPE.CRIT : FCT_TYPE.HIT;
 
@@ -566,7 +564,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     {
         var rand = UnityEngine.Random.Range(0f, 1f);
 
-        var isCrit = rand < BonusManager.GetModifiedValue(PROPERTY.CRIT_CHANCE, m_critChance);
+        var isCrit = rand < BonusManager.GetModifiedValue(Enums.PLAYER_STAT.CRIT_CHANCE, m_critChance);
 
         var critMultiplier = (isCrit) ? m_critMultiplier : 1;
 
@@ -783,7 +781,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
                 TriggerAnimation(ANIMATION.BUFF);
                 m_playerStateData.SpeedTemp = Speed;
                 Speed = 0;
-                m_psBuffStart.SetActive(true);
+                m_particleBuffStart.SetActive(true);
                 m_playerStateData.PreviousAttackTime = Time.time + 10;
                 return true;
             }
@@ -874,13 +872,13 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
                 GameUIManager.UpdateCooldownDisplay((Enums.PLAYER_ATTACK)i, 0, 0);
             }
 
-            m_playerStateData.MaxHealth = BonusManager.GetModifiedValue(PROPERTY.HEALTH_BOOST, LevelScaling.GetScaledHealth(updatedLevel, (int)m_baseHealth));
+            m_playerStateData.MaxHealth = BonusManager.GetModifiedValue(Enums.PLAYER_STAT.HEALTH_BOOST, LevelScaling.GetScaledHealth(updatedLevel, (int)m_baseHealth));
             Health = m_playerStateData.MaxHealth;
             m_healthbar.UpdateHealthDisplay(1, (int)m_playerStateData.MaxHealth);
 
             if (!isInitialising)
             {
-                Instantiate(m_psLevelUp, transform.position, Quaternion.identity);
+                Instantiate(m_particleLevelUp, transform.position, Quaternion.identity);
 
                 BonusManager.AddCredits(LevelScaling.CreditsPerLevel, true);
             }
@@ -914,7 +912,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
         PathingTarget = FindObjectOfType<Chest>();
         if (PathingTarget == null)
-            PathingTarget = GameObject.FindGameObjectWithTag("Boss").GetComponent<JEnemyUnit>() as ITargetable;
+            PathingTarget = GameObject.FindGameObjectWithTag("Boss").GetComponent<EnemyPathFindingObject>() as ITargetable;
 
         m_playerStateData.EndTarget = PathingTarget;
 
@@ -959,7 +957,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         {
             Sparky.ResetIntensity();
             Sparky.IncreaseIntensity();
-            m_psBuff.SetActive(true);
+            m_particleBuff.SetActive(true);
             Audio.PlayFX(Audio.FX.BIG_IMPACT);
         }
     }
@@ -983,7 +981,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
         yield return new WaitForSeconds(duration - Time.fixedDeltaTime);
 
-        m_psBuff.SetActive(false);
+        m_particleBuff.SetActive(false);
 
         m_baseDamage = m_playerStateData.BaseDamageHolder;
 

@@ -11,7 +11,7 @@ public class StatAdjuster : MonoBehaviour
     [SerializeField] GameObject m_buttonNegative, m_buttonPositive;
 
     BUTTON_STATE m_neg, m_pos;
-    PROPERTY m_type;
+    Enums.PLAYER_STAT m_type;
 
     const float DELAY = 0.5f;
     float m_buttonDownTime = 0;
@@ -34,30 +34,30 @@ public class StatAdjuster : MonoBehaviour
         }
     }
 
-    public void SetState(BONUS_STATE state)
+    public void SetState(Enums.BONUS_STATE state)
     {
         switch (state)
         {
-            case BONUS_STATE.AT_MINIMUM:
+            case Enums.BONUS_STATE.AT_MINIMUM:
                 m_buttonNegative.SetActive(false);
                 m_buttonPositive.SetActive(true);
                 break;
-            case BONUS_STATE.VALID:
+            case Enums.BONUS_STATE.VALID:
                 m_buttonNegative.SetActive(true);
                 m_buttonPositive.SetActive(true);
                 break;
-            case BONUS_STATE.AT_MAXIMUM:
+            case Enums.BONUS_STATE.AT_MAXIMUM:
                 m_buttonNegative.SetActive(true);
                 m_buttonPositive.SetActive(false);
                 break;
-            case BONUS_STATE.INVALID:
+            case Enums.BONUS_STATE.INVALID:
                 m_buttonNegative.SetActive(false);
                 m_buttonPositive.SetActive(false);
                 break;
         }
     }
 
-    void OnAddPoint(PROPERTY bonusType)
+    void OnAddPoint(Enums.PLAYER_STAT bonusType)
     {
         if (BonusManager.CanAdd(bonusType))
         {
@@ -69,7 +69,7 @@ public class StatAdjuster : MonoBehaviour
         }
     }
 
-    void OnRemovePoint(PROPERTY bonusType)
+    void OnRemovePoint(Enums.PLAYER_STAT bonusType)
     {
         if (BonusManager.CanSubtract(bonusType))
         {
@@ -83,7 +83,7 @@ public class StatAdjuster : MonoBehaviour
     
     public void OnRemoveDown(int bonusType)
     {
-        m_type = (PROPERTY)bonusType;
+        m_type = (Enums.PLAYER_STAT)bonusType;
         m_neg = BUTTON_STATE.DOWN;
         m_buttonDownTime = Time.realtimeSinceStartup;
         OnRemovePoint(m_type);
@@ -96,7 +96,7 @@ public class StatAdjuster : MonoBehaviour
 
     public void OnAddDown(int bonusType)
     {
-        m_type = (PROPERTY)bonusType;
+        m_type = (Enums.PLAYER_STAT)bonusType;
         m_pos = BUTTON_STATE.DOWN;
         m_buttonDownTime = Time.realtimeSinceStartup;
 

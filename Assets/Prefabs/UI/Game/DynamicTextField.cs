@@ -59,11 +59,11 @@ namespace Localisation
             m_currentlanguage = lang;
         }
 
-        public void SetButtonState(BONUS_STATE state, bool nopoints = false)
+        public void SetButtonState(Enums.BONUS_STATE state, bool nopoints = false)
         {
             if (nopoints)
             {
-                m_showingAltData = state == BONUS_STATE.AT_MAXIMUM;
+                m_showingAltData = state == Enums.BONUS_STATE.AT_MAXIMUM;
             }
 
             m_button.SetState(state);

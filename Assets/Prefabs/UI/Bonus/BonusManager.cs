@@ -5,22 +5,7 @@ using UnityEngine;
 using System;
 using UnityEngine.UI;
 
-public enum PROPERTY
-{
-    CRIT_CHANCE,
-    DAMAGE_BOOST,
-    ULT_DURATION_INCREASE,
-    CD_KICK,
-    CD_SPIN,
-    CD_SHIELD_BASH,
-    CD_DEFLECT,
-    CD_ULT,
-    HEALTH_BOOST,
-    DODGE_CHANCE,
-    NULL
-}
 
-public enum BONUS_STATE { AT_MINIMUM, VALID, AT_MAXIMUM, INVALID }
 
 public abstract class Bonus
 {
@@ -42,11 +27,11 @@ public abstract class Bonus
         m_times += times;
     }
 
-    public BONUS_STATE State()
+    public Enums.BONUS_STATE State()
     {
-        if (m_times == 0) return BONUS_STATE.AT_MINIMUM;
-        else if (m_limit == 0 || m_times < m_limit) return BONUS_STATE.VALID;
-        else return BONUS_STATE.AT_MAXIMUM;
+        if (m_times == 0) return Enums.BONUS_STATE.AT_MINIMUM;
+        else if (m_limit == 0 || m_times < m_limit) return Enums.BONUS_STATE.VALID;
+        else return Enums.BONUS_STATE.AT_MAXIMUM;
     }
 }
 
@@ -218,19 +203,19 @@ public class BonusManager : MonoBehaviour
         if (save) PersistentData.SaveInt(PersistentData.KEY_INT.CURRENT_CREDITS, m_instance.m_currentCredits);
     }
 
-    public static bool CanSubtract(PROPERTY bonus)
+    public static bool CanSubtract(Enums.PLAYER_STAT bonus)
     {
-        if (m_instance.m_spentCredits == 0 || m_instance.m_bonuses[(int)bonus].State() == BONUS_STATE.AT_MINIMUM) return false;
+        if (m_instance.m_spentCredits == 0 || m_instance.m_bonuses[(int)bonus].State() == Enums.BONUS_STATE.AT_MINIMUM) return false;
         return true;
     }
 
-    public static bool CanAdd(PROPERTY bonus)
+    public static bool CanAdd(Enums.PLAYER_STAT bonus)
     {
-        if (m_instance.m_currentCredits == 0 || m_instance.m_bonuses[(int)bonus].State() == BONUS_STATE.AT_MAXIMUM) return false;
+        if (m_instance.m_currentCredits == 0 || m_instance.m_bonuses[(int)bonus].State() == Enums.BONUS_STATE.AT_MAXIMUM) return false;
         return true;
     }
 
-    public static void UpdateBonusDisplay(PROPERTY bonus, PlayerPathFindingObject playerRef)
+    public static void UpdateBonusDisplay(Enums.PLAYER_STAT bonus, PlayerPathFindingObject playerRef)
     {
         m_instance.m_percentBonusField[(int)bonus].SetButtonState(m_instance.m_bonuses[(int)bonus].State());
         if (m_instance.m_currentCredits == 0) m_instance.m_percentBonusField[(int)bonus].HideButton(false);
@@ -238,7 +223,7 @@ public class BonusManager : MonoBehaviour
 
         string currentValue = string.Empty;
         string nextValue = string.Empty;
-        if (bonus == PROPERTY.DAMAGE_BOOST)
+        if (bonus == Enums.PLAYER_STAT.DAMAGE_BOOST)
         {
             currentValue = GetIncreaseFactor(bonus) + m_instance.m_bonuses[(int)bonus].m_suffix;
             nextValue = GetIncreaseFactor(bonus, true) + m_instance.m_bonuses[(int)bonus].m_suffix;
@@ -255,7 +240,7 @@ public class BonusManager : MonoBehaviour
         m_instance.m_percentBonusField[(int)bonus].UpdateLanguage();
     }
 
-    public static void UpdateBonusAmount(PROPERTY bonus, int change)
+    public static void UpdateBonusAmount(Enums.PLAYER_STAT bonus, int change)
     {
         m_instance.m_changeVector[(int)bonus] += (short)change;
 
@@ -307,34 +292,34 @@ public class BonusManager : MonoBehaviour
         }
     }
 
-    public static float GetModifiedValueFlatAsDecimal(PROPERTY bonus, float rawValue)
+    public static float GetModifiedValueFlatAsDecimal(Enums.PLAYER_STAT bonus, float rawValue)
     {
         return m_instance.m_bonuses[(int)bonus].GetDecimal(rawValue);
     }
 
-    public static float GetModifiedValue(PROPERTY bonus, float rawValue, bool next = false)
+    public static float GetModifiedValue(Enums.PLAYER_STAT bonus, float rawValue, bool next = false)
     {
         if (next) return m_instance.m_bonuses[(int)bonus].GetNext(rawValue);
         return m_instance.m_bonuses[(int)bonus].Get(rawValue);
     }
 
-    public static BONUS_STATE GetBonusState(PROPERTY bonus)
+    public static Enums.BONUS_STATE GetBonusState(Enums.PLAYER_STAT bonus)
     {
         return m_instance.m_bonuses[(int)bonus].State();
     }
     
     public void Save()
     {
-        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_CRIT_CHANCE, m_bonuses[(int)PROPERTY.CRIT_CHANCE].m_times);
-        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_ATTACK_DAMAGE, m_bonuses[(int)PROPERTY.DAMAGE_BOOST].m_times);
-        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_ULT_DUR, m_bonuses[(int)PROPERTY.ULT_DURATION_INCREASE].m_times);
-        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_KICK_CD, m_bonuses[(int)PROPERTY.CD_KICK].m_times);
-        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_SPIN_CD, m_bonuses[(int)PROPERTY.CD_SPIN].m_times);
-        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_BASH_CD, m_bonuses[(int)PROPERTY.CD_SHIELD_BASH].m_times);
-        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_DEFLECT_CD, m_bonuses[(int)PROPERTY.CD_DEFLECT].m_times);
-        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_ULT_CD, m_bonuses[(int)PROPERTY.CD_ULT].m_times);
-        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_HEALTH, m_bonuses[(int)PROPERTY.HEALTH_BOOST].m_times);
-        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_DODGE_CHANCE, m_bonuses[(int)PROPERTY.DODGE_CHANCE].m_times);
+        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_CRIT_CHANCE, m_bonuses[(int)Enums.PLAYER_STAT.CRIT_CHANCE].m_times);
+        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_ATTACK_DAMAGE, m_bonuses[(int)Enums.PLAYER_STAT.DAMAGE_BOOST].m_times);
+        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_ULT_DUR, m_bonuses[(int)Enums.PLAYER_STAT.ULT_DURATION_INCREASE].m_times);
+        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_KICK_CD, m_bonuses[(int)Enums.PLAYER_STAT.CD_KICK].m_times);
+        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_SPIN_CD, m_bonuses[(int)Enums.PLAYER_STAT.CD_SPIN].m_times);
+        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_BASH_CD, m_bonuses[(int)Enums.PLAYER_STAT.CD_SHIELD_BASH].m_times);
+        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_DEFLECT_CD, m_bonuses[(int)Enums.PLAYER_STAT.CD_DEFLECT].m_times);
+        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_ULT_CD, m_bonuses[(int)Enums.PLAYER_STAT.CD_ULT].m_times);
+        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_HEALTH, m_bonuses[(int)Enums.PLAYER_STAT.HEALTH_BOOST].m_times);
+        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_DODGE_CHANCE, m_bonuses[(int)Enums.PLAYER_STAT.DODGE_CHANCE].m_times);
 
         PersistentData.SaveInt(PersistentData.KEY_INT.CURRENT_CREDITS, m_currentCredits);
         PersistentData.SaveInt(PersistentData.KEY_INT.SPENT_CREDITS, m_spentCredits);
@@ -362,7 +347,7 @@ public class BonusManager : MonoBehaviour
     }
 
     // Warning - only use for attack bonus
-    public static int GetIncreaseFactor(PROPERTY bonus, bool next = false)
+    public static int GetIncreaseFactor(Enums.PLAYER_STAT bonus, bool next = false)
     {
         if (next) return (m_instance.m_bonuses[(int)bonus] as PercentBonus).GetIncreaseFactor(true);
         return (m_instance.m_bonuses[(int)bonus] as PercentBonus).GetIncreaseFactor(false);

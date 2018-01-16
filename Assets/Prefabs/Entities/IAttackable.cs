@@ -12,7 +12,7 @@ namespace Entities
 
         void OnDamage(IAttacker attacker, float damage, FCT_TYPE type);
         void OnKnockBack(Vector2 sourcePos, float strength);
-        void OnAfflictStatus(STATUS status, float duration);
+        void OnAfflict(Enums.AFFLICTION affliction, float duration);
         void OnSetAsRenderTarget(bool on);
 
         Vector3 GetPosition();

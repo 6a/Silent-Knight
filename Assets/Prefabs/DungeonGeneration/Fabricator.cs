@@ -49,12 +49,12 @@ namespace DungeonGeneration
 
             m_playerCharacter = Resources.Load("Player/Knight") as GameObject;
             m_chest = Resources.Load("Chest/Chest") as GameObject;
-            m_boss = Resources.Load("Bosses/Boss1") as GameObject;
+            m_boss = Resources.Load("Enemies/Bosses/Boss1") as GameObject;
 
             m_enemies = new GameObject[4];
             for (int i = 0; i < 4; i++)
             {
-                m_enemies[i] = Resources.Load("Goblins/Goblin " + (i + 1)) as GameObject;
+                m_enemies[i] = Resources.Load("Enemies/Goblins/Goblin " + (i + 1)) as GameObject;
             }
 
             for (int i = 0; i < m_platformCorners.Length; i++)
@@ -490,7 +490,7 @@ namespace DungeonGeneration
 
                         GameObject enemy = GameObject.Instantiate(enemyObj, new Vector3(pos.x, 1, pos.y), Quaternion.identity);
                         enemy.transform.parent = container.transform;
-                        var enemyClass = enemy.GetComponent<JEnemyUnit>();
+                        var enemyClass = enemy.GetComponent<EnemyPathFindingObject>();
 
                         enemyClass.Running = false;
 
@@ -524,7 +524,7 @@ namespace DungeonGeneration
 
                         goal.transform.LookAt(goal.transform.position + new Vector3(facingDir.x, 0, facingDir.y));
 
-                        var enemyClass = goal.GetComponent<JEnemyUnit>();
+                        var enemyClass = goal.GetComponent<EnemyPathFindingObject>();
                         enemyClass.SetLevel(m_levelIndex * 5);
                         enemyClass.Running = false;
 

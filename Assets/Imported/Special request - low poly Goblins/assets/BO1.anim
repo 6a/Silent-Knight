@@ -27118,7 +27118,7 @@ AnimationClip:
   m_GenerateMotionCurves: 0
   m_Events:
   - time: 1.2666667
-    functionName: OnProjectileFired
+    functionName: AnimationTriggerProjectileFired
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
