@@ -1,7 +1,7 @@
 ﻿using Entities;
 using System.Collections.Generic;
 /// <summary>
-/// Data container for player character state information
+/// Data container for player unit state information
 /// </summary>
 struct PlayerStateData
 {

@@ -355,7 +355,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         if (Health <= 0)
         {
             Running = false;
-            TriggerAnimation(ANIMATION.DEATH);
+            TriggerAnimation(Enums.ANIMATION.DEATH);
             IsDead = true;
         }
     }
@@ -622,7 +622,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
             if (m_currentCooldowns.Get(Enums.PLAYER_ATTACK.SWORD_SPIN) <= 0)
             {
                 m_playerStateData.IsStartingSpec = true;
-                TriggerAnimation(ANIMATION.ATTACK_ULTIMATE);
+                TriggerAnimation(Enums.ANIMATION.ATTACK_ULTIMATE);
                 m_playerStateData.PreviousAttackTime = Time.time + 10;
             }
             else
@@ -643,7 +643,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
                     if (distanceToTarget < m_attackRange)
                     {
                         m_playerStateData.IsStartingSpec = true;
-                        TriggerAnimation(ANIMATION.ATTACK_KICK);
+                        TriggerAnimation(Enums.ANIMATION.ATTACK_KICK);
                         m_playerStateData.PreviousAttackTime = Time.time + 10;
                     }
                 }
@@ -661,7 +661,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
                     if (distanceToTarget < m_attackRange)
                     {
                         m_playerStateData.IsStartingSpec = true;
-                        TriggerAnimation(ANIMATION.ATTACK_SHIELD);
+                        TriggerAnimation(Enums.ANIMATION.ATTACK_SHIELD);
                         m_playerStateData.PreviousAttackTime = Time.time + 10;
                     }
                 }
@@ -693,11 +693,11 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
                     m_playerStateData.AttackState = (m_playerStateData.AttackState == 0) ? 1 : 0;
                     if (m_playerStateData.AttackState == 0)
                     {
-                        TriggerAnimation(ANIMATION.ATTACK_BASIC1);
+                        TriggerAnimation(Enums.ANIMATION.ATTACK_BASIC1);
                     }
                     else
                     {
-                        TriggerAnimation(ANIMATION.ATTACK_BASIC2);
+                        TriggerAnimation(Enums.ANIMATION.ATTACK_BASIC2);
                     }
 
                     m_playerStateData.PreviousAttackTime = Time.time;
@@ -758,7 +758,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
             if (m_currentCooldowns.Get(Enums.PLAYER_ATTACK.DEFLECT) <= 0)
             {
                 m_playerStateData.IsStartingSpec = true;
-                TriggerAnimation(ANIMATION.DEFLECT);
+                TriggerAnimation(Enums.ANIMATION.DEFLECT);
                 m_playerStateData.PreviousAttackTime = Time.time + 10;
                 return true;
             }
@@ -778,7 +778,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
             if (m_currentCooldowns.Get(Enums.PLAYER_ATTACK.ULTIMATE) <= 0)
             {
                 m_playerStateData.IsStartingSpec = true;
-                TriggerAnimation(ANIMATION.BUFF);
+                TriggerAnimation(Enums.ANIMATION.BUFF);
                 m_playerStateData.SpeedTemp = Speed;
                 Speed = 0;
                 m_particleBuffStart.SetActive(true);
@@ -793,38 +793,38 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         return false;
     }
 
-    void TriggerAnimation(ANIMATION anim, bool interrupt = true)
+    void TriggerAnimation(Enums.ANIMATION anim, bool interrupt = true)
     {
         if (interrupt) InterruptAnimator();
         DisableWeaponCollider();
 
         switch (anim)
         {
-            case ANIMATION.ATTACK_BASIC1:
+            case Enums.ANIMATION.ATTACK_BASIC1:
                 m_animator.SetTrigger("A1Start");
                 break;
-            case ANIMATION.ATTACK_BASIC2:
+            case Enums.ANIMATION.ATTACK_BASIC2:
                 m_animator.SetTrigger("A2Start");
                 break;
-            case ANIMATION.ATTACK_ULTIMATE:
+            case Enums.ANIMATION.ATTACK_ULTIMATE:
                 m_animator.SetTrigger("A3Start");
                 break;
-            case ANIMATION.ATTACK_KICK:
+            case Enums.ANIMATION.ATTACK_KICK:
                 m_animator.SetTrigger("KickStart");
                 break;
-            case ANIMATION.ATTACK_SHIELD:
+            case Enums.ANIMATION.ATTACK_SHIELD:
                 m_animator.SetTrigger("ShieldStart");
                 break;
-            case ANIMATION.DEFLECT:
+            case Enums.ANIMATION.DEFLECT:
                 m_animator.SetTrigger("DeflectStart");
                 break;
-            case ANIMATION.BUFF:
+            case Enums.ANIMATION.BUFF:
                 m_animator.SetTrigger("BuffStart");
                 break;
-            case ANIMATION.DEATH:
+            case Enums.ANIMATION.DEATH:
                 m_animator.SetTrigger("DeathStart");
                 break;
-            case ANIMATION.JUMP:
+            case Enums.ANIMATION.JUMP:
                 m_animator.SetTrigger("JumpStart");
                 break;
         }

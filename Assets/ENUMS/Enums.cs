@@ -28,6 +28,11 @@ public class Enums
     public enum AFFLICTION { NONE, STUN, SLOW, CONFUSE, FLINCH }
 
     /// <summary>
+    /// Represents various different animations
+    /// </summary>
+    public enum ANIMATION { ATTACK_BASIC1, ATTACK_BASIC2, ATTACK_ULTIMATE, ATTACK_KICK, ATTACK_SHIELD, DEFLECT, BUFF, DEATH, JUMP }
+
+    /// <summary>
     /// Represents the current state of a bonus statistic
     /// </summary>
     public enum BONUS_STATE { AT_MINIMUM, VALID, AT_MAXIMUM, INVALID }
@@ -62,5 +67,3 @@ public class Enums
 
 
 }
-
-

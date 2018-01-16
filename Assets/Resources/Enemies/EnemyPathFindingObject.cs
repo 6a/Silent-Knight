@@ -193,7 +193,7 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
 
             Running = false;
             InterruptAnimator();
-            TriggerAnimation(ANIMATION.DEATH);
+            TriggerAnimation(Enums.ANIMATION.DEATH);
             IsDead = true;
 
             bool isBoss = (m_enemyType > Enums.ENEMY_TYPE.BOW);
@@ -277,18 +277,18 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
             case Enums.ENEMY_TYPE.AXE:
                 if (rand > 9)
                 {
-                    TriggerAnimation(ANIMATION.ATTACK_BASIC1);
+                    TriggerAnimation(Enums.ANIMATION.ATTACK_BASIC1);
                     StartCoroutine(ApplyDamageDelayed(1, 7, target));
                 }
                 else if (rand > 2)
                 {
-                    TriggerAnimation(ANIMATION.ATTACK_BASIC2);
+                    TriggerAnimation(Enums.ANIMATION.ATTACK_BASIC2);
                     StartCoroutine(ApplyDamageDelayed(1, 7, target));
                     StartCoroutine(ApplyDamageDelayed(1, 19, target));
                 }
                 else
                 {
-                    TriggerAnimation(ANIMATION.ATTACK_ULTIMATE);
+                    TriggerAnimation(Enums.ANIMATION.ATTACK_ULTIMATE);
                     StartCoroutine(ApplyDamageDelayed(5, 16, target));
                 }
 
@@ -297,13 +297,13 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
             case Enums.ENEMY_TYPE.SPEAR:
                 if (rand > 2)
                 {
-                    TriggerAnimation(ANIMATION.ATTACK_BASIC1);
+                    TriggerAnimation(Enums.ANIMATION.ATTACK_BASIC1);
                     StartCoroutine(ApplyDamageDelayed(2, 9, target));
 
                 }
                 else
                 {
-                    TriggerAnimation(ANIMATION.ATTACK_ULTIMATE);
+                    TriggerAnimation(Enums.ANIMATION.ATTACK_ULTIMATE);
                     StartCoroutine(ApplyDamageDelayed(5, 16, target));
                 }
 
@@ -312,12 +312,12 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
             case Enums.ENEMY_TYPE.DAGGER:
                 if (rand > 2)
                 {
-                    TriggerAnimation(ANIMATION.ATTACK_BASIC1);
+                    TriggerAnimation(Enums.ANIMATION.ATTACK_BASIC1);
                     StartCoroutine(ApplyDamageDelayed(1, 7, target));
                 }
                 else
                 {
-                    TriggerAnimation(ANIMATION.ATTACK_BASIC2);
+                    TriggerAnimation(Enums.ANIMATION.ATTACK_BASIC2);
                     StartCoroutine(ApplyDamageDelayed(2, 7, target));
                     StartCoroutine(ApplyDamageDelayed(2, 19, target));
                 }
@@ -325,18 +325,18 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
                 m_enemyStateData.LastAttackTime = Time.time;
                 break;
             case Enums.ENEMY_TYPE.BOW:
-                TriggerAnimation(ANIMATION.ATTACK_BASIC1);
+                TriggerAnimation(Enums.ANIMATION.ATTACK_BASIC1);
 
                 m_enemyStateData.LastAttackTime = Time.time;
                 break;
             case Enums.ENEMY_TYPE.PALADIN:
                 if (rand > 10)
                 {
-                    TriggerAnimation(ANIMATION.ATTACK_BASIC1);
+                    TriggerAnimation(Enums.ANIMATION.ATTACK_BASIC1);
                 }
                 else
                 {
-                    TriggerAnimation(ANIMATION.ATTACK_ULTIMATE);
+                    TriggerAnimation(Enums.ANIMATION.ATTACK_ULTIMATE);
                 }
 
                 m_enemyStateData.LastAttackTime = Time.time;
@@ -392,23 +392,23 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
         }
     }
 
-    void TriggerAnimation(ANIMATION anim)
+    void TriggerAnimation(Enums.ANIMATION anim)
     {
         switch (anim)
         {
-            case ANIMATION.ATTACK_BASIC1:
+            case Enums.ANIMATION.ATTACK_BASIC1:
                 InterruptAnimator();
                 m_animator.SetTrigger("A1Start");
                 break;
-            case ANIMATION.ATTACK_BASIC2:
+            case Enums.ANIMATION.ATTACK_BASIC2:
                 InterruptAnimator();
                 m_animator.SetTrigger("A2Start");
                 break;
-            case ANIMATION.ATTACK_ULTIMATE:
+            case Enums.ANIMATION.ATTACK_ULTIMATE:
                 InterruptAnimator();
                 m_animator.SetTrigger("A3Start");
                 break;
-            case ANIMATION.DEATH:
+            case Enums.ANIMATION.DEATH:
                 if (m_enemyType > Enums.ENEMY_TYPE.BOW)
                 {
                     if (!m_animator.enabled)

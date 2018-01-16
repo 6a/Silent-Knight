@@ -1,4 +1,7 @@
-﻿struct EnemyStateData
+﻿/// <summary>
+/// Data container for enemy unit state information
+/// </summary>
+struct EnemyStateData
 {
     public float AfflictionEndTime              { get; set; }
     public bool BossFightInit                   { get; set; }

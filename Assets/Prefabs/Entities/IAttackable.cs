@@ -2,6 +2,9 @@
 
 namespace Entities
 {
+    /// <summary>
+    /// A unit that can be attacked
+    /// </summary>
     public interface IAttackable
     {
         int ID { get; set; }
