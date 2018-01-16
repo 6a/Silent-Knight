@@ -21,7 +21,7 @@ public class XPBar : MonoBehaviour
 
     public void UpdateXPBar()
     {
-        var currentXP = PPM.LoadInt(PPM.KEY_INT.XP);
+        var currentXP = PersistentData.LoadInt(PersistentData.KEY_INT.XP);
 
         var currentLevel = LevelScaling.GetLevel(currentXP);
 

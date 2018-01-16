@@ -25,7 +25,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
 
     public int ID { get; set; }
 
-    public bool IsBoss { get; set; }
+    public bool IsBossUnit { get; set; }
 
     [SerializeField] float m_attackRange;
     [SerializeField] float m_attacksPerSecond;
@@ -112,7 +112,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
                     if (m_deathParticle) Instantiate(m_deathParticle, transform.position + Vector3.up, Quaternion.identity);
                 }
 
-                ((JPlayerUnit)CurrentTarget).GiveXp((int)CalcuateUnitHealth());
+                ((PlayerPathFindingObject)CurrentTarget).GiveXp((int)CalcuateUnitHealth());
 
                 m_deleted = true;
                 Running = false;
@@ -124,25 +124,25 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
             }
         }
 
-        Attack(CurrentTarget);
+        PerformAttack(CurrentTarget);
 
-        if (m_enemyType > ENEMY_TYPE.BOW && (transform.position - CurrentTarget.Position()).sqrMagnitude < 20)
+        if (m_enemyType > ENEMY_TYPE.BOW && (transform.position - CurrentTarget.GetPosition()).sqrMagnitude < 20)
         {
             if (!m_bossFightInit)
             {
                 Audio.BlendMusicTo(Audio.BGM.LOUD, 1);
-                (CurrentTarget as JPlayerUnit).FoundBoss = true;
+                (CurrentTarget as PlayerPathFindingObject).IsAtBoss = true;
             }
 
             m_bossFightInit = true;
 
             IsChangingView = true;
-            (CurrentTarget as JPlayerUnit).IsChangingView = true;
+            (CurrentTarget as PlayerPathFindingObject).IsChangingView = true;
 
             if (!CameraFollow.SwitchViewRear()) return;
             IsChangingView = false;
-            (CurrentTarget as JPlayerUnit).IsChangingView = false;
-            (CurrentTarget as JPlayerUnit).SetAttackRange(1.5f);
+            (CurrentTarget as PlayerPathFindingObject).IsChangingView = false;
+            (CurrentTarget as PlayerPathFindingObject).SetAttackRange(1.5f);
 
             return;
         }
@@ -151,11 +151,6 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
     private void FixedUpdate()
     {
         UpdateMovement();
-    }
-
-    public override void OnEndRun()
-    {
-
     }
 
     public override void OnFollowPath(float speedPercent)
@@ -184,7 +179,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         GetInRange(PathingTarget);
     }
 
-    public void Damage(IAttacker attacker, float dmg, FCT_TYPE type)
+    public void OnDamage(IAttacker attacker, float dmg, FCT_TYPE type)
     {
         if (IsDead || dmg == 0) return;
 
@@ -201,7 +196,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         Health -= dmg;
 
         var screenPos = Camera.main.WorldToScreenPoint(transform.position);
-        var dir = screenPos - Camera.main.WorldToScreenPoint(attacker.GetWorldPos());
+        var dir = screenPos - Camera.main.WorldToScreenPoint(attacker.GetPosition());
 
         FCTRenderer.AddFCT(type, dmg.ToString("F0"), transform.position + Vector3.up);
 
@@ -224,13 +219,13 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
 
             xp = (m_enemyType > ENEMY_TYPE.BOW) ? xp * 2 : xp;
 
-            ((JPlayerUnit)attacker).GiveXp(xp);
+            ((PlayerPathFindingObject)attacker).GiveXp(xp);
 
             return;
         }
     }
 
-    public void KnockBack(Vector2 sourcePos, float strength)
+    public void OnKnockBack(Vector2 sourcePos, float strength)
     {
         if (m_enemyType > ENEMY_TYPE.BOW) return;
 
@@ -238,7 +233,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         m_rb.AddForce(forceVec);
     }
 
-    public void AfflictStatus(STATUS status, float duration)
+    public void OnAfflictStatus(STATUS status, float duration)
     {
         RevertAllStatus();
         m_currentStatus = status;
@@ -250,16 +245,16 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
 
     }
 
-    public void Attack(IAttackable target)
+    public void PerformAttack(IAttackable target)
     {
-        var distanceToTarget = Vector3.Distance(transform.position, target.Position());
+        var distanceToTarget = Vector3.Distance(transform.position, target.GetPosition());
 
         if (distanceToTarget <= m_attackRange && !target.IsDead)
         {
             StopMovement();
             OnFollowPath(0);
 
-            var targetRotation = Quaternion.LookRotation(target.Position() - transform.position);
+            var targetRotation = Quaternion.LookRotation(target.GetPosition() - transform.position);
 
             transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, Time.deltaTime * 4);
 
@@ -269,7 +264,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
             {
                 InterruptAnimator();
 
-                PerformAttack(target);
+                AttackSequence(target);
             }
         }
         else
@@ -278,7 +273,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         }
     }
 
-    void PerformAttack(IAttackable target)
+    void AttackSequence(IAttackable target)
     {
         int rand = UnityEngine.Random.Range(0, 30);
 
@@ -373,12 +368,12 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         throw new NotImplementedException();
     }
 
-    Transform ITargetable.TargetTransform(int unitID)
+    Transform ITargetable.GetTransform()
     {
         return transform;
     }
 
-    public Vector3 Position()
+    public Vector3 GetPosition()
     {
         return transform.position;
     }
@@ -389,7 +384,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
 
         try
         {
-            target.Damage(this, LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage) * dmgMultiplier, FCT_TYPE.ENEMYHIT);
+            target.OnDamage(this, LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage) * dmgMultiplier, FCT_TYPE.ENEMYHIT);
             Audio.PlayFX(Audio.FX.ENEMY_ATTACK_IMPACT, transform.position);
         }
         catch (Exception)
@@ -401,7 +396,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
     {
         yield return new WaitForSeconds(Time.fixedDeltaTime * frameDelay);
 
-        target.Damage(this, LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage), FCT_TYPE.ENEMYHIT);
+        target.OnDamage(this, LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage), FCT_TYPE.ENEMYHIT);
 
         Audio.PlayFX(Audio.FX.ENEMY_ATTACK_IMPACT, transform.position);
     }
@@ -471,12 +466,7 @@ public class JEnemyUnit : PathFindingObject, ITargetable, IAttackable, IAttacker
         return this;
     }
 
-    public Vector3 GetWorldPos()
-    {
-        return transform.position;
-    }
-
-    public void SetRenderTarget(bool on)
+    public void OnSetAsRenderTarget(bool on)
     {
         GetComponentInChildren<Camera>().enabled = on;
 

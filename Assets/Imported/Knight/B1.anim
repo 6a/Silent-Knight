@@ -36357,14 +36357,14 @@ AnimationClip:
   m_GenerateMotionCurves: 0
   m_Events:
   - time: 0.53333336
-    functionName: OnBuffStart
+    functionName: AnimationTriggerUltimateStart
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 1
-    functionName: OnBuffAnimationFinished
+    functionName: AnimationTriggerUltimateFinish
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

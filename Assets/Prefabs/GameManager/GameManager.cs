@@ -25,7 +25,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] bool m_triggerShatter;
     [SerializeField] Texture2D m_cursor;
 
-    JPlayerUnit m_currentPlayer;
+    PlayerPathFindingObject m_currentPlayer;
 
     static GameManager m_instance;
 
@@ -61,7 +61,7 @@ public class GameManager : MonoBehaviour
         }
 	}
 
-    public static void RegisterPlayer(JPlayerUnit reference) { m_instance.m_currentPlayer = reference; }
+    public static void RegisterPlayer(PlayerPathFindingObject reference) { m_instance.m_currentPlayer = reference; }
 
     public static void FadeToBlack(bool death)
     {
@@ -209,7 +209,7 @@ public class GameManager : MonoBehaviour
         OnStartRun();
     }
 
-    public static JPlayerUnit GetCurrentPlayerReference()
+    public static PlayerPathFindingObject GetCurrentPlayerReference()
     {
         return m_instance.m_currentPlayer;
     }
@@ -259,15 +259,15 @@ public class GameManager : MonoBehaviour
     {
         OnStartRun = null;
 
-        var intsToReset = Enum.GetNames(typeof(PPM.KEY_INT)).Length;
+        var intsToReset = Enum.GetNames(typeof(PersistentData.KEY_INT)).Length;
 
-        var excludes = new PPM.KEY_INT [] { PPM.KEY_INT.LANGUAGE, PPM.KEY_INT.LEVEL_GFX };
+        var excludes = new PersistentData.KEY_INT [] { PersistentData.KEY_INT.LANGUAGE, PersistentData.KEY_INT.LEVEL_GFX };
 
         for (int i = 0; i < intsToReset; i++)
         {
-            if (Array.IndexOf(excludes, (PPM.KEY_INT)i) == -1)
+            if (Array.IndexOf(excludes, (PersistentData.KEY_INT)i) == -1)
             {
-                PPM.SaveInt((PPM.KEY_INT)i, 0);
+                PersistentData.SaveInt((PersistentData.KEY_INT)i, 0);
             }
         }
 
@@ -281,8 +281,8 @@ public class GameManager : MonoBehaviour
     {
         OnStartRun = null;
 
-        PPM.SaveInt(PPM.KEY_INT.XP, 0);
-        PPM.SaveInt(PPM.KEY_INT.LEVEL, 0);
+        PersistentData.SaveInt(PersistentData.KEY_INT.XP, 0);
+        PersistentData.SaveInt(PersistentData.KEY_INT.LEVEL, 0);
 
         Time.timeScale = 1;
         Audio.BlendMusicTo(Audio.BGM.QUIET, 2);

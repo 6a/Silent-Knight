@@ -73,7 +73,7 @@ public class PauseManager : MonoBehaviour
 
                 Time.timeScale = 1;
                 Camera.main.gameObject.GetComponent<UnityStandardAssets.ImageEffects.Blur>().enabled = false;
-                FindObjectOfType<JPlayerUnit>().GetComponent<Animator>().enabled = true;
+                FindObjectOfType<PlayerPathFindingObject>().GetComponent<Animator>().enabled = true;
                 AI.UnPauseUnits();
                 m_paused = false;
 
@@ -81,7 +81,7 @@ public class PauseManager : MonoBehaviour
                 break;
             case STATE.BONUS:
                 m_bonusScreen.SetActive(true);
-                FindObjectOfType<JPlayerUnit>().UpdateBonusDisplay();
+                FindObjectOfType<PlayerPathFindingObject>().UpdateBonusDisplay();
 
                 Time.timeScale = 0;
                 Camera.main.gameObject.GetComponent<UnityStandardAssets.ImageEffects.Blur>().enabled = true;
@@ -121,7 +121,7 @@ public class PauseManager : MonoBehaviour
     // 0 = pausemenu, 1 = bonusmenu, 2 = settings, 3 = reset
     public void OnStartPause(int nextScreen)
     {
-        FindObjectOfType<JPlayerUnit>().GetComponent<Animator>().enabled = false;
+        FindObjectOfType<PlayerPathFindingObject>().GetComponent<Animator>().enabled = false;
         AI.PauseUnits();
 
         switch (nextScreen)

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public static class PPM
+public static class PersistentData
 {
     public enum KEY_INT
     {

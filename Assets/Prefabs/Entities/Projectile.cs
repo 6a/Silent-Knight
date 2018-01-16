@@ -39,7 +39,7 @@ public class Projectile : MonoBehaviour
     {
         if (m_target == null || m_target.IsDead) return;
 
-        var targetPos = m_target.Position() + (Vector3.up * 0.5f);
+        var targetPos = m_target.GetPosition() + (Vector3.up * 0.5f);
 
         if (Time.time > m_endOfLife || (m_parent != null && m_parent.IsDead)) Destroy(gameObject);
 
@@ -47,7 +47,7 @@ public class Projectile : MonoBehaviour
         {
             var t = (Crit) ? FCT_TYPE.REBOUNDCRIT : FCT_TYPE.REBOUNDHIT;
 
-            m_target.Damage(m_parent as IAttacker, m_damage, t);
+            m_target.OnDamage(m_parent as IAttacker, m_damage, t);
             // TODO particles
             Destroy(gameObject);
         }

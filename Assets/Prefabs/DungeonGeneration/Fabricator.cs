@@ -47,7 +47,7 @@ namespace DungeonGeneration
             PositionOffset = positionOffset;
             m_levelIndex = lvl;
 
-            m_playerCharacter = Resources.Load("Tetsuo/Knight") as GameObject;
+            m_playerCharacter = Resources.Load("Player/Knight") as GameObject;
             m_chest = Resources.Load("Chest/Chest") as GameObject;
             m_boss = Resources.Load("Bosses/Boss1") as GameObject;
 
@@ -530,7 +530,7 @@ namespace DungeonGeneration
 
                         var enemyClassInterface = enemyClass as IAttackable;
                         enemyClassInterface.ID = eNumber;
-                        enemyClassInterface.IsBoss = true;
+                        enemyClassInterface.IsBossUnit = true;
 
                         attackers.Add(enemyClassInterface);
 

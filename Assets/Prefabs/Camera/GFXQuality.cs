@@ -17,7 +17,7 @@ public class GFXQuality : MonoBehaviour
 
     void Start()
     {
-        m_quality = (GQUALITY)PPM.LoadInt(PPM.KEY_INT.LEVEL_GFX);
+        m_quality = (GQUALITY)PersistentData.LoadInt(PersistentData.KEY_INT.LEVEL_GFX);
         UpdateQuality(m_quality);
     }
 

@@ -44,9 +44,9 @@ public class SettingsManager : MonoBehaviour
 
     void Start ()
     {
-        if (PPM.FirstRun())
+        if (PersistentData.FirstRun())
         {
-            PPM.ConfirmFirstRun();
+            PersistentData.ConfirmFirstRun();
             print("First run confirmed! Setting up initial values");
 
             SetState((int)SETTING_STATE.GENERAL);
@@ -64,11 +64,11 @@ public class SettingsManager : MonoBehaviour
 
         m_previousSettings = new Settings()
         {
-            MasterVolume = PPM.LoadFloat(PPM.KEY_FLOAT.VOL_MASTER),
-            BGMVolume = PPM.LoadFloat(PPM.KEY_FLOAT.VOL_BGM),
-            FXVolume = PPM.LoadFloat(PPM.KEY_FLOAT.VOL_FX),
-            GFXLevel = PPM.LoadInt(PPM.KEY_INT.LEVEL_GFX),
-            HapticFeedback = PPM.LoadBool(PPM.KEY_BOOL.HAPTIC_FEEDBACK),
+            MasterVolume = PersistentData.LoadFloat(PersistentData.KEY_FLOAT.VOL_MASTER),
+            BGMVolume = PersistentData.LoadFloat(PersistentData.KEY_FLOAT.VOL_BGM),
+            FXVolume = PersistentData.LoadFloat(PersistentData.KEY_FLOAT.VOL_FX),
+            GFXLevel = PersistentData.LoadInt(PersistentData.KEY_INT.LEVEL_GFX),
+            HapticFeedback = PersistentData.LoadBool(PersistentData.KEY_BOOL.HAPTIC_FEEDBACK),
             Language = LocalisationManager.GetCurrentLanguage(),
             Modified = false
         };
@@ -133,11 +133,11 @@ public class SettingsManager : MonoBehaviour
 
     public void OnSaveSettings()
     {
-        PPM.SaveFloat(PPM.KEY_FLOAT.VOL_MASTER, m_currentSettings.MasterVolume);
-        PPM.SaveFloat(PPM.KEY_FLOAT.VOL_BGM, m_currentSettings.BGMVolume);
-        PPM.SaveFloat(PPM.KEY_FLOAT.VOL_FX, m_currentSettings.FXVolume);
-        PPM.SaveInt(PPM.KEY_INT.LEVEL_GFX, m_currentSettings.GFXLevel);
-        PPM.SaveBool(PPM.KEY_BOOL.HAPTIC_FEEDBACK, m_currentSettings.HapticFeedback);
+        PersistentData.SaveFloat(PersistentData.KEY_FLOAT.VOL_MASTER, m_currentSettings.MasterVolume);
+        PersistentData.SaveFloat(PersistentData.KEY_FLOAT.VOL_BGM, m_currentSettings.BGMVolume);
+        PersistentData.SaveFloat(PersistentData.KEY_FLOAT.VOL_FX, m_currentSettings.FXVolume);
+        PersistentData.SaveInt(PersistentData.KEY_INT.LEVEL_GFX, m_currentSettings.GFXLevel);
+        PersistentData.SaveBool(PersistentData.KEY_BOOL.HAPTIC_FEEDBACK, m_currentSettings.HapticFeedback);
         LocalisationManager.SaveLanguage();
         GFXQuality.UpdateQuality((GFXQuality.GQUALITY)m_currentSettings.GFXLevel);
 

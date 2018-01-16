@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.UI;
 public class GameUIManager : MonoBehaviour
 {
-    JPlayerUnit m_currentPlayer;
+    PlayerPathFindingObject m_currentPlayer;
 
     [SerializeField] CooldownSpinner[] m_cooldownSpinners = new CooldownSpinner[6];
     [SerializeField] TextMeshProUGUI m_playerLevelText, m_enemyLevelText;
@@ -31,7 +31,7 @@ public class GameUIManager : MonoBehaviour
 
     }
 
-    public IEnumerator SimulateKeyPress(JPlayerUnit.ATTACKS type)
+    public IEnumerator SimulateKeyPress(Enums.PLAYER_ATTACK type)
     {
         m_instance.m_currentPlayer.SimulateInputPress(type);
 
@@ -46,9 +46,9 @@ public class GameUIManager : MonoBehaviour
 
         if (down)
         {
-            if (m_currentPlayer.UltIsOnCooldown() || (m_rightUltButtonDown || m_leftUltButtonDown))
+            if (m_currentPlayer.UltIsOnCooldown() || (m_rightUltButtonDown && m_leftUltButtonDown))
             {
-                StartCoroutine(SimulateKeyPress(JPlayerUnit.ATTACKS.ULTIMATE));
+                StartCoroutine(SimulateKeyPress(Enums.PLAYER_ATTACK.ULTIMATE));
             }
         }
     }
@@ -58,29 +58,29 @@ public class GameUIManager : MonoBehaviour
 
         if (down)
         {
-            if (m_currentPlayer.UltIsOnCooldown() || (m_rightUltButtonDown || m_leftUltButtonDown))
+            if (m_currentPlayer.UltIsOnCooldown() || (m_rightUltButtonDown && m_leftUltButtonDown))
             {
-                StartCoroutine(SimulateKeyPress(JPlayerUnit.ATTACKS.ULTIMATE));
+                StartCoroutine(SimulateKeyPress(Enums.PLAYER_ATTACK.ULTIMATE));
             }
         }
     }
     
-    public static void SetCurrentPlayerReference(JPlayerUnit player)
+    public static void SetCurrentPlayerReference(PlayerPathFindingObject player)
     {
         m_instance.m_currentPlayer = player;
     }
 
     public void OnSimpleButtonDown(int button)
     {
-        StartCoroutine(SimulateKeyPress((JPlayerUnit.ATTACKS)button));
+        StartCoroutine(SimulateKeyPress((Enums.PLAYER_ATTACK)button));
     }
 
-    public static void UpdateSpinner(JPlayerUnit.ATTACKS spinner, float fillAmount, float remainingTime, int decimalPlaces = 0)
+    public static void UpdateCooldownDisplay(Enums.PLAYER_ATTACK spinner, float fillAmount, float remainingTime, int decimalPlaces = 0)
     {
-        if ((int)spinner >= (int)JPlayerUnit.ATTACKS.ULTIMATE)
+        if ((int)spinner >= (int)Enums.PLAYER_ATTACK.ULTIMATE)
         {
-            m_instance.m_cooldownSpinners[(int)JPlayerUnit.ATTACKS.ULTIMATE].UpdateRadial(fillAmount, remainingTime, decimalPlaces);
-            m_instance.m_cooldownSpinners[(int)JPlayerUnit.ATTACKS.ULTIMATE + 1].UpdateRadial(fillAmount, remainingTime, decimalPlaces);
+            m_instance.m_cooldownSpinners[(int)Enums.PLAYER_ATTACK.ULTIMATE].UpdateRadial(fillAmount, remainingTime, decimalPlaces);
+            m_instance.m_cooldownSpinners[(int)Enums.PLAYER_ATTACK.ULTIMATE + 1].UpdateRadial(fillAmount, remainingTime, decimalPlaces);
         }
         else
         {
@@ -98,12 +98,12 @@ public class GameUIManager : MonoBehaviour
         return m_instance.m_enemyHealthBar;
     }
 
-    public static void Pulse (JPlayerUnit.ATTACKS spinner)
+    public static void Pulse (Enums.PLAYER_ATTACK spinner)
     {
-        if ((int)spinner >= (int)JPlayerUnit.ATTACKS.ULTIMATE)
+        if ((int)spinner >= (int)Enums.PLAYER_ATTACK.ULTIMATE)
         {
-            m_instance.m_cooldownSpinners[(int)JPlayerUnit.ATTACKS.ULTIMATE].Pulse();
-            m_instance.m_cooldownSpinners[(int)JPlayerUnit.ATTACKS.ULTIMATE + 1].Pulse();
+            m_instance.m_cooldownSpinners[(int)Enums.PLAYER_ATTACK.ULTIMATE].Pulse();
+            m_instance.m_cooldownSpinners[(int)Enums.PLAYER_ATTACK.ULTIMATE + 1].Pulse();
         }
         else
         {

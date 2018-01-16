@@ -33,7 +33,7 @@ public class DungeonGenerator : MonoBehaviour
     {
         m_grid = FindObjectOfType<ASGrid>();
 
-        m_currentLevel = PPM.LoadInt(PPM.KEY_INT.LEVEL);
+        m_currentLevel = PersistentData.LoadInt(PersistentData.KEY_INT.LEVEL);
 
         Generator.Init(m_maxDungeonWidth, m_maxDungeonHeight,
         new PlatformProperties(m_minWidth, m_maxWidth, m_minHeight, m_maxHeight),
@@ -58,20 +58,29 @@ public class DungeonGenerator : MonoBehaviour
             if (i > 0 && Generator.CurrentDungeon.Nodes.Count == nodes && Generator.CurrentDungeon.Platforms.Count == platforms)
             {
                 UnityEngine.Debug.Log("Suitable dungeon: " + i);
-                if (fabricate) FabricateTest(i);
                 validLevels.Add(i);
             }
 
-            yield return new WaitForSeconds(wait);
+            yield return null;
         }
 
         UnityEngine.Debug.ClearDeveloperConsole();
         print("SEARCH COMPLETE ------------------------------------");
         print("SUITABLE LEVELS ------------------------------------");
 
+        var nextT = 0f;
+
         foreach (var lvl in validLevels)
         {
+            nextT = Time.realtimeSinceStartup + wait;
+
             print("Level: " + lvl);
+
+            UpdateTestDungeon(lvl);
+
+            if (fabricate) FabricateTest(lvl);
+
+            yield return new WaitForSeconds(nextT - Time.realtimeSinceStartup);
         }
     }
 
@@ -83,7 +92,7 @@ public class DungeonGenerator : MonoBehaviour
     public void NextLevelSetup()
     {
         m_currentLevel++;
-        PPM.SaveInt(PPM.KEY_INT.LEVEL, m_currentLevel);
+        PersistentData.SaveInt(PersistentData.KEY_INT.LEVEL, m_currentLevel);
         Generator.InitNewLevel(m_currentLevel);
     }
 

@@ -6,7 +6,7 @@ public class Chest : MonoBehaviour, ITargetable
 {
     [SerializeField] Transform m_targetTransform;
 
-    Transform ITargetable.TargetTransform(int unitID)
+    Transform ITargetable.GetTransform()
     {
         return m_targetTransform;
     }

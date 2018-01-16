@@ -1,0 +1,26 @@
+TECHNICAL:
+	Custom multithreaded A* Pathfinding and dynamic tilemap creation*															Y
+	Seeded procedural dungeon generation with dynamic texturing and unit placement												Y
+	Custom shader program to simulate glass shatter effect																		Y
+	Dynamic Audio system, including beat-matched transitions, multi-layer background audio										N
+	Dual Language (JP/EN) compatability																							Y
+	Many customizable settings, such as a 3 channel volume mixer, haptic feedback toggle, language and graphics quality			Y
+
+GAMEPLAY
+	Haptic feedback																												O	
+	Floating Combat Text																										O
+	Fully implemented leveling and stat-progression system, such as cooldown reduction, stat boosts, crit chance and more		Y
+	Automated character movement																								Y
+	5 powerful, unique abilities to help you defeat your enemies																Y
+		Send enemies into the void with a powerful kick																			Y
+		Decimate groups of enemies with a spinning sword slash																	Y
+		Stun enemies, making them more vulnerable to damage																		Y
+		Deflect projectiles back at ranged units for massive damage																Y		
+		Activate your ultimate for a temporary damage boost																		Y
+	Defeat the Dungeon guardian every five levels to earn a huge XP boost.
+	Reincarnate and start from level 1 on dungeon 1, but retain your skill progression - Become more powerful, faster!
+
+
+
+FEATURES
+

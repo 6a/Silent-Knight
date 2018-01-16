@@ -24,7 +24,7 @@ namespace Localisation
             m_instance = this;
             TextFields = new List<TextField>();
             DynamicFields = new List<DynamicTextField>();
-            m_currentLanguage = (LANGUAGE)PPM.LoadInt(PPM.KEY_INT.LANGUAGE);
+            m_currentLanguage = (LANGUAGE)PersistentData.LoadInt(PersistentData.KEY_INT.LANGUAGE);
         }
 
         public static void SetLanguage(LANGUAGE lang)
@@ -38,7 +38,7 @@ namespace Localisation
 
         public static void SaveLanguage()
         {
-            PPM.SaveInt(PPM.KEY_INT.LANGUAGE, (int)m_instance.m_currentLanguage);
+            PersistentData.SaveInt(PersistentData.KEY_INT.LANGUAGE, (int)m_instance.m_currentLanguage);
         }
 
         public static LANGUAGE GetCurrentLanguage()

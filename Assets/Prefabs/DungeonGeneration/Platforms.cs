@@ -43,7 +43,7 @@ public class Platforms : MonoBehaviour
 
     static Platforms instance;
 
-    JPlayerUnit m_player;
+    PlayerPathFindingObject m_player;
 
     void Awake()
     {
@@ -69,7 +69,7 @@ public class Platforms : MonoBehaviour
         AI.ActivateUnits(PlayerPlatform);
     }
 
-    public static void RegisterPlayer(JPlayerUnit player)
+    public static void RegisterPlayer(PlayerPathFindingObject player)
     {
         instance.m_player = player;
     }

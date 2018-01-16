@@ -35503,7 +35503,7 @@ AnimationClip:
   m_GenerateMotionCurves: 0
   m_Events:
   - time: 0.53333336
-    functionName: OnSwordSwingConnect
+    functionName: AnimationTriggerRegularAttack
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

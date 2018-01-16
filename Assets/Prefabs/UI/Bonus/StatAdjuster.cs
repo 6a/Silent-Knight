@@ -11,7 +11,7 @@ public class StatAdjuster : MonoBehaviour
     [SerializeField] GameObject m_buttonNegative, m_buttonPositive;
 
     BUTTON_STATE m_neg, m_pos;
-    BONUS m_type;
+    PROPERTY m_type;
 
     const float DELAY = 0.5f;
     float m_buttonDownTime = 0;
@@ -57,7 +57,7 @@ public class StatAdjuster : MonoBehaviour
         }
     }
 
-    void OnAddPoint(BONUS bonusType)
+    void OnAddPoint(PROPERTY bonusType)
     {
         if (BonusManager.CanAdd(bonusType))
         {
@@ -69,7 +69,7 @@ public class StatAdjuster : MonoBehaviour
         }
     }
 
-    void OnRemovePoint(BONUS bonusType)
+    void OnRemovePoint(PROPERTY bonusType)
     {
         if (BonusManager.CanSubtract(bonusType))
         {
@@ -83,7 +83,7 @@ public class StatAdjuster : MonoBehaviour
     
     public void OnRemoveDown(int bonusType)
     {
-        m_type = (BONUS)bonusType;
+        m_type = (PROPERTY)bonusType;
         m_neg = BUTTON_STATE.DOWN;
         m_buttonDownTime = Time.realtimeSinceStartup;
         OnRemovePoint(m_type);
@@ -96,7 +96,7 @@ public class StatAdjuster : MonoBehaviour
 
     public void OnAddDown(int bonusType)
     {
-        m_type = (BONUS)bonusType;
+        m_type = (PROPERTY)bonusType;
         m_pos = BUTTON_STATE.DOWN;
         m_buttonDownTime = Time.realtimeSinceStartup;
 

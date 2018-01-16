@@ -8,7 +8,7 @@ using UnityStandardAssets.ImageEffects;
 public class CameraFollow : MonoBehaviour
 {
     // Reference to focus point (as we want the camera to follow slightly ahead of the knights facing direction).
-    JPlayerUnit m_knight;
+    PlayerPathFindingObject m_knight;
     [SerializeField] Vector3 m_offset;
     [SerializeField] BlurOptimized m_optimizedBlur;
 
@@ -27,7 +27,7 @@ public class CameraFollow : MonoBehaviour
     void LateUpdate()
     {
         if (m_switching) return;
-        if (m_knight == null) m_knight = FindObjectOfType<JPlayerUnit>();
+        if (m_knight == null) m_knight = FindObjectOfType<PlayerPathFindingObject>();
         else
         {
             if (m_isInRearView)

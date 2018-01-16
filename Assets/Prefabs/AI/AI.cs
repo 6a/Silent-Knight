@@ -77,7 +77,7 @@ public class AI : MonoBehaviour
         {
             if (targ == null) continue;
 
-            var dist = Vector3.Distance(targ.Position(), seekerPosition);
+            var dist = Vector3.Distance(targ.GetPosition(), seekerPosition);
 
             if (dist < minDistance)
             {

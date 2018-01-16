@@ -4,6 +4,6 @@ namespace Entities
 {
     public interface ITargetable
     {
-        Transform TargetTransform(int unitID);
+        Transform GetTransform();
     }
 }

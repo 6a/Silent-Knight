@@ -26,7 +26,7 @@ public struct AudioSet
 public class Audio : MonoBehaviour
 {
     public enum AUDIO { MASTER, BGM, FX }
-    public enum FX { SWORD_IMPACT, FOOTSTEP, ENEMY_ATTACK_IMPACT, KICK, SHIELD_SLAM, DEFLECT, LEVEL_CHIME, BIG_IMPACT }
+    public enum FX { SWORD_IMPACT, FOOTSTEP, ENEMY_ATTACK_IMPACT, KICK, SHIELD_SLAM, DEFLECT, BIG_IMPACT }
     public enum BGM { QUIET, LOUD }
 
     [SerializeField] AudioSource m_sourceBGMQ, m_sourceBGML, m_sourceFX;
@@ -109,14 +109,6 @@ public class Audio : MonoBehaviour
 
         aSet = new AudioSet()
         {
-            Type = FX.LEVEL_CHIME,
-            File = "bells/level_chime",
-            Count = 1
-        };
-        m_lib.Add(aSet);
-
-        aSet = new AudioSet()
-        {
             Type = FX.BIG_IMPACT,
             File = "impact/impact",
             Count = 1
@@ -130,9 +122,9 @@ public class Audio : MonoBehaviour
 
     void Start()
     {
-        SetVolume(AUDIO.BGM, PPM.LoadFloat(PPM.KEY_FLOAT.VOL_BGM));
-        SetVolume(AUDIO.FX, PPM.LoadFloat(PPM.KEY_FLOAT.VOL_FX));
-        SetVolume(AUDIO.MASTER, PPM.LoadFloat(PPM.KEY_FLOAT.VOL_MASTER));
+        SetVolume(AUDIO.BGM, PersistentData.LoadFloat(PersistentData.KEY_FLOAT.VOL_BGM));
+        SetVolume(AUDIO.FX, PersistentData.LoadFloat(PersistentData.KEY_FLOAT.VOL_FX));
+        SetVolume(AUDIO.MASTER, PersistentData.LoadFloat(PersistentData.KEY_FLOAT.VOL_MASTER));
 
         m_samplesPerSecond = m_sourceBGMQ.clip.frequency;
 
