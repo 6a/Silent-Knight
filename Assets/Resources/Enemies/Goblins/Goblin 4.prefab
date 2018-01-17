@@ -1634,11 +1634,11 @@ MonoBehaviour:
   m_unitName:
   - Goblin Archer
   - "\u5C04\u624B\u30B4\u30D6\u30EA\u30F3"
-  m_meshRenderer: {fileID: 0}
+  m_meshRenderer: {fileID: 137241913922137498}
   m_projectile: {fileID: 1385678144754502, guid: 9299b930bde58f641a7741912edd87e2,
     type: 2}
-  m_projectileTransform: {fileID: 4168497391963162}
-  m_psDeath: {fileID: 0}
+  m_projectileTransform: {fileID: 4914419873344080}
+  m_psDeath: {fileID: 100008, guid: 0ca3740836535a0408c0cca025dfaf64, type: 2}
 --- !u!120 &120180247340752336
 LineRenderer:
   m_ObjectHideFlags: 1

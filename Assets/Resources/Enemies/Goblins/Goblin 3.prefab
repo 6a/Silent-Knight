@@ -1525,10 +1525,11 @@ MonoBehaviour:
   m_unitName:
   - Goblin Scout
   - "\u30B9\u30AB\u30A6\u30C8\u30B4\u30D6\u30EA\u30F3"
-  m_meshRenderer: {fileID: 0}
-  m_projectile: {fileID: 0}
+  m_meshRenderer: {fileID: 137760138854134224}
+  m_projectile: {fileID: 1385678144754502, guid: 9299b930bde58f641a7741912edd87e2,
+    type: 2}
   m_projectileTransform: {fileID: 0}
-  m_psDeath: {fileID: 0}
+  m_psDeath: {fileID: 100008, guid: 0ca3740836535a0408c0cca025dfaf64, type: 2}
 --- !u!120 &120205317270496346
 LineRenderer:
   m_ObjectHideFlags: 1

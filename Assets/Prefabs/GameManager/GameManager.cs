@@ -274,7 +274,7 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1;
         Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
 
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(1);
     }
 
     public static void Reincarnate()
@@ -286,7 +286,7 @@ public class GameManager : MonoBehaviour
 
         Time.timeScale = 1;
         Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(1);
     }
     
     public static void ReloadLevel()
@@ -295,7 +295,7 @@ public class GameManager : MonoBehaviour
 
         Time.timeScale = 1;
         Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
-        SceneManager.LoadScene(0);
+        SceneManager.LoadScene(1);
     }
 
     public void ReincarnateEnd()

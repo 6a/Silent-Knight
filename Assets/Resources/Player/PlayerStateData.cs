@@ -11,6 +11,7 @@ struct PlayerStateData
     public ITargetable EndTarget                { get; set; }
     public List<int> EnemiesHitByWeapon         { get; set; }
     public bool IsDeflecting                    { get; set; }
+    public bool IsFirstHealTick                 { get; set; }
     public bool IsStartingSpec                  { get; set; }
     public int Level                            { get; set; }
     public float MaxHealth                      { get; set; }

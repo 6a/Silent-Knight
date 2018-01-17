@@ -112,8 +112,12 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         // Handle out-of-combat heal ticks
         if (Time.time > m_playerStateData.NextRegenTick && Health < m_playerStateData.MaxHealth)
         {
-            m_particleHealStart.SetActive(false);
-            m_particleHealStart.SetActive(true);
+            if (m_playerStateData.IsFirstHealTick)
+            {
+                m_particleHealStart.SetActive(false);
+                m_particleHealStart.SetActive(true);
+                m_playerStateData.IsFirstHealTick = false;
+            }
 
             var addedHealth = (m_playerStateData.MaxHealth * m_regenAmount);
             Health = Mathf.Clamp(Health + addedHealth, 0, m_playerStateData.MaxHealth);
@@ -125,6 +129,8 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
             m_playerStateData.NextRegenTick += m_regenTick;
         }
+        else
+
 
         // Update UI Cooldown display
         UpdateCooldownSpinners();
@@ -319,7 +325,6 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     public void AnimationTriggerUltimateStart()
     {
         m_playerStateData.BaseDamageHolder = m_baseDamage;
-
         m_baseDamage *= m_ultMultiplier;
 
         StartCoroutine(UltimateSequence(BonusManager.GetModifiedValue(Enums.PLAYER_STAT.ULT_DURATION_INCREASE, m_ultDuration)));
@@ -346,6 +351,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
         Health -= Mathf.Max(dmg, 0);
 
+        m_playerStateData.IsFirstHealTick = true;
         m_playerStateData.NextRegenTick = Time.time + m_regenDelay;
 
         FCTRenderer.AddFCT(type, dmg.ToString("F0"), transform.position + Vector3.up);
