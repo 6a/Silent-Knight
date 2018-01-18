@@ -15,7 +15,7 @@ namespace PathFinding
             TurnBoundaries = new Line[LookPoints.Length];
             FinishLineIndex = TurnBoundaries.Length - 1;
 
-            var previousPoint = startPos.Reduce();
+            var previousPoint = startPos.ToVector2();
             for (int i = 0; i < LookPoints.Length; i++)
             {
                 var currentPoint = LookPoints[i];

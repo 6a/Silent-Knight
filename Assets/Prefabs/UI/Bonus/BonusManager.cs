@@ -223,7 +223,7 @@ public class BonusManager : MonoBehaviour
 
         string currentValue = string.Empty;
         string nextValue = string.Empty;
-        if (bonus == Enums.PLAYER_STAT.DAMAGE_BOOST)
+        if (bonus == Enums.PLAYER_STAT.BOOST_DAMAGE)
         {
             currentValue = GetIncreaseFactor(bonus) + m_instance.m_bonuses[(int)bonus].m_suffix;
             nextValue = GetIncreaseFactor(bonus, true) + m_instance.m_bonuses[(int)bonus].m_suffix;
@@ -310,16 +310,16 @@ public class BonusManager : MonoBehaviour
     
     public void Save()
     {
-        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_CRIT_CHANCE, m_bonuses[(int)Enums.PLAYER_STAT.CRIT_CHANCE].m_times);
-        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_ATTACK_DAMAGE, m_bonuses[(int)Enums.PLAYER_STAT.DAMAGE_BOOST].m_times);
-        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_ULT_DUR, m_bonuses[(int)Enums.PLAYER_STAT.ULT_DURATION_INCREASE].m_times);
-        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_KICK_CD, m_bonuses[(int)Enums.PLAYER_STAT.CD_KICK].m_times);
-        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_SPIN_CD, m_bonuses[(int)Enums.PLAYER_STAT.CD_SPIN].m_times);
-        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_BASH_CD, m_bonuses[(int)Enums.PLAYER_STAT.CD_SHIELD_BASH].m_times);
-        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_DEFLECT_CD, m_bonuses[(int)Enums.PLAYER_STAT.CD_DEFLECT].m_times);
-        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_ULT_CD, m_bonuses[(int)Enums.PLAYER_STAT.CD_ULT].m_times);
-        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_HEALTH, m_bonuses[(int)Enums.PLAYER_STAT.HEALTH_BOOST].m_times);
-        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_DODGE_CHANCE, m_bonuses[(int)Enums.PLAYER_STAT.DODGE_CHANCE].m_times);
+        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_CRIT_CHANCE, m_bonuses[(int)Enums.PLAYER_STAT.CHANCE_CRIT].m_times);
+        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_ATTACK_DAMAGE, m_bonuses[(int)Enums.PLAYER_STAT.BOOST_DAMAGE].m_times);
+        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_ULT_DUR, m_bonuses[(int)Enums.PLAYER_STAT.DURATION_INCREASE_ULTIMATE].m_times);
+        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_KICK_CD, m_bonuses[(int)Enums.PLAYER_STAT.COOLDOWN_KICK].m_times);
+        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_SPIN_CD, m_bonuses[(int)Enums.PLAYER_STAT.COOLDOWN_SPIN].m_times);
+        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_BASH_CD, m_bonuses[(int)Enums.PLAYER_STAT.COOLDOWN_SHIELD_BASH].m_times);
+        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_DEFLECT_CD, m_bonuses[(int)Enums.PLAYER_STAT.COOLDOWN_DEFLECT].m_times);
+        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_ULT_CD, m_bonuses[(int)Enums.PLAYER_STAT.COOLDOWN_ULT].m_times);
+        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_HEALTH, m_bonuses[(int)Enums.PLAYER_STAT.BOOST_HEALTH].m_times);
+        PersistentData.SaveInt(PersistentData.KEY_INT.BONUS_DODGE_CHANCE, m_bonuses[(int)Enums.PLAYER_STAT.CHANCE_DODGE].m_times);
 
         PersistentData.SaveInt(PersistentData.KEY_INT.CURRENT_CREDITS, m_currentCredits);
         PersistentData.SaveInt(PersistentData.KEY_INT.SPENT_CREDITS, m_spentCredits);

@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 public struct Settings
 {
-    public float MasterVolume, BGMVolume, FXVolume;
+    public float MasterVolume, BGMVolume, SFXVolume;
     public int GFXLevel;
     public bool HapticFeedback;
     public LANGUAGE Language;
@@ -16,7 +16,7 @@ public struct Settings
     {
         MasterVolume = masterVolume;
         BGMVolume = bGMVolume;
-        FXVolume = fXVolume;
+        SFXVolume = fXVolume;
         GFXLevel = gFXLevel;
         HapticFeedback = hapticFeedback;
         Language = language;
@@ -66,7 +66,7 @@ public class SettingsManager : MonoBehaviour
         {
             MasterVolume = PersistentData.LoadFloat(PersistentData.KEY_FLOAT.VOL_MASTER),
             BGMVolume = PersistentData.LoadFloat(PersistentData.KEY_FLOAT.VOL_BGM),
-            FXVolume = PersistentData.LoadFloat(PersistentData.KEY_FLOAT.VOL_FX),
+            SFXVolume = PersistentData.LoadFloat(PersistentData.KEY_FLOAT.VOL_FX),
             GFXLevel = PersistentData.LoadInt(PersistentData.KEY_INT.LEVEL_GFX),
             HapticFeedback = PersistentData.LoadBool(PersistentData.KEY_BOOL.HAPTIC_FEEDBACK),
             Language = LocalisationManager.GetCurrentLanguage(),
@@ -82,7 +82,7 @@ public class SettingsManager : MonoBehaviour
     {
         m_masterVolumeSlider.value = settings.MasterVolume;
         m_bgmSlider.value = settings.BGMVolume;
-        m_fxVolumeSlider.value = settings.FXVolume;
+        m_fxVolumeSlider.value = settings.SFXVolume;
         m_gfxQualitySlider.value = settings.GFXLevel;
         m_hapticFeedbackToggle.isOn = settings.HapticFeedback;
         m_langSelect.ToggleDisplay(LocalisationManager.GetCurrentLanguage());
@@ -115,10 +115,10 @@ public class SettingsManager : MonoBehaviour
     private void UpdateGlobals()
     {
         LocalisationManager.SetLanguage(m_currentSettings.Language);
-        Audio.SetVolume(Audio.AUDIO.MASTER, m_currentSettings.MasterVolume);
-        Audio.SetVolume(Audio.AUDIO.BGM, m_currentSettings.BGMVolume);
-        Audio.SetVolume(Audio.AUDIO.FX, m_currentSettings.FXVolume);
-        GFXQuality.UpdateQuality((GFXQuality.GQUALITY)m_currentSettings.GFXLevel);
+        AudioManager.SetVolume(Enums.AUDIO_CHANNEL.MASTER, m_currentSettings.MasterVolume);
+        AudioManager.SetVolume(Enums.AUDIO_CHANNEL.BGM, m_currentSettings.BGMVolume);
+        AudioManager.SetVolume(Enums.AUDIO_CHANNEL.SFX, m_currentSettings.SFXVolume);
+        GFXQuality.UpdateQuality((Enums.GFX_QUALITY)m_currentSettings.GFXLevel);
 
         RefreshDisplayedValues(m_currentSettings);
     }
@@ -135,11 +135,11 @@ public class SettingsManager : MonoBehaviour
     {
         PersistentData.SaveFloat(PersistentData.KEY_FLOAT.VOL_MASTER, m_currentSettings.MasterVolume);
         PersistentData.SaveFloat(PersistentData.KEY_FLOAT.VOL_BGM, m_currentSettings.BGMVolume);
-        PersistentData.SaveFloat(PersistentData.KEY_FLOAT.VOL_FX, m_currentSettings.FXVolume);
+        PersistentData.SaveFloat(PersistentData.KEY_FLOAT.VOL_FX, m_currentSettings.SFXVolume);
         PersistentData.SaveInt(PersistentData.KEY_INT.LEVEL_GFX, m_currentSettings.GFXLevel);
         PersistentData.SaveBool(PersistentData.KEY_BOOL.HAPTIC_FEEDBACK, m_currentSettings.HapticFeedback);
         LocalisationManager.SaveLanguage();
-        GFXQuality.UpdateQuality((GFXQuality.GQUALITY)m_currentSettings.GFXLevel);
+        GFXQuality.UpdateQuality((Enums.GFX_QUALITY)m_currentSettings.GFXLevel);
 
         m_previousSettings = m_currentSettings;
         m_currentSettings.Modified = false;
@@ -154,7 +154,7 @@ public class SettingsManager : MonoBehaviour
 
         m_currentSettings.MasterVolume = newVol;
 
-        Audio.SetVolume(Audio.AUDIO.MASTER, newVol);
+        AudioManager.SetVolume(Enums.AUDIO_CHANNEL.MASTER, newVol);
     }
 
     public void OnChangeBGMVolume(Slider slider)
@@ -165,18 +165,18 @@ public class SettingsManager : MonoBehaviour
 
         m_currentSettings.BGMVolume = newVol;
 
-        Audio.SetVolume(Audio.AUDIO.BGM, newVol);
+        AudioManager.SetVolume(Enums.AUDIO_CHANNEL.BGM, newVol);
     }
 
-    public void OnChangeFXVolume(Slider slider)
+    public void OnChangeSFXVolume(Slider slider)
     {
         var newVol = slider.value;
-        if (newVol == m_currentSettings.FXVolume) return;
+        if (newVol == m_currentSettings.SFXVolume) return;
         m_currentSettings.Modified = true;
 
-        m_currentSettings.FXVolume = newVol;
+        m_currentSettings.SFXVolume = newVol;
 
-        Audio.SetVolume(Audio.AUDIO.FX, newVol);
+        AudioManager.SetVolume(Enums.AUDIO_CHANNEL.SFX, newVol);
     }
 
     public void OnChangeGFXSettings(Slider slider)

@@ -106,7 +106,7 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
                 Running = false;
                 IsDead = true;
 
-                AI.RemoveUnit(Platforms.PlayerPlatform, this);
+                AIManager.RemoveUnit(Platforms.PlayerPlatform, this);
 
                 Disposal.Dispose(gameObject);
             }
@@ -117,7 +117,7 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
         {
             if (!m_enemyStateData.BossFightInit)
             {
-                Audio.BlendMusicTo(Audio.BGM.LOUD, 1);
+                AudioManager.CrossFadeBGM(Enums.BGM_VARIATION.LOUD, 1);
                 (CurrentTarget as PlayerPathFindingObject).IsAtBoss = true;
             }
 
@@ -423,7 +423,7 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
                 }
                 else
                 {
-                    AI.RemoveUnit(Platforms.PlayerPlatform, this);
+                    AIManager.RemoveUnit(Platforms.PlayerPlatform, this);
 
                     transform.position = new Vector3(0, -1000, 0);
 
@@ -473,7 +473,7 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
 
         target.OnDamage(this, LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage), FCT_TYPE.ENEMYHIT);
 
-        Audio.PlayFX(Audio.FX.ENEMY_ATTACK_IMPACT, transform.position);
+        AudioManager.PlayFX(Enums.SFX_TYPE.ENEMY_ATTACK_IMPACT, transform.position);
     }
 
     #endregion 04_MEMBER_IENUMERATORS -----------------------------------------------------------------------------------------------------

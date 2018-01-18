@@ -1,8 +1,14 @@
 ﻿using System;
 
+/// <summary>
+/// Container class for various extensions
+/// </summary>
 public static class Extension
 {
-    public static UnityEngine.Vector2 Snap(this UnityEngine.Vector2 v)
+    /// <summary>
+    /// Aligns a 2D directional vector to the closest, normalised axis aligned direction [Left, right, up, or down].
+    /// </summary>
+    public static UnityEngine.Vector2 Align2D(this UnityEngine.Vector2 v)
     {
         v = v.normalized;
 
@@ -33,11 +39,17 @@ public static class Extension
         }
     }
 
-    public static UnityEngine.Vector2 Reduce(this UnityEngine.Vector3 v)
+    /// <summary>
+    /// Converts a top down Vector3 to a planar Vector2. [X becomes X, Z becomes Y].
+    /// </summary>
+    public static UnityEngine.Vector2 ToVector2(this UnityEngine.Vector3 v)
     {
         return new UnityEngine.Vector2(v.x, v.z);
     }
 
+    /// <summary>
+    /// Formats a floating point number, truncating it to K, M, B etc.
+    /// </summary>
     public static string Format(this float f, string suffix)
     {
         const float BILLION = 1000000000;
@@ -50,7 +62,10 @@ public static class Extension
         else return Math.Round(f, 1).ToString() + suffix;
     }
 
-        public static void SetLayerRecursively(this UnityEngine.GameObject obj, int layer)
+    /// <summary>
+    /// Recursively Sets the layer for gameobject and all of its children.
+    /// </summary>
+    public static void SetLayerRecursively(this UnityEngine.GameObject obj, int layer)
     {
         obj.layer = layer;
 
@@ -60,5 +75,3 @@ public static class Extension
         }
     }
 }
-
-

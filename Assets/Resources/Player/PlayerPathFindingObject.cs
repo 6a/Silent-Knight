@@ -180,18 +180,18 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
             if (projectile.CanBeReflected(this))
             {
-                Audio.PlayFX(Audio.FX.DEFLECT, transform.position);
+                AudioManager.PlayFX(Enums.SFX_TYPE.DEFLECT, transform.position);
 
                 StartCoroutine(ApplyHapticFeedback(0.05f, false, true));
 
                 var rand = UnityEngine.Random.Range(0f, 1f);
 
-                var isCrit = rand < BonusManager.GetModifiedValue(Enums.PLAYER_STAT.CRIT_CHANCE, m_critChance);
+                var isCrit = rand < BonusManager.GetModifiedValue(Enums.PLAYER_STAT.CHANCE_CRIT, m_critChance);
                 var critMultiplier = (isCrit) ? m_critMultiplier : 1;
 
                 projectile.Crit = isCrit;
 
-                var dmg = BonusManager.GetModifiedValue(Enums.PLAYER_STAT.DAMAGE_BOOST, LevelScaling.GetScaledDamage(m_playerStateData.Level, (int)m_baseDamage));
+                var dmg = BonusManager.GetModifiedValue(Enums.PLAYER_STAT.BOOST_DAMAGE, LevelScaling.GetScaledDamage(m_playerStateData.Level, (int)m_baseDamage));
 
                 projectile.Reflect(this, 5, -1, dmg * 3 * critMultiplier);
                 Instantiate(m_particleDeflect, projectile.transform.position, Quaternion.identity);
@@ -231,7 +231,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
     public void AnimationTriggerFootstep()
     {
-        Audio.PlayFX(Audio.FX.FOOTSTEP, transform.position);
+        AudioManager.PlayFX(Enums.SFX_TYPE.FOOTSTEP, transform.position);
     }
 
     public void AnimationTriggerKick()
@@ -242,7 +242,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
             ApplyFlatDamage(CurrentTarget, 1);
 
-            Audio.PlayFX(Audio.FX.KICK, transform.position);
+            AudioManager.PlayFX(Enums.SFX_TYPE.KICK, transform.position);
 
             StartCoroutine(ApplyHapticFeedback(0.05f, false, true));
 
@@ -263,7 +263,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
     public void AnimationTriggerRegularAttack()
     {
-        Audio.PlayFX(Audio.FX.SWORD_IMPACT, transform.position);
+        AudioManager.PlayFX(Enums.SFX_TYPE.SWORD_IMPACT, transform.position);
         Instantiate(m_particleSwordClash, m_swordContact.transform.position, Quaternion.identity);
 
         ApplyFlatDamage(CurrentTarget, 1);
@@ -277,7 +277,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
             ApplyFlatDamage(CurrentTarget, 2);
 
-            Audio.PlayFX(Audio.FX.SHIELD_SLAM, transform.position);
+            AudioManager.PlayFX(Enums.SFX_TYPE.SHIELD_SLAM, transform.position);
 
             if (originalTarget == CurrentTarget.ID) CurrentTarget.OnAfflict(Enums.AFFLICTION.STUN, 2);
 
@@ -298,11 +298,11 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     public void AnimationTriggerSpinEnableWeapon()
     {
         m_weapon.Switch(true);
-        StartAttackCooldown(Enums.PLAYER_ATTACK.SWORD_SPIN);
     }
 
     public void AnimationTriggerSpinFinish()
     {
+        StartAttackCooldown(Enums.PLAYER_ATTACK.SWORD_SPIN);
         DisableWeaponCollider();
         m_playerStateData.PreviousAttackTime = Time.time - 0.5f;
         m_playerStateData.EnemiesHitByWeapon = new List<int>();
@@ -327,7 +327,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         m_playerStateData.BaseDamageHolder = m_baseDamage;
         m_baseDamage *= m_ultMultiplier;
 
-        StartCoroutine(UltimateSequence(BonusManager.GetModifiedValue(Enums.PLAYER_STAT.ULT_DURATION_INCREASE, m_ultDuration)));
+        StartCoroutine(UltimateSequence(BonusManager.GetModifiedValue(Enums.PLAYER_STAT.DURATION_INCREASE_ULTIMATE, m_ultDuration)));
 
         m_playerStateData.NextUltTick = Time.time;
     }
@@ -343,7 +343,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     {
         if (IsDead) return;
 
-        if (UnityEngine.Random.Range(0f, 1f) <= BonusManager.GetModifiedValueFlatAsDecimal(Enums.PLAYER_STAT.DODGE_CHANCE, m_dodgeChance))
+        if (UnityEngine.Random.Range(0f, 1f) <= BonusManager.GetModifiedValueFlatAsDecimal(Enums.PLAYER_STAT.CHANCE_DODGE, m_dodgeChance))
         {
             FCTRenderer.AddFCT(FCT_TYPE.DODGE, "!", transform.position + (1.1f * Vector3.up), Vector3.up);
             return;
@@ -370,7 +370,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     {
         IAttackable nextTarget;
 
-        nextTarget = AI.GetNewTarget(transform.position, Platforms.PlayerPlatform);
+        nextTarget = AIManager.GetNewTarget(transform.position, Platforms.PlayerPlatform);
 
         if (nextTarget == null)
         {
@@ -430,7 +430,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
             ApplyFlatDamage(enemy, 2);
 
-            Audio.PlayFX(Audio.FX.SWORD_IMPACT, transform.position);
+            AudioManager.PlayFX(Enums.SFX_TYPE.SWORD_IMPACT, transform.position);
 
             StartCoroutine(ApplyHapticFeedback(0.05f, false, true));
 
@@ -464,7 +464,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     {
         var healthPercentage = Mathf.Clamp01(Health / m_playerStateData.MaxHealth);
 
-        m_playerStateData.MaxHealth = BonusManager.GetModifiedValue(Enums.PLAYER_STAT.HEALTH_BOOST, LevelScaling.GetScaledHealth(m_playerStateData.Level, (int)m_baseHealth));
+        m_playerStateData.MaxHealth = BonusManager.GetModifiedValue(Enums.PLAYER_STAT.BOOST_HEALTH, LevelScaling.GetScaledHealth(m_playerStateData.Level, (int)m_baseHealth));
 
         Health = m_playerStateData.MaxHealth * healthPercentage;
 
@@ -489,16 +489,16 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     {
         switch (bonus)
         {
-            case Enums.PLAYER_STAT.CRIT_CHANCE: return 100 * m_critChance;
-            case Enums.PLAYER_STAT.DAMAGE_BOOST: return m_damageboost;
-            case Enums.PLAYER_STAT.ULT_DURATION_INCREASE: return m_ultDuration;
-            case Enums.PLAYER_STAT.CD_KICK: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.KICK);
-            case Enums.PLAYER_STAT.CD_SPIN: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.SWORD_SPIN);
-            case Enums.PLAYER_STAT.CD_SHIELD_BASH: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.SHIELD);
-            case Enums.PLAYER_STAT.CD_DEFLECT: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.DEFLECT);
-            case Enums.PLAYER_STAT.CD_ULT: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.ULTIMATE);
-            case Enums.PLAYER_STAT.HEALTH_BOOST: return LevelScaling.GetScaledHealth(m_playerStateData.Level, (int)m_baseHealth);
-            case Enums.PLAYER_STAT.DODGE_CHANCE: return 100 * m_dodgeChance;
+            case Enums.PLAYER_STAT.CHANCE_CRIT: return 100 * m_critChance;
+            case Enums.PLAYER_STAT.BOOST_DAMAGE: return m_damageboost;
+            case Enums.PLAYER_STAT.DURATION_INCREASE_ULTIMATE: return m_ultDuration;
+            case Enums.PLAYER_STAT.COOLDOWN_KICK: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.KICK);
+            case Enums.PLAYER_STAT.COOLDOWN_SPIN: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.SWORD_SPIN);
+            case Enums.PLAYER_STAT.COOLDOWN_SHIELD_BASH: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.SHIELD);
+            case Enums.PLAYER_STAT.COOLDOWN_DEFLECT: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.DEFLECT);
+            case Enums.PLAYER_STAT.COOLDOWN_ULT: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.ULTIMATE);
+            case Enums.PLAYER_STAT.BOOST_HEALTH: return LevelScaling.GetScaledHealth(m_playerStateData.Level, (int)m_baseHealth);
+            case Enums.PLAYER_STAT.CHANCE_DODGE: return 100 * m_dodgeChance;
             case Enums.PLAYER_STAT.NULL: return -1;
             default: return 0;
         }
@@ -550,12 +550,12 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         {
             var rand = UnityEngine.Random.Range(0f, 1f);
 
-            var isCrit = rand < BonusManager.GetModifiedValueFlatAsDecimal(Enums.PLAYER_STAT.CRIT_CHANCE, m_critChance);
+            var isCrit = rand < BonusManager.GetModifiedValueFlatAsDecimal(Enums.PLAYER_STAT.CHANCE_CRIT, m_critChance);
             var critMultiplier = (isCrit) ? m_critMultiplier : 1;
 
-            var dmg = BonusManager.GetModifiedValue(Enums.PLAYER_STAT.DAMAGE_BOOST, LevelScaling.GetScaledDamage(m_playerStateData.Level, (int)m_baseDamage));
+            var dmg = BonusManager.GetModifiedValue(Enums.PLAYER_STAT.BOOST_DAMAGE, LevelScaling.GetScaledDamage(m_playerStateData.Level, (int)m_baseDamage));
 
-            var total = baseDamageMultiplier * GetPlayerProperty(Enums.PLAYER_STAT.DAMAGE_BOOST) * dmg * critMultiplier;
+            var total = baseDamageMultiplier * GetPlayerProperty(Enums.PLAYER_STAT.BOOST_DAMAGE) * dmg * critMultiplier;
 
             var t = (isCrit) ? FCT_TYPE.CRIT : FCT_TYPE.HIT;
 
@@ -570,7 +570,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     {
         var rand = UnityEngine.Random.Range(0f, 1f);
 
-        var isCrit = rand < BonusManager.GetModifiedValue(Enums.PLAYER_STAT.CRIT_CHANCE, m_critChance);
+        var isCrit = rand < BonusManager.GetModifiedValue(Enums.PLAYER_STAT.CHANCE_CRIT, m_critChance);
 
         var critMultiplier = (isCrit) ? m_critMultiplier : 1;
 
@@ -713,7 +713,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
             {
                 if (CurrentTarget == null || distanceToTarget > m_attackRange * 2 || Time.time - m_playerStateData.PreviousAttackTime > attackDelay + 0.2f)
                 {
-                    CurrentTarget = AI.GetNewTarget(transform.position, Platforms.PlayerPlatform);
+                    CurrentTarget = AIManager.GetNewTarget(transform.position, Platforms.PlayerPlatform);
 
                     if (CurrentTarget == null)
                     {
@@ -749,8 +749,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
     void StartAttackCooldown(Enums.PLAYER_ATTACK attack, float multiplier = 1, float reduceAttackDelay = 0)
     {
-        var cd = BonusManager.GetModifiedValue(Enums.ConvertAttackToBonus(attack), BASE_COOLDOWN.Get(attack));
-
+        var cd = multiplier * BonusManager.GetModifiedValue(Enums.ConvertAttackToBonus(attack), BASE_COOLDOWN.Get(attack));
         m_currentCooldowns.Set(attack, cd);
 
         m_playerStateData.PreviousAttackTime = Time.time - reduceAttackDelay;
@@ -878,7 +877,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
                 GameUIManager.UpdateCooldownDisplay((Enums.PLAYER_ATTACK)i, 0, 0);
             }
 
-            m_playerStateData.MaxHealth = BonusManager.GetModifiedValue(Enums.PLAYER_STAT.HEALTH_BOOST, LevelScaling.GetScaledHealth(updatedLevel, (int)m_baseHealth));
+            m_playerStateData.MaxHealth = BonusManager.GetModifiedValue(Enums.PLAYER_STAT.BOOST_HEALTH, LevelScaling.GetScaledHealth(updatedLevel, (int)m_baseHealth));
             Health = m_playerStateData.MaxHealth;
             m_healthbar.UpdateHealthDisplay(1, (int)m_playerStateData.MaxHealth);
 
@@ -964,13 +963,13 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
             Sparky.ResetIntensity();
             Sparky.IncreaseIntensity();
             m_particleBuff.SetActive(true);
-            Audio.PlayFX(Audio.FX.BIG_IMPACT);
+            AudioManager.PlayFX(Enums.SFX_TYPE.BIG_IMPACT);
         }
     }
 
     IEnumerator BossDeadSequence()
     {
-        Audio.BlendMusicTo(Audio.BGM.QUIET, 4);
+        AudioManager.CrossFadeBGM(Enums.BGM_VARIATION.QUIET, 4);
 
         yield return new WaitForSecondsRealtime(2);
 

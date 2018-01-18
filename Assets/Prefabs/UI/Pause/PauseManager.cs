@@ -74,7 +74,7 @@ public class PauseManager : MonoBehaviour
                 Time.timeScale = 1;
                 Camera.main.gameObject.GetComponent<UnityStandardAssets.ImageEffects.Blur>().enabled = false;
                 FindObjectOfType<PlayerPathFindingObject>().GetComponent<Animator>().enabled = true;
-                AI.UnPauseUnits();
+                AIManager.UnPauseUnits();
                 m_paused = false;
 
                 m_state.Pop();
@@ -122,7 +122,7 @@ public class PauseManager : MonoBehaviour
     public void OnStartPause(int nextScreen)
     {
         FindObjectOfType<PlayerPathFindingObject>().GetComponent<Animator>().enabled = false;
-        AI.PauseUnits();
+        AIManager.PauseUnits();
 
         switch (nextScreen)
         {

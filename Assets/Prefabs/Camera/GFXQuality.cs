@@ -1,41 +1,50 @@
 ﻿using UnityEngine;
-using UnityEngine.PostProcessing;
 
+/// <summary>
+/// Handles Graphics quality settings.
+/// </summary>
 public class GFXQuality : MonoBehaviour
 {
-    public enum GQUALITY { LOW, MID, HIGH };
-
     GFXQuality m_instance;
 
-    GQUALITY m_quality;
+    Enums.GFX_QUALITY m_quality;
 
     void Awake()
     {
         m_instance = this;
+
+        // Note that vsync is disabled on all levels due to mobile performance issues.
         QualitySettings.vSyncCount = 0;
     }
 
     void Start()
     {
-        m_quality = (GQUALITY)PersistentData.LoadInt(PersistentData.KEY_INT.LEVEL_GFX);
+        // Load the current quality setting from persistent data.
+        m_quality = (Enums.GFX_QUALITY)PersistentData.LoadInt(PersistentData.KEY_INT.LEVEL_GFX);
         UpdateQuality(m_quality);
     }
 
-    public static void UpdateQuality(GQUALITY q)
+    /// <summary>
+    /// Sets the graphics quality.
+    /// </summary>
+    public static void UpdateQuality(Enums.GFX_QUALITY quality)
     {
-        QualitySettings.SetQualityLevel((int)q);
+        // Note: As well as the overall quality settings being set, a few other per-level settings are 
+        // adjusted as well.
 
-        switch (q)
+        QualitySettings.SetQualityLevel((int)quality);
+
+        switch (quality)
         {
-            case GQUALITY.LOW:
+            case Enums.GFX_QUALITY.LOW:
                 Application.targetFrameRate = 30;
                 Screen.sleepTimeout = 30;
                 break;
-            case GQUALITY.MID:
+            case Enums.GFX_QUALITY.MID:
                 Application.targetFrameRate = 30;
                 Screen.sleepTimeout = 60;
                 break;
-            case GQUALITY.HIGH:
+            case Enums.GFX_QUALITY.HIGH:
                 Application.targetFrameRate = 60;
                 Screen.sleepTimeout = SleepTimeout.NeverSleep;
                 break;

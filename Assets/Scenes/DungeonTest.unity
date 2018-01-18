@@ -142,7 +142,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6cb7a9768791e5640bd0ec95a810ca7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_iterations: 1000
+  m_iterations: 100
   m_start: 0
   m_fabricate: 1
   m_platforms: 10
@@ -188,7 +188,6 @@ MonoBehaviour:
   m_scale: 2
   m_offset: 32
   m_levelSeeds: 91020000060200004b030000e002000007000000
-  m_iterations: 1
   m_previewPlane: {fileID: 0}
 --- !u!114 &785064460
 MonoBehaviour:

@@ -272,7 +272,7 @@ public class GameManager : MonoBehaviour
         }
 
         Time.timeScale = 1;
-        Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
+        AudioManager.CrossFadeBGM(Enums.BGM_VARIATION.QUIET, 2);
 
         SceneManager.LoadScene(1);
     }
@@ -285,7 +285,7 @@ public class GameManager : MonoBehaviour
         PersistentData.SaveInt(PersistentData.KEY_INT.LEVEL, 0);
 
         Time.timeScale = 1;
-        Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
+        AudioManager.CrossFadeBGM(Enums.BGM_VARIATION.QUIET, 2);
         SceneManager.LoadScene(1);
     }
     
@@ -294,7 +294,7 @@ public class GameManager : MonoBehaviour
         OnStartRun = null;
 
         Time.timeScale = 1;
-        Audio.BlendMusicTo(Audio.BGM.QUIET, 2);
+        AudioManager.CrossFadeBGM(Enums.BGM_VARIATION.QUIET, 2);
         SceneManager.LoadScene(1);
     }
 

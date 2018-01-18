@@ -1,7 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections.Generic;
 using Delaunay;
-using System.Diagnostics;
 
 namespace DungeonGeneration
 {
@@ -20,7 +19,6 @@ namespace DungeonGeneration
         static int m_scale;
         static int m_offset;
         static int m_level;
-        static int m_lastLevel;
 
         public static Dungeon CurrentDungeon { get; set; }
 
@@ -54,13 +52,7 @@ namespace DungeonGeneration
 
             fabricator.Fabricate();
 
-            fabricator.PlacePlayerAtStartNode();
-
-            fabricator.PlaceGoal();
-
-            fabricator.PlaceEnemies();
-
-            fabricator.Finalise();
+            fabricator.PlaceUnits();
         }
 
         public static void GenerateNewDungeon(int seed = 0)
@@ -135,7 +127,7 @@ namespace DungeonGeneration
                 var platform1 = platforms.Find(i => i.Center == line.p1.Value);
                 platform1.Connections++;
 
-                var dir = (new Vector2(platform1.X, platform1.Y) - new Vector2(platform0.X, platform0.Y)).Snap();
+                var dir = (new Vector2(platform1.X, platform1.Y) - new Vector2(platform0.X, platform0.Y)).Align2D();
 
                 if (dir == Vector2.up)
                 {

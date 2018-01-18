@@ -66,7 +66,7 @@ public class Platforms : MonoBehaviour
 
         PlatformBounds[PlayerPlatform].PlayerIsWithinBounds = true;
 
-        AI.ActivateUnits(PlayerPlatform);
+        AIManager.ActivateUnits(PlayerPlatform);
     }
 
     public static void RegisterPlayer(PlayerPathFindingObject player)

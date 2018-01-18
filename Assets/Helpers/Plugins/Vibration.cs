@@ -1,10 +1,11 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System;
 
+/// <summary>
+/// Utility class for more explicit control of vibration on Android devices.
+/// </summary>
 public static class Vibration
 {
-
 #if UNITY_ANDROID && !UNITY_EDITOR
     public static AndroidJavaClass unityPlayer = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
     public static AndroidJavaObject currentActivity = unityPlayer.GetStatic<AndroidJavaObject>("currentActivity");
@@ -15,43 +16,46 @@ public static class Vibration
     public static AndroidJavaObject vibrator;
 #endif
 
+    /// <summary>
+    /// Vibrate once with default settings. Fails silently if not Android.
+    /// </summary>
     public static void Vibrate()
     {
         if (IsAndroid())
             vibrator.Call("vibrate");
-        else
-            Handheld.Vibrate();
     }
 
-
+    /// <summary>
+    /// Vibrate for a certain amount of time. Fails silently if not Android.
+    /// </summary>
     public static void Vibrate(long milliseconds)
     {
         if (IsAndroid())
             vibrator.Call("vibrate", milliseconds);
-        else
-            Handheld.Vibrate();
     }
 
+    /// <summary>
+    /// Vibrate with an explicit PWM pattern. Fails silently if not Android. [Set repeat to -1 for one-shot].
+    /// </summary>
     public static void Vibrate(long[] pattern, int repeat)
     {
         if (IsAndroid())
             vibrator.Call("vibrate", pattern, repeat);
-        else
-            Handheld.Vibrate();
     }
 
-    public static bool HasVibrator()
-    {
-        return IsAndroid();
-    }
-
+    /// <summary>
+    /// Cancels the current vibration, if one exists
+    /// </summary>
     public static void Cancel()
     {
         if (IsAndroid())
             vibrator.Call("cancel");
     }
 
-    // https://stackoverflow.com/a/20821575/6177635
+    /// <summary>
+    /// Returns a [long] PWN pattern based on the desired vibration intensity and duration. 
+    /// </summary>
+    /// SOURCE: paulscode @ stackoverflow - https://stackoverflow.com/a/20821575/6177635
     public static long[] GenVibratorPattern(float intensity, long duration)
     {
         float dutyCycle = Math.Abs((intensity * 2.0f) - 1.0f);
@@ -69,13 +73,10 @@ public static class Vibration
         return pattern;
     }
 
-    // Dummy to trigger manifest generation for permissions
-    static void Dummy()
-    {
-        Handheld.Vibrate();
-    }
-
-    private static bool IsAndroid()
+    /// <summary>
+    /// Returns true if the device is an Android device.
+    /// </summary>
+    static bool IsAndroid()
     {
 #if UNITY_ANDROID && !UNITY_EDITOR
 	return true;
