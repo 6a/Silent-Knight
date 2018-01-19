@@ -1,26 +1,38 @@
 TECHNICAL:
-	Custom multithreaded A* Pathfinding and dynamic tilemap creation*															Y
-	Seeded procedural dungeon generation with dynamic texturing and unit placement												Y
-	Custom shader program to simulate glass shatter effect																		Y
-	Dynamic Audio system, including beat-matched transitions, multi-layer background audio										N
-	Dual Language (JP/EN) compatability																							Y
-	Many customizable settings, such as a 3 channel volume mixer, haptic feedback toggle, language and graphics quality			Y
+	Custom multithreaded multi-unit A* Pathfinding with live, dynamic tilemap														
+	Seeded procedural dungeon generation with dynamic texturing and unit placement												
+	Custom shader program to simulate glass shatter effect																									
+	Dual Language (JP/EN) compatability	with in-game toggle
+	Multi-channel volume mixer with beat-synced audio blending and transitions
+	In-game graphics quality settings		
+	Player and enemy physics interactions
+	Fully playable on Android, with multiple optimizations to allow for 'smooth' gameplay
+	Wide variety of dynamic particle and sound effects
+	5 Fully mechanim animated 3D models
+	Persistent data storage using a custom PlayerPrefs wrapper, that makes use of Enums rather than strings
 
 GAMEPLAY
-	Haptic feedback																												O	
-	Floating Combat Text																										O
-	Fully implemented leveling and stat-progression system, such as cooldown reduction, stat boosts, crit chance and more		Y
-	Automated character movement																								Y
-	5 powerful, unique abilities to help you defeat your enemies																Y
-		Send enemies into the void with a powerful kick																			Y
-		Decimate groups of enemies with a spinning sword slash																	Y
-		Stun enemies, making them more vulnerable to damage																		Y
-		Deflect projectiles back at ranged units for massive damage																Y		
-		Activate your ultimate for a temporary damage boost																		Y
-	Defeat the Dungeon guardian every five levels to earn a huge XP boost.
+	Haptic feedback with 'hit freezing', toggleable in-game																									
+	Floating Combat Text																										
+	Fully implemented leveling and stat-progression system, such as cooldown reduction, stat boosts, crit chance and more	
+	Fully implemented UI with screen blur, scroll rectangles and animations
+		On-screen action/menu buttons
+		Unit health, level and name display
+		Dynamic, 3D animation unit portraits
+		Cooldown timers
+		Settings, options, skill progression and reset menu's
+	Multi-touch input compatability
+	Automated character movement																								
+	5 powerful, unique abilities to help you defeat your enemies																
+		Send enemies into the void with a powerful kick																			
+		Decimate groups of enemies with a spinning sword slash																	
+		Stun enemies, making them more vulnerable to damage																		
+		Deflect projectiles back at ranged units for massive damage																	
+		Activate your ultimate for a temporary damage boost																		
+	Defeat the Dungeon guardian every five levels to earn a huge XP boost
 	Reincarnate and start from level 1 on dungeon 1, but retain your skill progression - Become more powerful, faster!
+	Animated 'companion' that follows you around and lights the way
 
 
 
 FEATURES
-
