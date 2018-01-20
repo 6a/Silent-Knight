@@ -1,5 +1,8 @@
 ﻿namespace DungeonGeneration
 {
+    /// <summary>
+    /// Container for storing platform min/max sizing properties.
+    /// </summary>
     public struct PlatformProperties
     {
         public int MinX { get; set; }

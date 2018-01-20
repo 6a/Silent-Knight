@@ -11,10 +11,13 @@ namespace DungeonGeneration
     /// </summary>
     public class Fabricator
     {
+        // Reference to current dungeon layout in memory.
         readonly Dungeon m_dungeon;
 
+        // Maximum number of enemies that can be placed on a platform.
         const int PLATFORM_MAX_ENEMIES = 6;
 
+        //Various settings for the current dungeon.
         int m_dungeonScale;
         int m_positionOffset;
         int m_levelIndex;
@@ -33,7 +36,7 @@ namespace DungeonGeneration
         Material[] m_paths = new Material[5];
         Material[] m_pathCorners = new Material[5];
 
-        // const bitmasks for orientation detection (for skinning blocks).
+        // Const bitmasks for orientation detection (for skinning blocks).
         const UInt16 NE_CORNER = 0x3;
         const UInt16 SE_CORNER = 0x9;
         const UInt16 SW_CORNER = 0xC;
@@ -392,7 +395,9 @@ namespace DungeonGeneration
             }
         }
 
-        // Returns a custom UV map for skinning non-central tile.
+        /// <summary>
+        /// Returns a custom UV map for skinning non-central tile.
+        /// </summary>
         Vector2[] UVMap()
         {
             var UVs = new Vector2[24];
@@ -440,16 +445,21 @@ namespace DungeonGeneration
             return v;
         }
 
-        // Reads the block data (by coordinates) stored in the internal dungeon object.
-        // Uses bitwise magic to efficiently create a unique mask, representing the type of the tile and its neighbours.
-        // The state of a tile is determined by it's neighbours, including blank spaces.
-        // The following observations allow for unique patterns to be generated for each block state.
-        // - Tiles touching the edges of the dungeon area are always edge tiles,
-        // - Path tiles that have two opposite adjacent blank/platform tiles are straight paths,
-        // - Path tiles that have two non-opposite adjacent blank/platform tiles are path corners,
-        // - Platform tiles with no adjacent non-platform tiles are always central tiles,
-        // - Platform tiles with one adjacent blank/path tile are always edges,
-        // - Platform tiles with two adjacent blank/path tiles are always corners.
+        /// <summary>
+        /// Returns a unique bitmask, representing the state of the block (by coordinates) stored in the internal dungeon object.
+        /// </summary>
+        /// <remarks>
+        /// See const bitmask arguments at the top of this class for identification.
+        /// Uses bitwise magic to efficiently create a unique mask, representing the type of the tile and its neighbours.
+        /// The state of a tile is determined by it's neighbours, including blank spaces.
+        /// The following observations allow for unique patterns to be generated for each block state.
+        /// - Tiles touching the edges of the dungeon area are always edge tiles,
+        /// - Path tiles that have two opposite adjacent blank/platform tiles are straight paths,
+        /// - Path tiles that have two non-opposite adjacent blank/platform tiles are path corners,
+        /// - Platform tiles with no adjacent non-platform tiles are always central tiles,
+        /// - Platform tiles with one adjacent blank/path tile are always edges,
+        /// - Platform tiles with two adjacent blank/path tiles are always corners.
+        /// </remarks>
         int GetBlockState(int x, int y)
         {
             // Default value of 0 - Central tiles are returned with this.
@@ -695,13 +705,18 @@ namespace DungeonGeneration
             if (!test) AIManager.LoadAIData(new AISet(aiSet));
         }
 
-        // Scales a coordinate based on the dungeon scaling value.
+        /// <summary>
+        /// Scales a coordinate based on the dungeon scaling value.
+        /// </summary>
+        /// <param name="i"></param>
         int Scale(int i)
         {
             return (i * m_dungeonScale) - m_positionOffset + (m_dungeonScale / 2);
         }
 
-        // Converts a char (read from the dungeon data object) into the appropriate block type.
+        /// <summary>
+        /// Returns the appropriate GameObject represented by the the dungeon tile (char) value passed in.
+        /// </summary>
         GameObject GetBlock(char c)
         {
             string name = "Blocks/";
@@ -722,6 +737,7 @@ namespace DungeonGeneration
             {
                 return null;
             }
+
             return Resources.Load(name) as GameObject;
         }
     }

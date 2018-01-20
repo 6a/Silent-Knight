@@ -3,18 +3,18 @@ using UnityEngine;
 
 public class PlayerWeapon : MonoBehaviour
 {
-    PlayerPathFindingObject m_knight;
+    PlayerPathFindingObject m_player;
     BoxCollider m_col;
 
     void Awake()
     {
-        m_knight = GetComponentInParent<PlayerPathFindingObject>();
+        m_player = GetComponentInParent<PlayerPathFindingObject>();
         m_col = GetComponent<BoxCollider>();
     }
 
     void OnTriggerEnter(Collider other)
     {
-        m_knight.OnSwordCollision(other.GetComponent<IAttackable>());
+        m_player.OnSwordCollision(other.GetComponent<IAttackable>());
     }
 
     public void Switch(bool on)

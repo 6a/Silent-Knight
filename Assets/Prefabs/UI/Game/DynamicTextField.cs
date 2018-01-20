@@ -15,7 +15,7 @@ namespace Localisation
 
         [Tooltip("0 = EN ver, 1 = JP ver")] public string[] m_altData = new string[2];
 
-        public LANGUAGE m_currentlanguage;
+        public Enums.LANGUAGE m_currentlanguage;
 
         public string Value1 { get; set; }
         public string Value2 { get; set; }
@@ -43,7 +43,7 @@ namespace Localisation
             SetLanguage(m_currentlanguage);
         }
 
-        public void SetLanguage(LANGUAGE lang)
+        public void SetLanguage(Enums.LANGUAGE lang)
         {
             string s = string.Empty;
             if (m_showingAltData)

@@ -1,26 +1,29 @@
 ﻿using Entities;
 using System.Collections;
 using UnityEngine;
-using System;
 
 namespace PathFinding
 {
+    /// <summary>
+    /// Abstract object for units that will use the AStar pathfinding tools in this project.
+    /// </summary>
     [RequireComponent(typeof(LineRenderer))]
     public abstract class PathFindingObject : MonoBehaviour, IEntity
     {
+        // Debugging tools for path drawing.
         [SerializeField] Color m_pathColor;
         [SerializeField] bool m_drawPath;
 
+        // Unit properties.
         public Path Path { get; set; }
         public ITargetable PathingTarget { get; set; }
         public int UnitID { get; set; }
         public bool HasReachedBoss { get; set; }
         public bool IsChangingView { get; set; }
-
         public bool Running { get; set; }
-
         public bool IsDead { get; set; }
-
+        
+        // Unit properties (that will be displayed in the editor on the derived object).
         public float Speed;
         public float TurnDistance;
         public float TurnSpeed;
@@ -29,18 +32,35 @@ namespace PathFinding
         public bool IsFollowingPath;
         public int CurrentPlatformIndex;
 
+        // Position last frame.
+        Vector3 m_prevPos;
+
+        // Pending movement/rotations
+        Quaternion newRotation;
+        Vector3 nextMovement;
+        bool processMovementUpdate;
+
         // Indices of the current node, stored for updating grid to avoid collisions.
         public Vector3 PreviousPos;
 
+        // Reference to the attached line renderer.
         public LineRenderer LineRenderer;
 
+        // Current pathfinding coroutine, used to prevent overlapping requests.
         IEnumerator m_currentPathCoroutine;
 
+        /// <summary>
+        /// Update the target for this unit.
+        /// </summary>
         public void UpdatePathTarget(ITargetable newTarget)
         {
             PathingTarget = newTarget;
         }
 
+        /// <summary>
+        /// Part of the callback procedude for pathfinding requests. This is called once
+        /// the pathfinding operations has finished.
+        /// </summary>
         public void OnPathFound(Vector2[] wayPoints, bool success)
         {
             if (Running && success)
@@ -61,6 +81,9 @@ namespace PathFinding
             }
         }
 
+        /// <summary>
+        /// Temporarily halts this unit and prevents it from pathfinding.
+        /// </summary>
         public void StopFollowingPath()
         {
             if (m_currentPathCoroutine == null) return;
@@ -69,8 +92,10 @@ namespace PathFinding
             m_currentPathCoroutine = null;
         }
 
-        Vector3 m_prevPos;
-
+        /// <summary>
+        /// Updates the current path using the current path target. Should run continously while
+        /// this unit is valid and running.
+        /// </summary>
         public IEnumerator RefreshPath()
         {
             while (true)
@@ -87,25 +112,35 @@ namespace PathFinding
             }
         }
 
+        /// <summary>
+        /// Calculates pathfinding behaviour such as movement updates, facing, and animations.
+        /// </summary>
         IEnumerator FollowPath()
         {
             IsFollowingPath = true;
 
             int pathIndex = 0;
 
+            // Used to control animations.
             float speedPercent = 1;
 
             while (true)
             {
+                // Early exit, if there is no path, if the unit is not currently moving, or if
+                // the camera is transitioning.
                 if (Path == null || !IsFollowingPath || IsChangingView)
                 {
                     OnFollowPath(0);
+
+                    // Wait one frame to prevent bugginess
                     yield return new WaitForFixedUpdate();
                     continue;
                 }
 
-                var pos2D = new Vector2(transform.position.x, transform.position.z);
+                // Get current position
+                var pos2D = transform.position.ToVector2();
 
+                // Finds the next path point if one has just been surpassed.
                 while (Path.TurnBoundaries[pathIndex].HasCrossedLine(pos2D))
                 {
                     if (pathIndex >= Path.FinishLineIndex)
@@ -119,6 +154,7 @@ namespace PathFinding
                     }
                 }
 
+                //Calculate animation speed and movement/rotation values.
                 if (IsFollowingPath && !HasReachedBoss)
                 {
                     if (pathIndex >= Path.SlowdownIndex && StoppingDistance > 0)
@@ -137,11 +173,15 @@ namespace PathFinding
                     processMovementUpdate = true;
                 }
 
+                // Pass speedPercent value into OnFollowPath() for behaviours such as animation blending.
                 OnFollowPath(speedPercent);
                 yield return new WaitForFixedUpdate();
             }
         }
 
+        /// <summary>
+        /// Update this unit's position on the AStar grid, to reduce pathfinding unit collisions.
+        /// </summary>
         void UpdateGridPosition(Vector3 pos)
         {
             if (PreviousPos == pos) return;
@@ -150,11 +190,9 @@ namespace PathFinding
             PreviousPos = pos;
         }
 
-        Quaternion newRotation;
-        Vector3 nextMovement;
-        bool processMovementUpdate;
-
-        // Applies any pending translation
+        /// <summary>
+        /// Applies any pending transformations. Call this from derived class from within the FixedUpdate() function.
+        /// </summary>
         public void UpdateMovement()
         {
             if (processMovementUpdate)
@@ -165,6 +203,9 @@ namespace PathFinding
             }
         }
 
+        /// <summary>
+        /// Halt movement for this unit.
+        /// </summary>
         public void StopMovement()
         {
             IsFollowingPath = false;
@@ -172,12 +213,18 @@ namespace PathFinding
         }
 
         /// <summary>
-        /// Add actions in this functions for this unit to perform while moving, such as animations.
+        /// Actions to perform every frame, while following the path.
         /// </summary>
         public abstract void OnFollowPath(float speedPercent);
 
-        public abstract void OnStartRun();
+        /// <summary>
+        /// Actions to perform on the start of a level.
+        /// </summary>
+        public abstract void OnStartLevel();
 
+        /// <summary>
+        /// Reset the unit to pre-start values.
+        /// </summary>
         public void Reset()
         {
             Running = false;

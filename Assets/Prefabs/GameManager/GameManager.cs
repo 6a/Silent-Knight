@@ -1,31 +1,40 @@
 ﻿using System;
 using System.Collections;
-using Entities;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+/// <summary>
+/// Delegate for level start sequencing.
+/// </summary>
 public delegate void LevelLoadTrigger();
 
+/// <summary>
+/// Provices an interface for multiple core game processes, as well as various UI functions.
+/// </summary>
 public class GameManager : MonoBehaviour
 {
-    public static GAMESTATE GameState { get; set; }
-
+    // In class reference to a level load trigger event for registration.
     public static event LevelLoadTrigger OnStartRun;
 
+    // Reference to the dungeon generator helper.
     DungeonGenerator m_generator;
 
+    // References to in-game UI objects
     [SerializeField] GameObject m_loadingBlockTopParent, m_loadingBlockBottomParent;
     [SerializeField] Image m_faderBackground, m_faderLogo;
     [SerializeField] GameObject m_endOptions;
     [SerializeField] GameObject m_deathOptions;
     Image [] m_loadingBlocksBottom, m_loadingBlocksTop;
 
+    // Delay to add to each loading sequence. 
     [SerializeField] float m_loadDelay;
-    [SerializeField] bool m_triggerShatter;
-    [SerializeField] Texture2D m_cursor;
 
+    // reference to the player unit.
     PlayerPathFindingObject m_currentPlayer;
+
+    // Whether or not the current level loading process should continue (temporary state holder).
+    bool m_continueLevelLoad;
 
     static GameManager m_instance;
 
@@ -35,43 +44,35 @@ public class GameManager : MonoBehaviour
         m_loadingBlocksTop = m_loadingBlockTopParent.GetComponentsInChildren<Image>(true);
 
         m_generator = FindObjectOfType<DungeonGenerator>();
-        OnStartRun += NextLevelSequence;
-        GameState = GAMESTATE.START;
         m_instance = this;
-
-#if UNITY_EDITOR
-        Cursor.SetCursor(m_cursor, Vector2.zero, CursorMode.Auto);
-#endif
     }
 
     void Start ()
     {
-        GameState = GAMESTATE.GAMEPLAY;
-
         LoadNext();
     }
 
-	void Update ()
-    {
-		if (m_triggerShatter)
-        {
-            m_triggerShatter = false;
-
-            Shatter.StartShatter();
-        }
-	}
-
+    /// <summary>
+    /// Registers the current player.
+    /// </summary>
     public static void RegisterPlayer(PlayerPathFindingObject reference) { m_instance.m_currentPlayer = reference; }
 
+    /// <summary>
+    /// Initiates a fade to black using the UI.
+    /// </summary>
     public static void FadeToBlack(bool death)
     {
         m_instance.StartCoroutine(m_instance.FadeToBlackAsync(death));
     }
 
+    /// <summary>
+    /// Asynchronous component of FadeToBlack().
+    /// </summary>
     IEnumerator FadeToBlackAsync(bool death)
     {
         float increment = 0.05f;
 
+        // Fades all fader UI objects
         while (m_faderBackground.color.a < 1)
         {
             var fc = m_faderBackground.color;
@@ -83,8 +84,13 @@ public class GameManager : MonoBehaviour
         m_deathOptions.SetActive(death);
     }
 
+    /// <summary>
+    /// Enables (shows) the loading screen.
+    /// </summary>
     public static void EnableLoadingScreen()
     {
+        // All objects alpha channels are reset to 1.
+
         var fc = m_instance.m_faderBackground.color;
         m_instance.m_faderBackground.color = new Color(fc.r, fc.g, fc.b, 1);
 
@@ -101,8 +107,13 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Hides the loading screen.
+    /// </summary>
     public static void DisableLoadingScreen()
     {
+        // All objects alpha channels are reset to 1.
+
         var fc = m_instance.m_faderBackground.color;
         m_instance.m_faderBackground.color = new Color(fc.r, fc.g, fc.b, 0);
 
@@ -119,26 +130,31 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    public void NextLevelSequence()
-    {
-
-    }
-
+    /// <summary>
+    /// Triggers a new level load sequence.
+    /// </summary>
     void LoadNext()
     {
         StartCoroutine(LevelStart());
     }
 
+    /// <summary>
+    /// Called by the shatter class when it is ready for the load to progress.
+    /// </summary>
     public static void ContinueLevelStart()
     {
         m_instance.m_continueLevelLoad = true;
     }
 
-    bool m_continueLevelLoad;
-
+    /// <summary>
+    /// Asynchronously starts a new level load.
+    /// </summary>
     IEnumerator LevelStart(bool shatter = false)
     {
+        // Update internal state.
         m_continueLevelLoad = false;
+
+        // Execute shatter, if appropriate.
         if (shatter)
         {
             Shatter.StartShatter();
@@ -148,16 +164,18 @@ public class GameManager : MonoBehaviour
             m_continueLevelLoad = true;
         }
 
+        // If shattering, wait for shatter class to be ready to continue.
         while (!m_continueLevelLoad)
         {
             yield return null;
         }
 
+        // Begind asynchronous load operation in DungeonGenerator.
         m_generator.IsLoadingAsync = true;
         StartCoroutine(m_generator.LoadNextAsync());
 
+        // Wait until ready, then update the progress bar, and perform the shatter effect if required.
         int index = 10;
-
         while (m_generator.IsLoadingAsync || index < (10 + m_loadDelay / 0.1f) || (!Shatter.ShatterFinished && shatter))
         {
             if (!m_generator.IsLoadingAsync)
@@ -182,8 +200,8 @@ public class GameManager : MonoBehaviour
             index++;
         }
 
+        // Loading is complete, start fading the screen back in.
         float increment = 0.05f;
-
         while (m_faderBackground.color.a > 0)
         {
             var fc = m_faderBackground.color;
@@ -205,15 +223,23 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSecondsRealtime(0.05f);
         }
 
+
+        // Once the screen has been fully faded in, start the rest of the loading process and inform all registered units.
         DisableLoadingScreen();
         OnStartRun();
     }
 
+    /// <summary>
+    /// Returns a reference to the current player unit.
+    /// </summary>
     public static PlayerPathFindingObject GetCurrentPlayerReference()
     {
         return m_instance.m_currentPlayer;
     }
 
+    /// <summary>
+    /// Trigger a new level load event.
+    /// </summary>
     public static void TriggerLevelLoad()
     {
         OnStartRun = null;
@@ -223,12 +249,18 @@ public class GameManager : MonoBehaviour
         m_instance.StartCoroutine(m_instance.LevelStart(true));
     }
 
+    /// <summary>
+    /// Enable the end screen.
+    /// </summary>
     public static void TriggerEndScreen()
     {
         OnStartRun = null;
         m_instance.StartCoroutine(m_instance.EndScreen());
     }
 
+    /// <summary>
+    /// Asynchronous component of end screen init.
+    /// </summary>
     IEnumerator EndScreen()
     {
         Shatter.StartShatter();
@@ -254,7 +286,9 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // Just wipes all saved settings and reloads the game.
+    /// <summary>
+    /// Wipes all saved settings and reloads the game.
+    /// </summary>
     public static void TotalReset()
     {
         OnStartRun = null;
@@ -277,6 +311,9 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(1);
     }
 
+    /// <summary>
+    /// Reincarnates the player (progress reset to level 1, dungeon 1. Skill points are not removed).
+    /// </summary>
     public static void Reincarnate()
     {
         OnStartRun = null;
@@ -288,7 +325,10 @@ public class GameManager : MonoBehaviour
         AudioManager.CrossFadeBGM(Enums.BGM_VARIATION.QUIET, 2);
         SceneManager.LoadScene(1);
     }
-    
+
+    /// <summary>
+    /// Reloads the level (simply reloads the scene).
+    /// </summary>
     public static void ReloadLevel()
     {
         OnStartRun = null;
@@ -298,14 +338,19 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(1);
     }
 
+    /// <summary>
+    /// Public function for end of game button, for reincarnation, via a GUI event.
+    /// </summary>
     public void ReincarnateEnd()
     {
         Reincarnate();
     }
 
+    /// <summary>
+    /// Public function for quitting the game via a GUI event.
+    /// </summary>
     public void Quit()
     {
         Application.Quit();
     }
-
 }

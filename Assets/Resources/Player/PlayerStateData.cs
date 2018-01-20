@@ -7,10 +7,10 @@ struct PlayerStateData
 {
     public int AttackState                      { get; set; }
     public float BaseDamageHolder               { get; set; }
-    public bool DidDeflect                      { get; set; }
+    public bool DidReflect                      { get; set; }
     public ITargetable EndTarget                { get; set; }
     public List<int> EnemiesHitByWeapon         { get; set; }
-    public bool IsDeflecting                    { get; set; }
+    public bool IsReflecting                    { get; set; }
     public bool IsFirstHealTick                 { get; set; }
     public bool IsStartingSpec                  { get; set; }
     public int Level                            { get; set; }

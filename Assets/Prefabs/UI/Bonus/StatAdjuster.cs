@@ -1,9 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-
-
+﻿using UnityEngine;
+// TODO start from here.
 public class StatAdjuster : MonoBehaviour
 {
     enum BUTTON_STATE { UP, DOWN }
@@ -61,7 +57,7 @@ public class StatAdjuster : MonoBehaviour
     {
         if (BonusManager.CanAdd(bonusType))
         {
-            BonusManager.UpdateBonusAmount(bonusType, 1);
+            BonusManager.AddBonusAmount(bonusType, 1);
         }
         else
         {
@@ -73,7 +69,7 @@ public class StatAdjuster : MonoBehaviour
     {
         if (BonusManager.CanSubtract(bonusType))
         {
-            BonusManager.UpdateBonusAmount(bonusType, -1);
+            BonusManager.AddBonusAmount(bonusType, -1);
         }
         else
         {

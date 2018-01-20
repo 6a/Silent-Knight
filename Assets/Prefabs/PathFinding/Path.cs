@@ -2,15 +2,21 @@
 
 namespace PathFinding
 {
+    /// <summary>
+    /// Container representing a path (a set of waypoints) as well as various tools for smooth pathing.
+    /// </summary>
     public class Path
     {
-        public readonly Vector2[] LookPoints;
-        public readonly Line[] TurnBoundaries;
-        public readonly int FinishLineIndex;
-        public readonly int SlowdownIndex;
+        // Path properties.
+        public Vector2[] LookPoints     { get; private set; }
+        public Line[] TurnBoundaries    { get; private set; }
+        public int FinishLineIndex      { get; private set; }
+        public int SlowdownIndex        { get; private set; }
 
         public Path(Vector2[] waypoints, Vector3 startPos, float turnDistance, float stoppingDistance)
         {
+            // Loads waypoints into memory and sets up all turn boundaries and lookpoints.
+
             LookPoints = waypoints;
             TurnBoundaries = new Line[LookPoints.Length];
             FinishLineIndex = TurnBoundaries.Length - 1;
@@ -38,18 +44,19 @@ namespace PathFinding
             }
         }
 
+        /// <summary>
+        /// Draws the path in-game, for debugging purposes.
+        /// </summary>
         public void Draw(LineRenderer lr, Color color)
         {
             lr.widthMultiplier = 0.2f;
-            lr.material = new Material(Shader.Find("Unlit/Color"));
-            lr.material.color = color;
-
+            lr.material = new Material(Shader.Find("Unlit/Color")) { color = color };
             lr.positionCount = LookPoints.Length;
+
             for (int i = 0; i < LookPoints.Length; i++)
             {
                 lr.SetPosition(i, new Vector3(LookPoints[i].x, 1.1f, LookPoints[i].y));
             }
         }
-
     }
 }

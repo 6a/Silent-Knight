@@ -2,16 +2,23 @@
 
 namespace PathFinding
 {
+    /// <summary>
+    /// Container representing a line perpendicular to a point on a path. Used for smoothing path navigation.
+    /// </summary>
     public struct Line
     {
+        // Magic const!
         private const float VERTICAL_LINE_GRADIENT = 1e5f;
 
-        private float m_gradient { get; set; }
-        private float m_yInterceipt { get; set; }
-        private float m_gradientPerpendicular { get; set; }
-        private Vector2 m_pointoOnLine1;
-        private Vector2 m_pointOnLine2;
-        private bool m_approachSide;
+        // Line properties.
+        float Gradient { get; set; }
+        float YIntercept { get; set; }
+        float GradientPerpendicular { get; set; }
+
+        // Line data.
+        Vector2 PointOnLine1;
+        Vector2 PointOnLine2;
+        bool ApproachSide;
 
         public Line(Vector2 pointOnLine, Vector2 pointPerpendicularToLine)
         {
@@ -20,46 +27,55 @@ namespace PathFinding
 
             if (deltaX == 0)
             {
-                m_gradientPerpendicular = VERTICAL_LINE_GRADIENT;
+                GradientPerpendicular = VERTICAL_LINE_GRADIENT;
             }
             else
             {
-                m_gradientPerpendicular = deltaY / deltaX;
+                GradientPerpendicular = deltaY / deltaX;
             }
 
-            if (m_gradientPerpendicular == 0)
+            if (GradientPerpendicular == 0)
             {
-                m_gradient = VERTICAL_LINE_GRADIENT;
+                Gradient = VERTICAL_LINE_GRADIENT;
             }
             else
             {
-                m_gradient = -1 / m_gradientPerpendicular;
+                Gradient = -1 / GradientPerpendicular;
             }
 
-            m_yInterceipt = pointOnLine.y - m_gradient * pointOnLine.x;
-            m_pointoOnLine1 = pointOnLine;
-            m_pointOnLine2 = pointOnLine + new Vector2(1, m_gradient);
+            YIntercept = pointOnLine.y - Gradient * pointOnLine.x;
+            PointOnLine1 = pointOnLine;
+            PointOnLine2 = pointOnLine + new Vector2(1, Gradient);
 
-            m_approachSide = false;
-            m_approachSide = GetSide(pointPerpendicularToLine);
+            ApproachSide = false;
+            ApproachSide = GetSide(pointPerpendicularToLine);
         }
 
+        /// <summary>
+        /// Returns whether the point is over or before the current line.
+        /// </summary>
         bool GetSide(Vector2 p)
         {
-            return (p.x - m_pointoOnLine1.x) * (m_pointOnLine2.y - m_pointoOnLine1.y) > (p.y - m_pointoOnLine1.y) * (m_pointOnLine2.x - m_pointoOnLine1.x);
+            return (p.x - PointOnLine1.x) * (PointOnLine2.y - PointOnLine1.y) > (p.y - PointOnLine1.y) * (PointOnLine2.x - PointOnLine1.x);
         }
 
+        /// <summary>
+        /// Returns true if this line has been crossed.
+        /// </summary>
         public bool HasCrossedLine (Vector2 p)
         {
-            return GetSide(p) != m_approachSide;
+            return GetSide(p) != ApproachSide;
         }
 
+        /// <summary>
+        /// Returns distance between a point, and this line.
+        /// </summary>
         public float DistanceFrom(Vector2 p)
         {
-            var yInterceptPerpendicular = p.y - m_gradientPerpendicular * p.x;
-            var intersectX = (yInterceptPerpendicular - m_yInterceipt) / (m_gradient - m_gradientPerpendicular);
+            var yInterceptPerpendicular = p.y - GradientPerpendicular * p.x;
+            var intersectX = (yInterceptPerpendicular - YIntercept) / (Gradient - GradientPerpendicular);
 
-            var intersectY = m_gradient * intersectX + m_yInterceipt;
+            var intersectY = Gradient * intersectX + YIntercept;
             return Vector2.Distance(p, new Vector2(intersectX, intersectY));
         }
     }

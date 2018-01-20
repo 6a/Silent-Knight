@@ -27,7 +27,7 @@ GAMEPLAY
 		Send enemies into the void with a powerful kick																			
 		Decimate groups of enemies with a spinning sword slash																	
 		Stun enemies, making them more vulnerable to damage																		
-		Deflect projectiles back at ranged units for massive damage																	
+		Reflect projectiles back at ranged units for massive damage																	
 		Activate your ultimate for a temporary damage boost																		
 	Defeat the Dungeon guardian every five levels to earn a huge XP boost
 	Reincarnate and start from level 1 on dungeon 1, but retain your skill progression - Become more powerful, faster!

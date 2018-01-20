@@ -9,10 +9,10 @@ public struct Settings
     public float MasterVolume, BGMVolume, SFXVolume;
     public int GFXLevel;
     public bool HapticFeedback;
-    public LANGUAGE Language;
+    public Enums.LANGUAGE Language;
     public bool Modified;
 
-    public Settings(float masterVolume, float bGMVolume, float fXVolume, int gFXLevel, bool hapticFeedback, LANGUAGE language)
+    public Settings(float masterVolume, float bGMVolume, float fXVolume, int gFXLevel, bool hapticFeedback, Enums.LANGUAGE language)
     {
         MasterVolume = masterVolume;
         BGMVolume = bGMVolume;
@@ -38,7 +38,7 @@ public class SettingsManager : MonoBehaviour
 
     Settings m_previousSettings, m_currentSettings;
 
-    readonly Settings m_defaults = new Settings(0.8f, 0.8f, 0.8f, 2, true, LANGUAGE.JP);
+    readonly Settings m_defaults = new Settings(0.8f, 0.8f, 0.8f, 2, true, Enums.LANGUAGE.JP);
 
     public static SettingsManager m_instance;
 
@@ -201,8 +201,8 @@ public class SettingsManager : MonoBehaviour
 
     public void OnChangeLanguage(int lang)
     {
-        if ((LANGUAGE)lang == m_currentSettings.Language) return;
-        m_currentSettings.Language = (LANGUAGE)lang;
+        if ((Enums.LANGUAGE)lang == m_currentSettings.Language) return;
+        m_currentSettings.Language = (Enums.LANGUAGE)lang;
         m_currentSettings.Modified = true;
     }
 

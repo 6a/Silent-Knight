@@ -10,7 +10,7 @@ public class LanguageSelect : MonoBehaviour
 
     private void Start()
     {
-        if (LocalisationManager.GetCurrentLanguage() == LANGUAGE.EN)
+        if (LocalisationManager.GetCurrentLanguage() == Enums.LANGUAGE.EN)
         {
             OnPressEN();
         }
@@ -24,19 +24,19 @@ public class LanguageSelect : MonoBehaviour
     {
         m_buttonEN.enabled = false;
         m_buttonJP.enabled = true;
-        LocalisationManager.SetLanguage(LANGUAGE.JP);
+        LocalisationManager.SetLanguage(Enums.LANGUAGE.JP);
     }
 
     public void OnPressEN()
     {
         m_buttonEN.enabled = true;
         m_buttonJP.enabled = false;
-        LocalisationManager.SetLanguage(LANGUAGE.EN);
+        LocalisationManager.SetLanguage(Enums.LANGUAGE.EN);
     }
 
-    public void ToggleDisplay(LANGUAGE lang)
+    public void ToggleDisplay(Enums.LANGUAGE lang)
     {
-        if (lang == LANGUAGE.EN)
+        if (lang == Enums.LANGUAGE.EN)
         {
             m_buttonEN.enabled = true;
             m_buttonJP.enabled = false;

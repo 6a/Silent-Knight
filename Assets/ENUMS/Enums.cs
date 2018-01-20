@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-/// <summary>
+﻿/// <summary>
 /// Enum helper class.
 /// </summary>
 public class Enums
 {
+    // Converts an enum of type PLAYER_ATTACK into it's corresponding PLAYER_STAT enum.
     public static PLAYER_STAT ConvertAttackToBonus(PLAYER_ATTACK a)
     {
         switch (a)
@@ -15,7 +11,7 @@ public class Enums
             case PLAYER_ATTACK.SWORD_SPIN:  return PLAYER_STAT.COOLDOWN_SPIN;
             case PLAYER_ATTACK.KICK:        return PLAYER_STAT.COOLDOWN_KICK;
             case PLAYER_ATTACK.SHIELD:      return PLAYER_STAT.COOLDOWN_SHIELD_BASH;
-            case PLAYER_ATTACK.DEFLECT:     return PLAYER_STAT.COOLDOWN_DEFLECT;
+            case PLAYER_ATTACK.REFLECT:     return PLAYER_STAT.COOLDOWN_REFLECT;
             case PLAYER_ATTACK.ULTIMATE:    return PLAYER_STAT.COOLDOWN_ULT;
         }
 
@@ -32,7 +28,7 @@ public class Enums
     /// <summary>
     /// Represents various different animations.
     /// </summary>
-    public enum ANIMATION { ATTACK_BASIC1, ATTACK_BASIC2, ATTACK_ULTIMATE, ATTACK_KICK, ATTACK_SHIELD, DEFLECT, BUFF, DEATH, JUMP }
+    public enum ANIMATION { ATTACK_BASIC1, ATTACK_BASIC2, ATTACK_ULTIMATE, ATTACK_KICK, ATTACK_SHIELD, REFLECT, BUFF, DEATH, JUMP }
 
     /// <summary>
     /// Represents the current state of a bonus statistic.
@@ -47,7 +43,7 @@ public class Enums
     /// <summary>
     /// Represents player attacks.
     /// </summary>
-    public enum PLAYER_ATTACK { SWORD_SPIN, KICK, SHIELD, DEFLECT, ULTIMATE }
+    public enum PLAYER_ATTACK { SWORD_SPIN, KICK, SHIELD, REFLECT, ULTIMATE }
 
     /// <summary>
     /// Represents different bonus statistic properties.
@@ -60,7 +56,7 @@ public class Enums
         COOLDOWN_KICK,
         COOLDOWN_SPIN,
         COOLDOWN_SHIELD_BASH,
-        COOLDOWN_DEFLECT,
+        COOLDOWN_REFLECT,
         COOLDOWN_ULT,
         BOOST_HEALTH,
         CHANCE_DODGE,
@@ -75,7 +71,7 @@ public class Enums
     /// <summary>
     /// Represents different types of sound effects.
     /// </summary>
-    public enum SFX_TYPE { SWORD_IMPACT, FOOTSTEP, ENEMY_ATTACK_IMPACT, KICK, SHIELD_SLAM, DEFLECT, BIG_IMPACT }
+    public enum SFX_TYPE { SWORD_IMPACT, FOOTSTEP, ENEMY_ATTACK_IMPACT, KICK, SHIELD_SLAM, SPELL_REFLECT, BIG_IMPACT }
 
     /// <summary>
     /// Represents the various variations of the background music.
@@ -86,4 +82,14 @@ public class Enums
     /// Represents the various graphics levels.
     /// </summary>
     public enum GFX_QUALITY { LOW, MID, HIGH };
+
+    /// <summary>
+    /// Represents the various floating combat text types.
+    /// </summary>
+    public enum FCT_TYPE { HIT, CRIT, DOTHIT, DOTCRIT, REBOUNDHIT, REBOUNDCRIT, HEALTH, ENEMYHIT, DODGE }
+
+    /// <summary>
+    /// Represents the two languages available for this applications UI elements.
+    /// </summary>
+    public enum LANGUAGE { EN, JP }
 }

@@ -7,7 +7,7 @@ namespace Localisation
     {
         [Tooltip("0 = EN ver, 1 = JP ver")] public string[] m_data = new string[2];
         [SerializeField] Text m_textField;
-        public LANGUAGE m_currentlanguage;
+        public Enums.LANGUAGE m_currentlanguage;
 
         bool m_ready = false;
 
@@ -31,7 +31,7 @@ namespace Localisation
             SetLanguage(m_currentlanguage);
         }
 
-        public void SetLanguage(LANGUAGE lang)
+        public void SetLanguage(Enums.LANGUAGE lang)
         {
             m_textField.text = m_data[(int)lang];
             m_currentlanguage = lang;

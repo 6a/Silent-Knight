@@ -30,7 +30,6 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
     // Properties
     public IAttackable CurrentTarget { get; set; }
-    public int DeathTime { get; set; }
     public Vector3 FocusPoint { get { return transform.position; } }
     public float Health { get; set; }
     public int ID { get; set; }
@@ -60,7 +59,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     [SerializeField] Transform m_lookTarget;
     [SerializeField] GameObject m_particleBuff;
     [SerializeField] GameObject m_particleBuffStart;
-    [SerializeField] GameObject m_particleDeflect;
+    [SerializeField] GameObject m_particleReflect;
     [SerializeField] GameObject m_particleHealStart;
     [SerializeField] GameObject m_particleKick;
     [SerializeField] GameObject m_particleLevelUp;
@@ -88,7 +87,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         if (FindObjectOfType<DungeonTest>() == null)
         {
             GameManager.RegisterPlayer(this);
-            GameManager.OnStartRun += OnStartRun;
+            GameManager.OnStartRun += OnStartLevel;
         }
     }
 
@@ -122,7 +121,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
             var addedHealth = (m_playerStateData.MaxHealth * m_regenAmount);
             Health = Mathf.Clamp(Health + addedHealth, 0, m_playerStateData.MaxHealth);
 
-            FCTRenderer.AddFCT(FCT_TYPE.HEALTH, "+ " + addedHealth.ToString("F0"), transform.position + Vector3.up, Vector2.down);
+            FCTRenderer.AddFCT(Enums.FCT_TYPE.HEALTH, "+ " + addedHealth.ToString("F0"), transform.position + Vector3.up, Vector2.down);
 
             m_healthbar.UpdateHealthDisplay(Health / m_playerStateData.MaxHealth, (int)m_playerStateData.MaxHealth);
             m_healthbar.Pulse(true);
@@ -135,8 +134,8 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         // Update UI Cooldown display
         UpdateCooldownSpinners();
 
-        // Handle Deflect activation behaviour
-        if (StartDeflect()) return;
+        // Handle Reflect activation behaviour
+        if (StartReflect()) return;
 
         // Handle Ultimate activation behaviour
         if (StartUltimate()) return;
@@ -172,15 +171,15 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         }
 
         // If the trigger object is determined to be an enemy projectile and the player
-        // unit is currently attempting to deflect it, perform the appropriate actions and
-        // deflect the projectile.
-        if (m_playerStateData.IsDeflecting && c.gameObject.layer == 9)
+        // unit is currently attempting to reflect it, perform the appropriate actions and
+        // reflect the projectile.
+        if (m_playerStateData.IsReflecting && c.gameObject.layer == 9)
         {
             var projectile = c.GetComponent<Projectile>();
 
             if (projectile.CanBeReflected(this))
             {
-                AudioManager.PlayFX(Enums.SFX_TYPE.DEFLECT, transform.position);
+                AudioManager.PlayFX(Enums.SFX_TYPE.SPELL_REFLECT, transform.position);
 
                 StartCoroutine(ApplyHapticFeedback(0.05f, false, true));
 
@@ -194,8 +193,8 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
                 var dmg = BonusManager.GetModifiedValue(Enums.PLAYER_STAT.BOOST_DAMAGE, LevelScaling.GetScaledDamage(m_playerStateData.Level, (int)m_baseDamage));
 
                 projectile.Reflect(this, 5, -1, dmg * 3 * critMultiplier);
-                Instantiate(m_particleDeflect, projectile.transform.position, Quaternion.identity);
-                m_playerStateData.DidDeflect = true;
+                Instantiate(m_particleReflect, projectile.transform.position, Quaternion.identity);
+                m_playerStateData.DidReflect = true;
             }
         }
     }
@@ -208,25 +207,25 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         CameraFollow.SwitchViewDeath();
     }
 
-    public void AnimationTriggerDeflectFinish()
+    public void AnimationTriggerReflectFinish()
     {
-        if (m_playerStateData.DidDeflect)
+        if (m_playerStateData.DidReflect)
         {
-            StartAttackCooldown(Enums.PLAYER_ATTACK.DEFLECT, 0.125f, 0.5f);
+            StartAttackCooldown(Enums.PLAYER_ATTACK.REFLECT, 0.125f, 0.5f);
         }
         else
         {
-            StartAttackCooldown(Enums.PLAYER_ATTACK.DEFLECT);
+            StartAttackCooldown(Enums.PLAYER_ATTACK.REFLECT);
         }
 
-        m_playerStateData.IsDeflecting = false;
+        m_playerStateData.IsReflecting = false;
         OnFollowPath(0);
     }
 
-    public void AnimationTriggerDeflectStart()
+    public void AnimationTriggerReflectStart()
     {
-        m_playerStateData.IsDeflecting = true;
-        m_playerStateData.DidDeflect = false;
+        m_playerStateData.IsReflecting = true;
+        m_playerStateData.DidReflect = false;
     }
 
     public void AnimationTriggerFootstep()
@@ -339,13 +338,13 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         throw new NotImplementedException();
     }
 
-    public void OnDamage(IAttacker attacker, float dmg, FCT_TYPE type)
+    public void OnDamage(IAttacker attacker, float dmg, Enums.FCT_TYPE type)
     {
         if (IsDead) return;
 
         if (UnityEngine.Random.Range(0f, 1f) <= BonusManager.GetModifiedValueFlatAsDecimal(Enums.PLAYER_STAT.CHANCE_DODGE, m_dodgeChance))
         {
-            FCTRenderer.AddFCT(FCT_TYPE.DODGE, "!", transform.position + (1.1f * Vector3.up), Vector3.up);
+            FCTRenderer.AddFCT(Enums.FCT_TYPE.DODGE, "!", transform.position + (1.1f * Vector3.up), Vector3.up);
             return;
         }
 
@@ -495,7 +494,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
             case Enums.PLAYER_STAT.COOLDOWN_KICK: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.KICK);
             case Enums.PLAYER_STAT.COOLDOWN_SPIN: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.SWORD_SPIN);
             case Enums.PLAYER_STAT.COOLDOWN_SHIELD_BASH: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.SHIELD);
-            case Enums.PLAYER_STAT.COOLDOWN_DEFLECT: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.DEFLECT);
+            case Enums.PLAYER_STAT.COOLDOWN_REFLECT: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.REFLECT);
             case Enums.PLAYER_STAT.COOLDOWN_ULT: return BASE_COOLDOWN.Get(Enums.PLAYER_ATTACK.ULTIMATE);
             case Enums.PLAYER_STAT.BOOST_HEALTH: return LevelScaling.GetScaledHealth(m_playerStateData.Level, (int)m_baseHealth);
             case Enums.PLAYER_STAT.CHANCE_DODGE: return 100 * m_dodgeChance;
@@ -557,7 +556,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
             var total = baseDamageMultiplier * GetPlayerProperty(Enums.PLAYER_STAT.BOOST_DAMAGE) * dmg * critMultiplier;
 
-            var t = (isCrit) ? FCT_TYPE.CRIT : FCT_TYPE.HIT;
+            var t = (isCrit) ? Enums.FCT_TYPE.CRIT : Enums.FCT_TYPE.HIT;
 
             enemy.OnDamage(this, total, t);
         }
@@ -579,7 +578,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
             amount *= -1;
         }
 
-        var t = (isCrit) ? FCT_TYPE.DOTCRIT : FCT_TYPE.DOTHIT;
+        var t = (isCrit) ? Enums.FCT_TYPE.DOTCRIT : Enums.FCT_TYPE.DOTHIT;
 
         if (enemy != null) enemy.OnDamage(this, amount * critMultiplier, t);
     }
@@ -603,7 +602,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         m_animator.ResetTrigger("A3Start");
         m_animator.ResetTrigger("KickStart");
         m_animator.ResetTrigger("ShieldStart");
-        m_animator.ResetTrigger("DeflectStart");
+        m_animator.ResetTrigger("ReflectStart");
         m_animator.ResetTrigger("BuffStart");
         m_animator.ResetTrigger("DeathStart");
         m_animator.ResetTrigger("JumpStart");
@@ -756,20 +755,20 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         m_playerStateData.IsStartingSpec = false;
     }
 
-    bool StartDeflect()
+    bool StartReflect()
     {
-        if (!m_playerStateData.IsStartingSpec && (Input.GetButtonDown("Deflect") || m_simulatedInput.Get(Enums.PLAYER_ATTACK.DEFLECT)))
+        if (!m_playerStateData.IsStartingSpec && (Input.GetButtonDown("Reflect") || m_simulatedInput.Get(Enums.PLAYER_ATTACK.REFLECT)))
         {
-            if (m_currentCooldowns.Get(Enums.PLAYER_ATTACK.DEFLECT) <= 0)
+            if (m_currentCooldowns.Get(Enums.PLAYER_ATTACK.REFLECT) <= 0)
             {
                 m_playerStateData.IsStartingSpec = true;
-                TriggerAnimation(Enums.ANIMATION.DEFLECT);
+                TriggerAnimation(Enums.ANIMATION.REFLECT);
                 m_playerStateData.PreviousAttackTime = Time.time + 10;
                 return true;
             }
             else
             {
-                GameUIManager.Pulse(Enums.PLAYER_ATTACK.DEFLECT);
+                GameUIManager.Pulse(Enums.PLAYER_ATTACK.REFLECT);
             }
         }
 
@@ -820,8 +819,8 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
             case Enums.ANIMATION.ATTACK_SHIELD:
                 m_animator.SetTrigger("ShieldStart");
                 break;
-            case Enums.ANIMATION.DEFLECT:
-                m_animator.SetTrigger("DeflectStart");
+            case Enums.ANIMATION.REFLECT:
+                m_animator.SetTrigger("ReflectStart");
                 break;
             case Enums.ANIMATION.BUFF:
                 m_animator.SetTrigger("BuffStart");
@@ -905,7 +904,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         m_animator.SetFloat("MovementBlend", 1 - speedPercent);
     }
 
-    public override void OnStartRun()
+    public override void OnStartLevel()
     {
         Platforms.RegisterPlayer(this);
 

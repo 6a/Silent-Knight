@@ -57,6 +57,9 @@ public class DungeonGenerator : MonoBehaviour
         StartCoroutine(DiscoverValidLevelsAsync(iterations, start, fabricate, platforms, nodes, wait));
     }
 
+    /// <summary>
+    /// Asynchronously searches for valid levels by seed index.
+    /// </summary>
     IEnumerator DiscoverValidLevelsAsync(int iterations, int start, bool fabricate, int platforms, int nodes, float wait)
     {
         // Create a new, empty list of integers to store the valid level seeds.
@@ -65,7 +68,7 @@ public class DungeonGenerator : MonoBehaviour
         // Run through every seed to be tested. Generate the dungeon and add the seed to the list if valid.
         for (int i = start; i < iterations + start; i++)
         {
-            Generator.GenerateTestDungeon(i);
+            Generator.GenerateNewDungeon(i);
 
             if (i > 0 && Generator.CurrentDungeon.Nodes.Count == nodes && Generator.CurrentDungeon.Platforms.Count == platforms)
             {
@@ -90,7 +93,7 @@ public class DungeonGenerator : MonoBehaviour
 
             print("Level: " + lvl);
 
-            Generator.GenerateTestDungeon(lvl);
+            Generator.GenerateNewDungeon(lvl);
 
             if (fabricate) Generator.FabricateTest(lvl);
 

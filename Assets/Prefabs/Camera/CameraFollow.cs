@@ -84,7 +84,9 @@ public class CameraFollow : MonoBehaviour
         return m_instance.m_switchingFinished;
     }
 
-    // Smooth lerps the camera to rear view.
+    /// <summary>
+    /// Smooth lerps the camera to rear view.
+    /// </summary>
     IEnumerator SwitchViewRearAsync(Transform t, Transform l)
     {
         const float TIME_MOD = 0.5f;
@@ -127,6 +129,9 @@ public class CameraFollow : MonoBehaviour
         m_instance.StartCoroutine(m_instance.SwitchViewDeathAsync());
     }
 
+    /// <summary>
+    /// Smooth lerps the camera to death view.
+    /// </summary>
     IEnumerator SwitchViewDeathAsync()
     {
         const float LS = 0.1f;

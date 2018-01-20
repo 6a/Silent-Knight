@@ -11,16 +11,25 @@ public static class PersistentData
     const string BOOL_TRUE = "1";
     const string BOOL_FALSE = "0";
 
+    /// <summary>
+    /// Enums representing keys for integer based values.
+    /// </summary>
     public enum KEY_INT
     {
         XP, LEVEL, BONUS_CRIT_CHANCE, BONUS_ATTACK_DAMAGE, BONUS_ULT_DUR,
-        BONUS_KICK_CD, BONUS_SPIN_CD, BONUS_BASH_CD, BONUS_DEFLECT_CD,
+        BONUS_KICK_CD, BONUS_SPIN_CD, BONUS_BASH_CD, BONUS_REFLECT_CD,
         BONUS_ULT_CD, BONUS_HEALTH, BONUS_DODGE_CHANCE, CURRENT_CREDITS,
         SPENT_CREDITS, LEVEL_GFX, LANGUAGE
     }
 
+    /// <summary>
+    /// Enums representing keys for float based values.
+    /// </summary>
     public enum KEY_FLOAT { VOL_MASTER, VOL_BGM, VOL_FX }
 
+    /// <summary>
+    /// Enums representing keys for bolean based values.
+    /// </summary>
     public enum KEY_BOOL { HAPTIC_FEEDBACK }
 
     /// <summary>
@@ -55,6 +64,9 @@ public static class PersistentData
         return PlayerPrefs.GetFloat(key.ToString());
     }
 
+    // Note: booleans are stored internally as a "0" or "1" string value.
+    // They are identified by prependending the appropriate KEY_BOOL with BOOL_PREFIX
+
     /// <summary>
     /// Saves a boolean value to PlayerPrefs.
     /// </summary>
@@ -70,8 +82,6 @@ public static class PersistentData
     /// </summary>
     public static bool LoadBool(KEY_BOOL key)
     {
-        // Note: booleans are stored internally as a "0" or a "1"
-
         var value = PlayerPrefs.GetString(BOOL_PREFIX + (key.ToString()));
 
         if (value == BOOL_TRUE) return true;

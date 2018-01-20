@@ -48,7 +48,7 @@ public class Disposal : MonoBehaviour
     }
 
     /// <summary>
-    /// Mark a GameObject for deletion
+    /// Mark a GameObject for deletion. Default delay of 1.0s is applied unless an value is provided for delay.
     /// </summary>
     public static void Dispose(GameObject reference, float delay = 1f)
     {

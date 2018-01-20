@@ -2,32 +2,47 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-class FCTRequest
+/// <summary>
+/// Container for storing information for a floating combat text instance.
+/// </summary>
+struct FCTRequest
 {
-    public FCT_TYPE Type { get; set; }
+    // Type of FCT request.
+    public Enums.FCT_TYPE Type { get; set; }
+
+    // Text to display (ensure text is either found in, or added to, the relevent TMP texture in the editor.
     public string Text { get; set; }
-    public Vector3 WorldPos { get; set; }
+
+    // Position at which to place this FCT instance on spawn.
+    public Vector3 WorldStartPos { get; set; }
+
+    // Direction in which this FCT instance should travel on spawn, if any.
     public Vector2? Dir { get; set; }
 
-public FCTRequest(FCT_TYPE type, string text, Vector3 worldPos, Vector2? dir)
+    public FCTRequest(Enums.FCT_TYPE type, string text, Vector3 worldStartPos, Vector2? dir)
     {
         Type = type;
         Text = text;
-        WorldPos = worldPos;
+        WorldStartPos = worldStartPos;
 
         Dir = dir;
     }
 }
 
-public enum FCT_TYPE { HIT, CRIT, DOTHIT, DOTCRIT, REBOUNDHIT, REBOUNDCRIT, HEALTH, ENEMYHIT, DODGE }
-
+/// <summary>
+/// Handles all floating combat text rendering.
+/// </summary>
 public class FCTRenderer : MonoBehaviour
 {
     static FCTRenderer instance;
 
+    // References to the various different FCT prefabs.
     [SerializeField] GameObject [] m_textObjects;
+
+    // UI Rect to act as a parent within the UI.
     [SerializeField] Transform m_fctParent;
 
+    // Storage for all pending FCT requests.
     Queue<FCTRequest> m_fctQueue;
 
     void Awake ()
@@ -38,6 +53,7 @@ public class FCTRenderer : MonoBehaviour
 	
 	void Update ()
     {
+        // Every frame, process all the FCT jobs in the queue.
         while (m_fctQueue.Count > 0)
         {
             var req = m_fctQueue.Dequeue();
@@ -45,11 +61,14 @@ public class FCTRenderer : MonoBehaviour
 
             var script = fct.GetComponent<FCT>();
 
-            script.Init(req.Text, req.WorldPos, req.Dir);
+            script.Init(req.Text, req.WorldStartPos, req.Dir);
         }
     }
 
-    public static void AddFCT(FCT_TYPE type, string text, Vector3 worldPos, Vector2? dir = null)
+    /// <summary>
+    /// Adds a floating combat text request to this manager.
+    /// </summary>
+    public static void AddFCT(Enums.FCT_TYPE type, string text, Vector3 worldPos, Vector2? dir = null)
     {
         instance.m_fctQueue.Enqueue(new FCTRequest(type, text, worldPos, dir));
     }

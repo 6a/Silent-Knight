@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
+// TODO comments.
 public class InstructionsManager : MonoBehaviour
 {
     [SerializeField] GameObject[] m_langSelect;

@@ -2,8 +2,12 @@
 
 namespace DungeonGeneration
 {
+    /// <summary>
+    /// Container representing a platform in memory.
+    /// </summary>
     public class Platform
     {
+        // Platform properties.
         public int X { get; private set; }
         public int Y { get; private set; }
         public int Width { get; private set; }
@@ -23,6 +27,9 @@ namespace DungeonGeneration
             Connections = 0;
         }
 
+        /// <summary>
+        /// Returns true if this platform intersects with another. Padding increases the checked bounds of each platform.
+        /// </summary>
         public bool Intersects (Platform r, int padding)
         {
             if (X - padding <= (r.X + r.Width + padding) && (X + Width + padding) >= r.X - padding
@@ -34,6 +41,9 @@ namespace DungeonGeneration
             return false;
         }
 
+        /// <summary>
+        /// Returns true if this platform is a node (start or end platform).
+        /// </summary>
         public bool IsNode()
         {
             return (Connections == 1);

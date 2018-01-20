@@ -3,27 +3,31 @@ using UnityEngine;
 
 namespace PathFinding
 {
+    /// <summary>
+    /// Smooths paths. 
+    /// </summary>
+    /// SOURCE: CraigSelbert @ codeproject.com - https://www.codeproject.com/Articles/18936/A-Csharp-Implementation-of-Douglas-Peucker-Line-Ap
     class PathSmoother
     {
         /// <summary>
         /// Uses the Douglas Peucker algorithm to reduce the number of points.
-        /// https://www.codeproject.com/Articles/18936/A-Csharp-Implementation-of-Douglas-Peucker-Line-Ap
         /// </summary>
         /// <param name="points">The points.</param>
         /// <param name="tolerance">The tolerance.</param>
         /// <returns></returns>
-        public static List<Vector2> douglasPeuckerReduction (List<Vector2> points, double tolerance)
+        public static List<Vector2> Reduce (List<Vector2> points, double tolerance)
         {
             if (points == null || points.Count < 3)
                 return points;
 
             int firstPoint = 0;
             int lastPoint = points.Count - 1;
-            List<int> indexedToKeep = new List<int>();
-
-            //Add the first and last index to the keepers
-            indexedToKeep.Add(firstPoint);
-            indexedToKeep.Add(lastPoint);
+            List<int> indexedToKeep = new List<int>
+            {
+                //Add the first and last index to the keepers
+                firstPoint,
+                lastPoint
+            };
 
             //The first and the last point cannot be the same
             while (points[firstPoint].Equals(points[lastPoint]))

@@ -1,7 +1,0 @@
-﻿public enum GAMESTATE
-{
-    START,
-    GAMEPLAY,
-    LEVELTRANSITION,
-    PAUSE
-}

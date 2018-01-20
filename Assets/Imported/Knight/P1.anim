@@ -29497,14 +29497,14 @@ AnimationClip:
   m_GenerateMotionCurves: 0
   m_Events:
   - time: 0.06666667
-    functionName: AnimationTriggerDeflectStart
+    functionName: AnimationTriggerReflectStart
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.46666667
-    functionName: AnimationTriggerDeflectFinish
+    functionName: AnimationTriggerReflectFinish
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

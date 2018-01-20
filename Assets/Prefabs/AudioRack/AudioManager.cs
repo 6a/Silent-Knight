@@ -5,15 +5,22 @@ using UnityEngine;
 using UnityEngine.Audio;
 
 /// <summary>
-/// Container and wrapper for audio clip. (Property) Random returns a random AudioClip from the available selection within the folder set.
+/// Container and wrapper for audio clip reference.
 /// </summary>
 public struct AudioSet
 {
-    static readonly string ROOT_DIR = "Audio/SFX/";
+    // Location of Audio SFX files in the resources folder.
+    const string ROOT_DIR = "Audio/SFX/";
 
+    // The sub-folder + file name (without index).
     string m_file;
+
+    // The number of files that are known to be available for this particular SFX type.
     public int Count { get; private set; }
+
+    // The type of SFX represented by this container.
     public Enums.SFX_TYPE Type { get; private set; }
+
     /// <summary>
     /// Returns a random AudioClip from the available range.
     /// </summary>
@@ -44,17 +51,22 @@ public struct AudioSet
 /// </summary>
 public class AudioManager : MonoBehaviour
 {
+    // References to the AudioSources that are in use.
     [SerializeField] AudioSource m_sourceBGMQuiet, m_sourceBGMLoud, m_sourceSFX;
+
+    // Reference to the Unity mixer.
     [SerializeField] AudioMixer m_masterMixer;
+
+    // How long 1 bar of this song is, in seconds -> [ BMP / 60 ].
     [Tooltip("The (fixed) length of 1 bar for the background music, in seconds")][SerializeField] float m_barTime;
 
-    const float AUDIO_MIN = -80f;
-    const float AUDIO_MAX = 0f;
-    const float AUDIO_RANGE = 80f;
-
+    // List of all audio libraries.
     List<AudioSet> m_lib;
+
+    // Reference to current audio blending coroutine.
     Coroutine m_blendRoutine;
 
+    // Variables representing information about the loaded BGM clips.
     int m_samplesPerSecond;
     int m_samplesPerBeat;
     
@@ -73,7 +85,7 @@ public class AudioManager : MonoBehaviour
 
         m_lib = new List<AudioSet>();
 
-        // load sound library to memory from Resources folder.
+        // Load sound library references to memory from Resources folder.
         AudioSet aSet = new AudioSet(Enums.SFX_TYPE.SWORD_IMPACT, 5, "player_sword/hit");
         m_lib.Add(aSet);
 
@@ -89,7 +101,7 @@ public class AudioManager : MonoBehaviour
         aSet = new AudioSet(Enums.SFX_TYPE.SHIELD_SLAM, 1, "shield_slam/slam");
         m_lib.Add(aSet);
 
-        aSet = new AudioSet(Enums.SFX_TYPE.DEFLECT, 3, "deflect/deflect");
+        aSet = new AudioSet(Enums.SFX_TYPE.SPELL_REFLECT, 3, "reflect/reflect");
         m_lib.Add(aSet);
 
         aSet = new AudioSet(Enums.SFX_TYPE.BIG_IMPACT, 1, "impact/impact");
@@ -105,9 +117,11 @@ public class AudioManager : MonoBehaviour
         SetVolume(Enums.AUDIO_CHANNEL.SFX, PersistentData.LoadFloat(PersistentData.KEY_FLOAT.VOL_FX));
         SetVolume(Enums.AUDIO_CHANNEL.MASTER, PersistentData.LoadFloat(PersistentData.KEY_FLOAT.VOL_MASTER));
 
+        // Calculate information about the loaded audio clips.
         m_samplesPerSecond = m_sourceBGMQuiet.clip.frequency;
         m_samplesPerBeat = (int)((m_barTime * m_samplesPerSecond) / 4);
 
+        // Fade music in.
         CrossFadeBGM(Enums.BGM_VARIATION.QUIET, 2);
     }
 
@@ -116,10 +130,11 @@ public class AudioManager : MonoBehaviour
         KeepBGMTracksSynced();
     }
 
+    /// <summary>
+    /// If the (2) layers of the BGM are out of sync, re-sync them.
+    /// </summary>
     void KeepBGMTracksSynced()
     {
-        // If the (2) layers of the BGM are out of sync, re-sync them.
-
         if (m_sourceBGMLoud.timeSamples != m_sourceBGMQuiet.timeSamples)
         {
             m_sourceBGMLoud.timeSamples = m_sourceBGMQuiet.timeSamples;
@@ -136,6 +151,9 @@ public class AudioManager : MonoBehaviour
         m_instance.m_blendRoutine = m_instance.StartCoroutine(m_instance.CrossFadeBGMAsync(crossFadeTo, beats));
     }
 
+    /// <summary>
+    /// Fades between the Low and High volume audio channels.
+    /// </summary>
     IEnumerator CrossFadeBGMAsync(Enums.BGM_VARIATION to, int beats)
     {
         // Const value for the wait between each adjustment of the volume during a fade.

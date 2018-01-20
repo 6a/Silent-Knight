@@ -23,7 +23,6 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
 
     // Properties
     public IAttackable CurrentTarget { get; set; }
-    public int DeathTime { get; set; }
     public float Health { get; set; }
     public int ID { get; set; }
     public bool IsBossUnit { get; set; }
@@ -54,7 +53,7 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
         m_enemyStateData.LastAttackTime = -1;
         m_enemyStateData.CurrentAffliction = Enums.AFFLICTION.NONE;
 
-        GameManager.OnStartRun += OnStartRun;
+        GameManager.OnStartRun += OnStartLevel;
     }
 
     void Update()
@@ -164,7 +163,7 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
         m_enemyStateData.AfflictionEndTime = Time.time + duration;
     }
 
-    public void OnDamage(IAttacker attacker, float dmg, FCT_TYPE type)
+    public void OnDamage(IAttacker attacker, float dmg, Enums.FCT_TYPE type)
     {
         if (IsDead || dmg == 0) return;
 
@@ -446,7 +445,7 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
         m_animator.SetFloat("MovementBlend", 1 - speedPercent);
     }
 
-    public override void OnStartRun()
+    public override void OnStartLevel()
     {
         PreviousPos = transform.position;
 
@@ -471,7 +470,7 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
     {
         yield return new WaitForSeconds(Time.fixedDeltaTime * frameDelay);
 
-        target.OnDamage(this, LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage), FCT_TYPE.ENEMYHIT);
+        target.OnDamage(this, LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage), Enums.FCT_TYPE.ENEMYHIT);
 
         AudioManager.PlayFX(Enums.SFX_TYPE.ENEMY_ATTACK_IMPACT, transform.position);
     }
