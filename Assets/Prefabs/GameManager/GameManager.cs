@@ -308,7 +308,7 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1;
         AudioManager.CrossFadeBGM(Enums.BGM_VARIATION.QUIET, 2);
 
-        SceneManager.LoadScene(1);
+        SceneManager.LoadSceneAsync(1);
     }
 
     /// <summary>
@@ -323,7 +323,7 @@ public class GameManager : MonoBehaviour
 
         Time.timeScale = 1;
         AudioManager.CrossFadeBGM(Enums.BGM_VARIATION.QUIET, 2);
-        SceneManager.LoadScene(1);
+        SceneManager.LoadSceneAsync(1);
     }
 
     /// <summary>
@@ -335,7 +335,7 @@ public class GameManager : MonoBehaviour
 
         Time.timeScale = 1;
         AudioManager.CrossFadeBGM(Enums.BGM_VARIATION.QUIET, 2);
-        SceneManager.LoadScene(1);
+        SceneManager.LoadSceneAsync(1);
     }
 
     /// <summary>

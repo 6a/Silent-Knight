@@ -21,6 +21,9 @@ public class Projectile : MonoBehaviour
     // The amount of damage that this projectile will cause.
     float m_damage;
 
+    // State for preventing multiple damage instances.
+    bool m_dead;
+
     /// <summary>
     /// Initialise an instantiated projectile and start it's behaviour.
     /// </summary>
@@ -51,7 +54,7 @@ public class Projectile : MonoBehaviour
     /// </summary>
     public bool CanBeReflected(IAttackable parent)
     {
-        if (parent == m_parent) return false;
+        if (m_dead || parent == m_parent) return false;
         else return true;
     }
 	
@@ -68,8 +71,10 @@ public class Projectile : MonoBehaviour
         var targetPos = m_target.GetPosition() + (Vector3.up * 0.5f);
 
         // Once the unit reaches its target, apply damage and destroy itself.
-        if (Vector3.Distance(targetPos, transform.position) < 0.1f)
+        if (!m_dead && Vector3.Distance(targetPos, transform.position) < 0.1f)
         {
+            m_dead = true;
+
             var t = (Crit) ? Enums.FCT_TYPE.REBOUNDCRIT : Enums.FCT_TYPE.REBOUNDHIT;
 
             m_target.OnDamage(m_parent as IAttacker, m_damage, t);
