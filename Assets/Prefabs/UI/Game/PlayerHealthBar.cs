@@ -1,1 +1,4 @@
-﻿public class PlayerHealthBar : HealthBar { }
+﻿/// <summary>
+/// Blank derived class for polymorphic referencing.
+/// </summary>
+public class PlayerHealthBar : HealthBar { }

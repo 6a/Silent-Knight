@@ -186,8 +186,8 @@ public class BonusManager : MonoBehaviour
         // Due to this, no collisions should occur, and disabling the button should be a valid way to prevent
         // additional modifications past the allowed limits.
         m_instance.m_percentBonusField[(int)bonus].SetButtonState(m_instance.m_bonuses[(int)bonus].State());
-        if (m_instance.m_currentCredits == 0) m_instance.m_percentBonusField[(int)bonus].HideButton(false);
-        if (m_instance.m_spentCredits == 0) m_instance.m_percentBonusField[(int)bonus].HideButton(true);
+        if (m_instance.m_currentCredits == 0) m_instance.m_percentBonusField[(int)bonus].HideButton(Enums.BUTTON_TYPE.POSITIVE);
+        if (m_instance.m_spentCredits == 0) m_instance.m_percentBonusField[(int)bonus].HideButton(Enums.BUTTON_TYPE.NEGATIVE);
 
         // Update the bonus selection window and the information display.
         string currentValue = string.Empty;
@@ -248,7 +248,7 @@ public class BonusManager : MonoBehaviour
 
             foreach (var field in m_instance.m_percentBonusField)
             {
-                field.HideButton(false);
+                field.HideButton(Enums.BUTTON_TYPE.POSITIVE);
             }
         }
         else if (m_instance.m_spentCredits == 0)
@@ -257,7 +257,7 @@ public class BonusManager : MonoBehaviour
 
             foreach (var field in m_instance.m_percentBonusField)
             {
-                field.HideButton(true);
+                field.HideButton(Enums.BUTTON_TYPE.NEGATIVE);
             }
         }
         else
@@ -288,7 +288,6 @@ public class BonusManager : MonoBehaviour
     /// </summary>
     public static float GetModifiedValueFlatAsDecimal(Enums.PLAYER_STAT bonus, float rawValue)
     {
-        Debug.Log(m_instance.m_bonuses[(int)bonus].GetDecimal(rawValue));
         return m_instance.m_bonuses[(int)bonus].GetDecimal(rawValue);
     }
 
@@ -330,7 +329,7 @@ public class BonusManager : MonoBehaviour
         PersistentData.SaveInt(PersistentData.KEY_INT.CURRENT_CREDITS, m_currentCredits);
         PersistentData.SaveInt(PersistentData.KEY_INT.SPENT_CREDITS, m_spentCredits);
 
-        FindObjectOfType<PlayerPathFindingObject>().UpdateHealthCap();
+        FindObjectOfType<PlayerPathFindingObject>().OnMaxHealthUpdate();
 
         ToggleSaveResetButtons(false);
         m_changeVector = new short[10];

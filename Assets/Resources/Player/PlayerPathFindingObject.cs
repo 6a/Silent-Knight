@@ -83,7 +83,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
         m_playerStateData.XP = PersistentData.LoadInt(PersistentData.KEY_INT.XP);
 
-        // For testing purposes only - This will only evaulate to true on the testing scene.
+        // For testing purposes only - This will only evaluate to true on the testing scene.
         if (FindObjectOfType<DungeonTest>() == null)
         {
             GameManager.RegisterPlayer(this);
@@ -124,7 +124,6 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
             FCTRenderer.AddFCT(Enums.FCT_TYPE.HEALTH, "+ " + addedHealth.ToString("F0"), transform.position + Vector3.up, Vector2.down);
 
             m_healthbar.UpdateHealthDisplay(Health / m_playerStateData.MaxHealth, (int)m_playerStateData.MaxHealth);
-            m_healthbar.Pulse(true);
 
             m_playerStateData.NextRegenTick += m_regenTick;
         }
@@ -202,11 +201,17 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
     #region 02_PUBLIC_MEMBER_FUNCTIONS ----------------------------------------------------------------------------------------------------
     #region 02A_ANIMATION_TRIGGERS --------------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Animation trigger: @frame at which the death animation is considered to be finished.
+    /// </summary>
     public void AnimationTriggerDeathFinish()
     {
         CameraFollow.SwitchViewDeath();
     }
 
+    /// <summary>
+    /// Animation trigger: @frame at which the reflect animation is considered to be finished.
+    /// </summary>
     public void AnimationTriggerReflectFinish()
     {
         if (m_playerStateData.DidReflect)
@@ -222,17 +227,26 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         OnFollowPath(0);
     }
 
+    /// <summary>
+    /// Animation trigger: @frame at which the reflect animation is considered to have started.
+    /// </summary>
     public void AnimationTriggerReflectStart()
     {
         m_playerStateData.IsReflecting = true;
         m_playerStateData.DidReflect = false;
     }
 
+    /// <summary>
+    /// Animation trigger: @frame at which the running animation puts a food down onto the floor.
+    /// </summary>
     public void AnimationTriggerFootstep()
     {
         AudioManager.PlayFX(Enums.SFX_TYPE.FOOTSTEP, transform.position);
     }
 
+    /// <summary>
+    /// Animation trigger: @frame at which the kick animation is considered to have started.
+    /// </summary>
     public void AnimationTriggerKick()
     {
         try
@@ -260,6 +274,9 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         }
     }
 
+    /// <summary>
+    /// Animation trigger: @frame at which the standard attack animation is considered to have started.
+    /// </summary>
     public void AnimationTriggerRegularAttack()
     {
         AudioManager.PlayFX(Enums.SFX_TYPE.SWORD_IMPACT, transform.position);
@@ -268,6 +285,9 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         ApplyFlatDamage(CurrentTarget, 1);
     }
 
+    /// <summary>
+    /// Animation trigger: @frame at which the shield bash animation is considered to have started.
+    /// </summary>
     public void AnimationTriggerShieldBash()
     {
         try
@@ -294,11 +314,17 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         }
     }
 
+    /// <summary>
+    /// Animation trigger: @frame at which the sword spin attack animation is considered to have started.
+    /// </summary>
     public void AnimationTriggerSpinEnableWeapon()
     {
         m_weapon.Switch(true);
     }
 
+    /// <summary>
+    /// Animation trigger: @frame at which the sword spin attack animation is considered to have finished.
+    /// </summary>
     public void AnimationTriggerSpinFinish()
     {
         StartAttackCooldown(Enums.PLAYER_ATTACK.SWORD_SPIN);
@@ -308,12 +334,18 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         OnFollowPath(0);
     }
 
+    /// <summary>
+    /// Animation trigger: @frame at which the sword spin particle effect should be triggered.
+    /// </summary>
     public void AnimationTriggerSpinParticle()
     {
         m_particleSwordSpin.Stop();
         m_particleSwordSpin.Play();
     }
 
+    /// <summary>
+    /// Animation trigger: @frame at which the ultimate animation is considered to have finished.
+    /// </summary>
     public void AnimationTriggerUltimateFinish()
     {
         Speed = m_playerStateData.SpeedTemp;
@@ -321,6 +353,9 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         StartAttackCooldown(Enums.PLAYER_ATTACK.ULTIMATE, 1, 0.8f);
     }
 
+    /// <summary>
+    /// Animation trigger: @frame at which the ultimate animation is considered to have started.
+    /// </summary>
     public void AnimationTriggerUltimateStart()
     {
         m_playerStateData.BaseDamageHolder = m_baseDamage;
@@ -333,11 +368,17 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     #endregion 02A_ANIMATION_TRIGGERS -----------------------------------------------------------------------------------------------------
 
     #region 02B_EVENT_HANDLERS ------------------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Apply an afflication to this unit.
+    /// </summary>
     public void OnAfflict(Enums.AFFLICTION status, float duration)
     {
         throw new NotImplementedException();
     }
 
+    /// <summary>
+    /// Damage this unit.
+    /// </summary>
     public void OnDamage(IAttacker attacker, float dmg, Enums.FCT_TYPE type)
     {
         if (IsDead) return;
@@ -365,6 +406,9 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         }
     }
 
+    /// <summary>
+    /// Call this function when this unit enters a platform.
+    /// </summary>
     public void OnEnterPlatform()
     {
         IAttackable nextTarget;
@@ -387,11 +431,17 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         }
     }
 
+    /// <summary>
+    /// Not implemented for this unit. Will throw a NotImplementedException.
+    /// </summary>
     public void OnKnockBack(Vector2 sourcePos, float strength)
     {
         throw new NotImplementedException();
     }
 
+    /// <summary>
+    /// Call this function when this unit dies.
+    /// </summary>
     public void OnTargetDied(IAttackable target, bool boss = false)
     {
         if (boss)
@@ -414,11 +464,17 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         }
     }
 
+    /// <summary>
+    /// Not implemented for this unit. Will throw a NotImplementedException.
+    /// </summary>
     public void OnSetAsRenderTarget(bool on)
     {
         throw new NotImplementedException();
     }
 
+    /// <summary>
+    /// Called when the players sword collides with an enemy unit, during a sword spin animation.
+    /// </summary>
     public void OnSwordCollision(IAttackable enemy)
     {
         if (enemy == null) return;
@@ -441,16 +497,27 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     #endregion 02B_EVENT_HANDLERS ---------------------------------------------------------------------------------------------------------
 
     #region 02C_UPDATERS_AND_SETTERS ------------------------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// Add xp to this unit's total xp.
+    /// </summary>
     public void GiveXp(int xp)
     {
         UpdateXP(xp);
     }
 
+    /// <summary>
+    /// Modify the attack range for this unit. Only used during boss fight phase.
+    /// </summary>
     public void SetAttackRange(float v)
     {
         m_attackRange = v;
     }
 
+    /// <summary>
+    /// WARNING: BAD OOP! - Forces the bonus manager to update all it's displays. Is called from this class as a reference is
+    /// required.
+    /// </summary>
     public void UpdateBonusDisplay()
     {
         for (int i = 0; i < 10; i++)
@@ -459,7 +526,10 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         }
     }
 
-    public void UpdateHealthCap()
+    /// <summary>
+    /// Update the healthbar to reflect any changes to the maximum health.
+    /// </summary>
+    public void OnMaxHealthUpdate()
     {
         var healthPercentage = Mathf.Clamp01(Health / m_playerStateData.MaxHealth);
 
@@ -472,18 +542,26 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     #endregion 02C_UPDATERS_AND_SETTERS ---------------------------------------------------------------------------------------------------
 
     #region 02D_GETTERS -------------------------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Returns a reference to this units death camera anchor.
+    /// </summary>
     public Transform GetDeathAnchor()
     {
         return m_deathCamAnchor;
     }
 
+    /// <summary>
+    /// Returns a reference to this units lookat transform target.
+    /// </summary>
     public Transform GetLookTarget()
     {
         return m_lookTarget;
     }
 
-    // Returns the appropriate internal value, after applying all appropriate modifications
-    // such as increase due to level, bonus+- etc.
+    /// <summary>
+    /// Returns the appropriate internal value, after applying all appropriate modifications
+    /// such as increase due to level, bonus+- etc.
+    /// </summary>
     public float GetPlayerProperty(Enums.PLAYER_STAT bonus)
     {
         switch (bonus)
@@ -503,26 +581,41 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         }
     }
 
+    /// <summary>
+    /// Returns this unit's current position.
+    /// </summary>
     public Vector3 GetPosition()
     {
         return transform.position;
     }
 
+    /// <summary>
+    /// Returns a reference to this unit's current target transform.
+    /// </summary>
     public Transform GetReferenceTarget()
     {
         return m_refTarget;
     }
 
+    /// <summary>
+    /// Returns this unit's ITargetable interface.
+    /// </summary>
     public ITargetable GetTargetableInterface()
     {
         return this;
     }
 
+    /// <summary>
+    /// Returns a reference to this unit's transform.
+    /// </summary>
     public Transform GetTransform()
     {
         return transform;
     }
 
+    /// <summary>
+    /// Returns true if this unit's ultimate is currently on cooldown.
+    /// </summary>
     public bool UltIsOnCooldown()
     {
         return (m_currentCooldowns.Get(Enums.PLAYER_ATTACK.ULTIMATE) > 0);
@@ -530,11 +623,17 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     #endregion 02D_GETTERS ----------------------------------------------------------------------------------------------------------------
 
     #region 02E_INPUT_HANDLING ------------------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Simulates a key-down event.
+    /// </summary>
     public void SimulateInputPress(Enums.PLAYER_ATTACK type)
     {
         m_simulatedInput.Set(type, true);
     }
 
+    /// <summary>
+    /// Simulates a key-up event.
+    /// </summary>
     public void SimulateInputRelease(Enums.PLAYER_ATTACK type)
     {
         m_simulatedInput.Set(type, false);
@@ -543,6 +642,9 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     #endregion 02_PUBLIC_MEMBER_FUNCTIONS -------------------------------------------------------------------------------------------------
 
     #region 02_PRIVATE_MEMBER_FUNCTIONS ---------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Apply a flat amount of damage to the target enemy unit.
+    /// </summary>
     void ApplyFlatDamage(IAttackable enemy, int baseDamageMultiplier)
     {
         try
@@ -565,6 +667,9 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         }
     }
 
+    /// <summary>
+    /// Apply a percentage of health as damage to the target enemy unit.
+    /// </summary>
     void ApplyPercentageDamage(IAttackable enemy, float amount)
     {
         var rand = UnityEngine.Random.Range(0f, 1f);
@@ -583,16 +688,25 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         if (enemy != null) enemy.OnDamage(this, amount * critMultiplier, t);
     }
 
+    /// <summary>
+    /// Switch off the collider attached to this unit's weapon.
+    /// </summary>
     void DisableWeaponCollider()
     {
         m_weapon.Switch(false);
     }
 
+    /// <summary>
+    /// Attempt to get in range of the target.
+    /// </summary>
     void GetInRange(ITargetable target)
     {
         UpdatePathTarget(target);
     }
 
+    /// <summary>
+    /// Interrupts the attached animator component, and resets all the triggers.
+    /// </summary>
     void InterruptAnimator()
     {
         m_animator.SetTrigger("Interrupt");
@@ -608,8 +722,12 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         m_animator.ResetTrigger("JumpStart");
     }
 
+    /// <summary>
+    /// Attempts to perform an attack. If relevant inputs are detected, non-standard attacks are performed.
+    /// </summary>
     void PerformAttack(IAttackable target)
     {
+        // Set the enemy icon if an enemy is present. Otherwise hide it.
         if (target == null)
         {
             m_enemyHealthbar.ToggleVisibility(false);
@@ -620,8 +738,10 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
             target.OnSetAsRenderTarget(true);
         }
 
+        // How long to wait between attacks.
         float attackDelay = 1000f / (1000f * m_attacksPerSecond);
 
+        // Perform a spin attack if the trigger is detected and it's not on cooldown etc.
         if (!m_playerStateData.IsStartingSpec && (Input.GetButtonDown("AttackSpin") || m_simulatedInput.Get(Enums.PLAYER_ATTACK.SWORD_SPIN)))
         {
             if (m_currentCooldowns.Get(Enums.PLAYER_ATTACK.SWORD_SPIN) <= 0)
@@ -637,6 +757,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
         }
 
+        // Perform a kick attack if the trigger is detected and it's not on cooldown etc.
         if (target != null)
         {
             var distanceToTarget = Vector3.Distance(transform.position, target.GetPosition());
@@ -659,6 +780,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
             }
 
+            // Perform a shield slam attack if the trigger is detected and it's not on cooldown etc.
             if (!m_playerStateData.IsStartingSpec && (Input.GetButtonDown("AttackShield") || m_simulatedInput.Get(Enums.PLAYER_ATTACK.SHIELD)))
             {
                 if (m_currentCooldowns.Get(Enums.PLAYER_ATTACK.SHIELD) <= 0)
@@ -677,6 +799,7 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
 
             }
 
+            // Perform a standard attack, or try to get in range if the enemy is too far away.
             if (distanceToTarget < m_attackRange)
             {
                 if (target.IsBossUnit)
@@ -730,6 +853,8 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         {
             try
             {
+                // If this stage is reached, the unit is at the end of the level, so trigger a new level load.
+
                 var targ = new Vector2(m_playerStateData.EndTarget.GetTransform().position.x, m_playerStateData.EndTarget.GetTransform().position.z);
 
                 if (!IsFollowingPath && Vector2.SqrMagnitude(targ - new Vector2(transform.position.x, transform.position.z)) < 0.1f)
@@ -746,6 +871,9 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         }
     }
 
+    /// <summary>
+    /// Put one of the attack types on cooldown.
+    /// </summary>
     void StartAttackCooldown(Enums.PLAYER_ATTACK attack, float multiplier = 1, float reduceAttackDelay = 0)
     {
         var cd = multiplier * BonusManager.GetModifiedValue(Enums.ConvertAttackToBonus(attack), BASE_COOLDOWN.Get(attack));
@@ -755,6 +883,9 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         m_playerStateData.IsStartingSpec = false;
     }
 
+    /// <summary>
+    /// Returns true if a reflect input event was detected, and was validated.
+    /// </summary>
     bool StartReflect()
     {
         if (!m_playerStateData.IsStartingSpec && (Input.GetButtonDown("Reflect") || m_simulatedInput.Get(Enums.PLAYER_ATTACK.REFLECT)))
@@ -775,6 +906,9 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         return false;
     }
 
+    /// <summary>
+    /// Returns true if an ultimate input event was detected, and was validated.
+    /// </summary>
     bool StartUltimate()
     {
         if (!m_playerStateData.IsStartingSpec && (Input.GetButtonDown("Ultimate") || m_simulatedInput.Get(Enums.PLAYER_ATTACK.ULTIMATE)))
@@ -797,6 +931,9 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         return false;
     }
 
+    /// <summary>
+    /// Cancels any running animations and triggers a new one.
+    /// </summary>
     void TriggerAnimation(Enums.ANIMATION anim, bool interrupt = true)
     {
         if (interrupt) InterruptAnimator();
@@ -834,6 +971,9 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         }
     }
 
+    /// <summary>
+    /// BAD OOP! - Updates all of the UI cooldown objects with current cooldowns.
+    /// </summary>
     void UpdateCooldownSpinners()
     {
         for (int i = 0; i < m_currentCooldowns.Count; i++)
@@ -854,17 +994,27 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         }
     }
 
+    /// <summary>
+    /// Updates persistent data with the a new xp value and performs any relevant actions,
+    /// such as animating the level up icon if a new level is hit etc.
+    /// </summary>
     void UpdateXP(int experienceGained, bool isInitialising = false)
     {
+        // If initialising, then the xp is being loaded to memory and does not need to be added to this unit. 
         if (!isInitialising) m_playerStateData.XP += experienceGained;
 
+        // Save the xp value to persistent data.
         PersistentData.SaveInt(PersistentData.KEY_INT.XP, m_playerStateData.XP);
 
+        // Calculate current level, from xp.
         var updatedLevel = LevelScaling.GetLevel(m_playerStateData.XP);
 
+        // Calculate UI values for updating the level icon
         float currentLevelXP = LevelScaling.GetXP(updatedLevel + 1) - LevelScaling.GetXP(updatedLevel);
         var fillAmount = (m_playerStateData.XP - LevelScaling.GetXP(updatedLevel)) / currentLevelXP;
 
+        // If a new level was reached, play animations etc. Also, cooldowns and health are reset. Otherwise just
+        // update the level display with the new values.
         if (updatedLevel != m_playerStateData.Level)
         {
             GameUIManager.TriggerLevelUpAnimation();
@@ -892,11 +1042,15 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
             GameUIManager.UpdatePlayerLevel(updatedLevel, fillAmount);
         }
 
+        // Store the current level in memory.
         m_playerStateData.Level = updatedLevel;
     }
     #endregion 02_PRIVATE_MEMBER_FUNCTIONS ------------------------------------------------------------------------------------------------
 
     #region 03_OVERRIDE_MEMBER_FUNCTIONS --------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Called by this units base class, and is used for updating movement related behaviour such as walking animation.
+    /// </summary>
     public override void OnFollowPath(float speedPercent)
     {
         if (speedPercent > 0) speedPercent = Mathf.Clamp01(speedPercent + 0.5f);
@@ -904,11 +1058,16 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         m_animator.SetFloat("MovementBlend", 1 - speedPercent);
     }
 
+    /// <summary>
+    /// Register this to the GameManager.OnStartRun event. Add all initialisation behaviour.
+    /// </summary>
+    /// Note: This is done via an event, rather than the Awake function to avoid issues arising from
+    /// attempting to access components that arent initialised at runtime etc.
     public override void OnStartLevel()
     {
         Platforms.RegisterPlayer(this);
 
-        GameUIManager.Show(true);
+        GameUIManager.Visible(true);
 
         PreviousPos = transform.position;
 
@@ -943,13 +1102,18 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
     #endregion 03_OVERRIDE_MEMBER_FUNCTIONS -----------------------------------------------------------------------------------------------
 
     #region 04_MEMBER_IENUMERATORS --------------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Asynchronously Applies haptic feedback and hit freeze.
+    /// </summary>
     IEnumerator ApplyHapticFeedback(float duration, bool buff = false, bool vibrate = false)
     {
+        // If haptic feedback is turned on, apply the freeze and vibrate the device (will only vibrate
+        // if android.
         if (SettingsManager.Haptic())
         {
-            Time.timeScale = 0f;
+            Time.timeScale = 0.01f;
             float pauseEndTime = Time.realtimeSinceStartup + duration;
-            while (PauseManager.Paused() || Time.realtimeSinceStartup < pauseEndTime)
+            while (PauseManager.IsPaused() || Time.realtimeSinceStartup < pauseEndTime)
             {
                 yield return null;
             }
@@ -957,6 +1121,8 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
             if (vibrate) Vibration.Vibrate(Vibration.GenVibratorPattern(0.2f, 50), -1);
         }
 
+        // If this is during a buff sequence, perform ultimate related behaviour such as triggering the
+        // particle system.
         if (buff)
         {
             Sparky.ResetIntensity();
@@ -966,6 +1132,10 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         }
     }
 
+    /// <summary>
+    /// Asynchronously performs actions required after the boss is killed.
+    /// </summary>
+    /// <returns></returns>
     IEnumerator BossDeadSequence()
     {
         AudioManager.CrossFadeBGM(Enums.BGM_VARIATION.QUIET, 4);
@@ -975,6 +1145,11 @@ public class PlayerPathFindingObject : PathFindingObject, IAttackable, IAttacker
         GameManager.TriggerEndScreen();
     }
 
+    /// <summary>
+    /// Asynchronously perform ultimate features such as animations and state updates.
+    /// </summary>
+    /// <param name="duration"></param>
+    /// <returns></returns>
     IEnumerator UltimateSequence(float duration)
     {
         Sparky.DisableLight();

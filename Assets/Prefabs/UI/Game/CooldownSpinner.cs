@@ -1,14 +1,21 @@
 ﻿using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class CooldownSpinner : MonoBehaviour
+/// <summary>
+/// Component helper for cooldown spinner UI elements.
+/// </summary>
+[RequireComponent(typeof(TextMeshProUGUI), typeof(Image))] public class CooldownSpinner : MonoBehaviour
 {
+    // References to attached UI objects.
     TextMeshProUGUI m_textObject;
     Image m_sprite;
+
+    // Starting colour of the sprite being used.
     Color m_baseColor;
+
+    // True if the pulser is currently pulsing.
     bool m_pulsing;
 
     void Awake()
@@ -18,34 +25,47 @@ public class CooldownSpinner : MonoBehaviour
         m_baseColor = m_sprite.color;
     }
 
-    public float Cooldown()
+    /// <summary>
+    /// Updates this cooldown spinner.
+    /// </summary>
+    public void UpdateSpinner(float fillAmount, float remainingTime, int decimalPlaces = 0)
     {
-        return m_sprite.fillAmount;
-    }
+        // Protection against updating while the game is paused.
+        if (PauseManager.IsPaused()) return;
 
-    public void UpdateRadial(float fillAmount, float remainingTime, int decimalPlaces = 0)
-    {
-        if (PauseManager.Paused()) return;
-
+        // Update the spinner fill.
         m_sprite.fillAmount = fillAmount;
+
+        // If the spinner is empty, remove any cooldown text. Otherwise, update the text.
         if (fillAmount <= 0)
         {
             m_textObject.text = "";
         }
         else
         {
+            // Note: string is formatted using the 'F#' formatting argument for ToString() which should
+            // trim the string representation of the float value to the desired number of decimal places.
             m_textObject.text = remainingTime.ToString("F" + (decimalPlaces));
         }
-
     }
 
+    /// <summary>
+    /// Pulse this cooldown spinners cooldown radial.
+    /// </summary>
     public void Pulse()
     {
-        if (!m_pulsing) StartCoroutine(PulseAsync(0.5f));
+        const float PULSE_TIME = 0.5f;
+
+        if (!m_pulsing) StartCoroutine(PulseAsync(PULSE_TIME));
     }
 
+    /// <summary>
+    /// Asynchronously pulse this cooldown spinners cooldown radial.
+    /// </summary>
     IEnumerator PulseAsync(float seconds)
     {
+        // This function uses the sin function to produce an alpha value that starts at 0, rises to 1 and falls back to 0.
+
         m_pulsing = true;
         float diff = 0;
         int iterations = (int)(seconds / Time.fixedDeltaTime);

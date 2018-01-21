@@ -23,7 +23,6 @@ namespace Localisation
         {
             m_instance = this;
 
-            // Find all text objects within the scene.
             TextFields = new List<TextField>();
             DynamicFields = new List<DynamicTextField>();
 

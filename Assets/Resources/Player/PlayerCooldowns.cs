@@ -9,11 +9,17 @@ public class PlayerCooldowns
 
     public int Count { get { return COUNT; } }
 
+    /// <summary>
+    /// Returns the current cooldown for a particular attack.
+    /// </summary>
     public float Get(Enums.PLAYER_ATTACK attack)
     {
         return m_cd[(int)attack];
     }
 
+    /// <summary>
+    /// Sets a value for a particular attacks current cooldown.
+    /// </summary>
     public void Set(Enums.PLAYER_ATTACK attack, float val)
     {
         m_cd[(int)attack] = val;

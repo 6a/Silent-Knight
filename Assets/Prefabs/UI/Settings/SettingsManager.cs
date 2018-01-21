@@ -1,55 +1,48 @@
 ﻿using Localisation;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public struct Settings
-{
-    public float MasterVolume, BGMVolume, SFXVolume;
-    public int GFXLevel;
-    public bool HapticFeedback;
-    public Enums.LANGUAGE Language;
-    public bool Modified;
-
-    public Settings(float masterVolume, float bGMVolume, float fXVolume, int gFXLevel, bool hapticFeedback, Enums.LANGUAGE language)
-    {
-        MasterVolume = masterVolume;
-        BGMVolume = bGMVolume;
-        SFXVolume = fXVolume;
-        GFXLevel = gFXLevel;
-        HapticFeedback = hapticFeedback;
-        Language = language;
-        Modified = false;
-    }
-}
-
 public class SettingsManager : MonoBehaviour
 {
-    enum SETTING_STATE { GENERAL, ADVANCED, INFO, RESET_INFO, RESET_CONFIRM }
-
+    // References to various settings menu components.
+    // The five different UI settings screens.
     [SerializeField] GameObject[] m_screens = new GameObject[5];
-    [SerializeField] Image[] m_buttonSprites = new Image[4];
-    [SerializeField] Sprite m_buttonSelected, m_buttonNotSelected;
-    [SerializeField] Slider m_masterVolumeSlider, m_bgmSlider, m_fxVolumeSlider, m_gfxQualitySlider;
-    [SerializeField] Toggle m_hapticFeedbackToggle;
-    [SerializeField] LanguageSelect m_langSelect;
-    [SerializeField] SETTING_STATE m_state;
 
+    // Button sprites for the settings selection panel.
+    [SerializeField] Image[] m_buttonSprites = new Image[4];
+
+    // Sprite representing a selected and non-selected button.
+    [SerializeField] Sprite m_buttonSelected, m_buttonNotSelected;
+
+    // Sliders found within the settings menu.
+    [SerializeField] Slider m_masterVolumeSlider, m_bgmSlider, m_fxVolumeSlider, m_gfxQualitySlider;
+
+    // Toggle for haptic feedback.
+    [SerializeField] Toggle m_hapticFeedbackToggle;
+
+    // Language select component of the settings menu.
+    [SerializeField] LanguageSelect m_langSelect;
+
+    // State of the settings menu.
+    [SerializeField] Enums.SETTING_STATE m_state;
+
+    // Storage for historical settings, and current settings. Used to track changes, for resetting and discarding,
+    // allowing saves to persistent data to only be performed when comitting the changes made.
     Settings m_previousSettings, m_currentSettings;
 
+    // Default values for the settings. Used for resetting to default.
     readonly Settings m_defaults = new Settings(0.8f, 0.8f, 0.8f, 2, true, Enums.LANGUAGE.JP);
 
     public static SettingsManager m_instance;
 
     void Start ()
     {
+        // First run behaviour
         if (PersistentData.FirstRun())
         {
             PersistentData.ConfirmFirstRun();
-            print("First run confirmed! Setting up initial values");
 
-            SetState((int)SETTING_STATE.GENERAL);
+            SetState((int)Enums.SETTING_STATE.GENERAL);
 
             m_currentSettings = m_previousSettings = m_defaults;
 
@@ -60,8 +53,9 @@ public class SettingsManager : MonoBehaviour
 
         m_instance = this;
 
-        SetState((int)SETTING_STATE.GENERAL);
+        SetState((int)Enums.SETTING_STATE.GENERAL);
 
+        // Load previous settings from persistent data.
         m_previousSettings = new Settings()
         {
             MasterVolume = PersistentData.LoadFloat(PersistentData.KEY_FLOAT.VOL_MASTER),
@@ -75,9 +69,13 @@ public class SettingsManager : MonoBehaviour
 
         m_currentSettings = m_previousSettings;
 
+        // Update display.
         RefreshDisplayedValues(m_previousSettings);
     }
 
+    /// <summary>
+    /// Updates all settings to the values passed in.
+    /// </summary>
     void RefreshDisplayedValues(Settings settings)
     {
         m_masterVolumeSlider.value = settings.MasterVolume;
@@ -88,12 +86,19 @@ public class SettingsManager : MonoBehaviour
         m_langSelect.ToggleDisplay(LocalisationManager.GetCurrentLanguage());
     }
 
+    /// <summary>
+    /// Sets the settings menu to a particular state, then updates the display.
+    /// </summary>
     public void SetState(int state)
     {
-        m_state = (SETTING_STATE)state;
+        m_state = (Enums.SETTING_STATE)state;
         UpdateDisplay();
     }
 
+    /// <summary>
+    /// Updates the settings selection panel to show the currently selected settings section.
+    /// </summary>
+    /// <param name="i"></param>
     public void SetActiveButton(Image i)
     {
         foreach (var s in m_buttonSprites)
@@ -104,6 +109,9 @@ public class SettingsManager : MonoBehaviour
         i.sprite = m_buttonSelected;
     }
 
+    /// <summary>
+    /// Reset everything to default, and update the display.
+    /// </summary>
     public void OnResetToDefault()
     {
         m_currentSettings = m_defaults;
@@ -112,6 +120,9 @@ public class SettingsManager : MonoBehaviour
         UpdateGlobals();
     }
 
+    /// <summary>
+    /// Commits the various settings, with current settings.
+    /// </summary>
     private void UpdateGlobals()
     {
         LocalisationManager.SetLanguage(m_currentSettings.Language);
@@ -123,6 +134,9 @@ public class SettingsManager : MonoBehaviour
         RefreshDisplayedValues(m_currentSettings);
     }
 
+    /// <summary>
+    /// Button - handles back button behaviour.
+    /// </summary>
     public void OnBack()
     {
         if (!m_currentSettings.Modified) return;
@@ -131,6 +145,9 @@ public class SettingsManager : MonoBehaviour
         UpdateGlobals();
     }
 
+    /// <summary>
+    /// Save settings to persistent data (button usually).
+    /// </summary>
     public void OnSaveSettings()
     {
         PersistentData.SaveFloat(PersistentData.KEY_FLOAT.VOL_MASTER, m_currentSettings.MasterVolume);
@@ -146,6 +163,9 @@ public class SettingsManager : MonoBehaviour
         m_previousSettings.Modified = false;
     }
 
+    /// <summary>
+    /// Slider update - master volume.
+    /// </summary>
     public void OnChangeMasterVolume(Slider slider)
     {
         var newVol = slider.value;
@@ -157,6 +177,9 @@ public class SettingsManager : MonoBehaviour
         AudioManager.SetVolume(Enums.AUDIO_CHANNEL.MASTER, newVol);
     }
 
+    /// <summary>
+    /// Slider update - BGM volume.
+    /// </summary>
     public void OnChangeBGMVolume(Slider slider)
     {
         var newVol = slider.value;
@@ -168,6 +191,9 @@ public class SettingsManager : MonoBehaviour
         AudioManager.SetVolume(Enums.AUDIO_CHANNEL.BGM, newVol);
     }
 
+    /// <summary>
+    /// Slider update - SFX volume.
+    /// </summary>
     public void OnChangeSFXVolume(Slider slider)
     {
         var newVol = slider.value;
@@ -179,6 +205,9 @@ public class SettingsManager : MonoBehaviour
         AudioManager.SetVolume(Enums.AUDIO_CHANNEL.SFX, newVol);
     }
 
+    /// <summary>
+    /// Slider update - GFX Settings.
+    /// </summary>
     public void OnChangeGFXSettings(Slider slider)
     {
         var newVol = (int)slider.value;
@@ -190,6 +219,9 @@ public class SettingsManager : MonoBehaviour
         // TODO add code to actually change graphics quality
     }
 
+    /// <summary>
+    /// Toggle - Haptic feedback toggle.
+    /// </summary>
     public void OnToggleHaptic(Toggle slider)
     {
         var on = slider.isOn;
@@ -199,6 +231,9 @@ public class SettingsManager : MonoBehaviour
         m_currentSettings.HapticFeedback = on;
     }
 
+    /// <summary>
+    /// Language button update behaviour.
+    /// </summary>
     public void OnChangeLanguage(int lang)
     {
         if ((Enums.LANGUAGE)lang == m_currentSettings.Language) return;
@@ -206,11 +241,17 @@ public class SettingsManager : MonoBehaviour
         m_currentSettings.Modified = true;
     }
 
+    /// <summary>
+    /// Call when the game is to be reset.
+    /// </summary>
     public void OnResetGame()
     {
         GameManager.TotalReset();
     }
 
+    /// <summary>
+    /// Reset the settings panel display.
+    /// </summary>
     void UpdateDisplay()
     {
         HideAll();
@@ -218,6 +259,9 @@ public class SettingsManager : MonoBehaviour
         m_screens[(int)m_state].SetActive(true);
     }
 
+    /// <summary>
+    /// Hide all settings panels.
+    /// </summary>
     void HideAll()
     {
         foreach (var screen in m_screens)
@@ -227,6 +271,9 @@ public class SettingsManager : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// Returns true if haptic feedback is turned on.
+    /// </summary>
     public static bool Haptic()
     {
         return m_instance.m_previousSettings.HapticFeedback;

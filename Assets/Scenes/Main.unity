@@ -1817,6 +1817,11 @@ Prefab:
       propertyPath: m_IsActive
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 114058115665317834, guid: 1dd47e089eb0e914397f8a41175b470d,
+        type: 2}
+      propertyPath: m_enemyNameField
+      value: 
+      objectReference: {fileID: 420613887}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 1dd47e089eb0e914397f8a41175b470d, type: 2}
   m_IsPrefabParent: 0
@@ -3046,6 +3051,55 @@ Prefab:
     - target: {fileID: 1767459614141700, guid: d598defda0baf8c4db74e386f28aa030, type: 2}
       propertyPath: m_IsActive
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 114930994762162586, guid: d598defda0baf8c4db74e386f28aa030,
+        type: 2}
+      propertyPath: m_type
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 114747712806038956, guid: d598defda0baf8c4db74e386f28aa030,
+        type: 2}
+      propertyPath: m_type
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 114459042021859426, guid: d598defda0baf8c4db74e386f28aa030,
+        type: 2}
+      propertyPath: m_type
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 114885756415990040, guid: d598defda0baf8c4db74e386f28aa030,
+        type: 2}
+      propertyPath: m_type
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 114848422060989738, guid: d598defda0baf8c4db74e386f28aa030,
+        type: 2}
+      propertyPath: m_type
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 114205878802058268, guid: d598defda0baf8c4db74e386f28aa030,
+        type: 2}
+      propertyPath: m_type
+      value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 1436685899561002, guid: d598defda0baf8c4db74e386f28aa030, type: 2}
+      propertyPath: m_Name
+      value: ReflectCD-
+      objectReference: {fileID: 0}
+    - target: {fileID: 114566427711743252, guid: d598defda0baf8c4db74e386f28aa030,
+        type: 2}
+      propertyPath: m_type
+      value: 7
+      objectReference: {fileID: 0}
+    - target: {fileID: 114240513096356556, guid: d598defda0baf8c4db74e386f28aa030,
+        type: 2}
+      propertyPath: m_type
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: 114205467310393974, guid: d598defda0baf8c4db74e386f28aa030,
+        type: 2}
+      propertyPath: m_type
+      value: 9
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: d598defda0baf8c4db74e386f28aa030, type: 2}

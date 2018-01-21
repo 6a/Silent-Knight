@@ -1,4 +1,6 @@
-﻿Shader "J/Shatter"
+﻿// Shader written by James Stanton K1611060
+
+Shader "J/Shatter"
 {
 	Properties
 	{

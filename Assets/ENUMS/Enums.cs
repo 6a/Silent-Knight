@@ -92,4 +92,24 @@ public class Enums
     /// Represents the two languages available for this applications UI elements.
     /// </summary>
     public enum LANGUAGE { EN, JP }
+
+    /// <summary>
+    /// Represents the two button states that any standard button can have.
+    /// </summary>
+    public enum BUTTON_STATE { UP, DOWN }
+
+    /// <summary>
+    /// Represents the two types of buttons for the bonus tickers.
+    /// </summary>
+    public enum BUTTON_TYPE { POSITIVE, NEGATIVE }
+
+    /// <summary>
+    /// Represents different UI states.
+    /// </summary>
+    public enum UI_STATE { PAUSE, GAME, BONUS, SETTINGS, RESET }
+
+    /// <summary>
+    /// Represents different setting menu states.
+    /// </summary>
+    public enum SETTING_STATE { GENERAL, ADVANCED, INFO, RESET_INFO, RESET_CONFIRM }
 }

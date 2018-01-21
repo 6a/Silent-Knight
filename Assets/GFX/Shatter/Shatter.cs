@@ -3,43 +3,34 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+/// <summary>
+/// Handles screen-shatter effect. Note that edge rendering functionality is present, but commented out.
+/// </summary>
 public class Shatter : MonoBehaviour
 {
-    class Tri
-    {
-        public Vector3 Center
-        {
-            get
-            {
-                var x = (Vertices[0].x + Vertices[1].x + Vertices[2].x) / 3;
-                var y = (Vertices[0].y + Vertices[1].y + Vertices[2].y) / 3;
-                var z = (Vertices[0].z + Vertices[1].z + Vertices[2].z) / 3;
-                return new Vector3(x, y, z);
-            }
-        }
-
-        public Matrix4x4 Matrix;
-        public Vector3 Dir;
-        public Vector3 Rotation;
-        public Vector3[] UV;
-        public Vector3[] Vertices;
-        //public Vector3[] BC;
-
-        public float Speed;
-
-    }
+    // List of all triangles to be rendered.
     List<Tri> m_triData = new List<Tri>();
 
+    // Reference to the material to be used.
     Material m_mat;
+
+    // Reference to the current screenshot to be used.
     Texture2D m_tex;
 
     static Shatter m_instance;
     static Coroutine m_currentRenderingRoutine;
+
+    // publicly accessible static state boolean for external state checks.
     public static bool ShatterFinished;
 
+    // State booleans for gating progress during the rendering coroutine.
     bool m_underlayEnabled;
     bool m_endShatter;
 
+    /// <summary>
+    /// Asynchronously execute all shatter behaviour.
+    /// </summary>
+    /// <returns></returns>
     IEnumerator RenderTriangles()
     {
         if (m_tex == null) yield return null;
@@ -48,10 +39,12 @@ public class Shatter : MonoBehaviour
         float rotation = 0;
         m_endShatter = false;
 
+        // Coroutine will continue running until the triangles alpha values are 0 (and they are no longer visible).
         while (alpha > 0)
         {
             yield return new WaitForEndOfFrame();
 
+            // Enable the loading screen if it has been disabled. Also unpause just incase.
             if (!m_underlayEnabled)
             {
                 GameManager.EnableLoadingScreen();
@@ -60,6 +53,8 @@ public class Shatter : MonoBehaviour
                 Time.timeScale = 1;
             }
 
+            // Find the shatter shader if not yet found, and add it to a new material.
+            // Shader is loaded from Resources folder.
             if (!m_mat)
             {
                 var shader = Resources.Load("Shaders/Shatter") as Shader;
@@ -70,13 +65,20 @@ public class Shatter : MonoBehaviour
                 };
             }
 
+            // Set OpenGL to orthographic view.
             GL.LoadOrtho();
+
+            // Set the pass to 0 (there is only 1 pass anyway).
             m_mat.SetPass(0);
 
+            // Calculate screen ratio and send value to shader.
             var screenratio = (float)Screen.width / Screen.height;
             m_mat.SetFloat("_ScreenRatio", screenratio);
+
+            // Send current alpha value to shader.
             m_mat.SetFloat("_Alpha", alpha);
 
+            // Transform (based on deltatime) and render all triangles.
             for (int i = 0; i < m_triData.Count; i++)
             {
                 GL.Begin(GL.TRIANGLES);
@@ -112,17 +114,18 @@ public class Shatter : MonoBehaviour
                 GameManager.ContinueLevelStart();
             }
         }
+
         ShatterFinished = true;
-
     }
-
-    List<Triangle> triangles = new List<Triangle>();
 
     void Awake()
     {
         m_instance = this;
     }
 
+    /// <summary>
+    /// Asynchronously take a screenshot of the screen and then start the overlay rendering function.
+    /// </summary>
     IEnumerator RecordFrame()
     {
         yield return new WaitForEndOfFrame();
@@ -137,32 +140,43 @@ public class Shatter : MonoBehaviour
         m_currentRenderingRoutine = StartCoroutine(RenderTriangles());
     }
 
+    /// <summary>
+    /// Trigger the completion of the shatter function.
+    /// </summary>
     public static void CompleteShatter()
     {
         m_instance.m_endShatter = true;
     }
 
+    /// <summary>
+    /// Start the shatter function.
+    /// </summary>
     public static void StartShatter()
     {
+        // Create a new blank list of triangles (Delauney lib).
+        List<Triangle> triangles = new List<Triangle>();
+
+        // Reset internal values.
         ShatterFinished = false;
-
         m_instance.m_underlayEnabled = false;
-
         m_instance.m_mat = null;
 
+        // Create a new blank container for points.
         List<Vector2> randomPoints = new List<Vector2>();
 
+        // Make a new blank list of colours (required for delauney lib).
         List<uint> colors = new List<uint>();
 
         //Random.InitState(1);
 
+        // Fill the random points container with 20 random points.
         for (int i = 0; i < 20; i++)
         {
             randomPoints.Add(new Vector2(Random.Range(-1f, 1f), Random.Range(-1f, 1f)));
             colors.Add(0);
         }
 
-        //Add guaranteed edge points
+        //Add 10 guaranteed edge points.
         for (int i = 0; i < 10; i++)
         {
             var rand = Random.Range(0f, 8f);
@@ -193,22 +207,26 @@ public class Shatter : MonoBehaviour
             colors.Add(0);
         }
 
-        // Add guaranteed corners
+        // Add guaranteed corners.
         randomPoints.Add(new Vector2(-1, 1)); colors.Add(0);
         randomPoints.Add(new Vector2(1, 1)); colors.Add(0);
         randomPoints.Add(new Vector2(1, -1)); colors.Add(0);
         randomPoints.Add(new Vector2(-1, -1)); colors.Add(0);
 
+        // Use the Delauney lib to convert the points into triangles.
         Voronoi voronoi = new Voronoi(randomPoints, colors, new Rect(0, 0, 2, 2));
+        triangles = voronoi.Triangles();
 
-        m_instance.triangles = voronoi.Triangles();
         float speed = 0.05f;
 
+        // Clear the internal triangle data storage.
         m_instance.m_triData.Clear();
 
+        // Calculate the screen ratio.
         var screenratio = (float)Screen.width / Screen.height;
 
-        foreach (var triangle in m_instance.triangles)
+        // Load each triangle from the list into the internal storage, loading values appropriately.
+        foreach (var triangle in triangles)
         {
             var v1 = new Vector3(triangle.sites[0].x, triangle.sites[0].y, 0);
             var v2 = new Vector3(triangle.sites[1].x, triangle.sites[1].y, 0);
@@ -230,6 +248,7 @@ public class Shatter : MonoBehaviour
             m_instance.m_triData.Add(t);
         }
 
+        // Start the next stage of the shatter process.
         m_instance.StartCoroutine(m_instance.RecordFrame());
     }
 }

@@ -16,6 +16,9 @@ public class PlayerCooldownConstants
         m_cd[4] = ultCooldown;
     }
 
+    /// <summary>
+    /// Returns the basecooldown for a particular attack type.
+    /// </summary>
     public float Get(Enums.PLAYER_ATTACK attack)
     {
         return m_cd[(int)attack];

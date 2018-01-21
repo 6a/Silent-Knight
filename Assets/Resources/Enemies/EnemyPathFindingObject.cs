@@ -5,11 +5,12 @@ using Entities;
 using System.Collections;
 using Localisation;
 
+/// <summary>
+/// Handles control behaviour for enemy NPCs.
+/// </summary>
 public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackable, IAttacker
 {
     #region 00_MEMBER_VARIABLES_AND_PROPERTIES --------------------------------------------------------------------------------------------
-    // Const object data
-
     // State variables
     EnemyStateData m_enemyStateData;
 
@@ -99,7 +100,7 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
                     if (m_psDeath) Instantiate(m_psDeath, transform.position + Vector3.up, Quaternion.identity);
                 }
 
-                ((PlayerPathFindingObject)CurrentTarget).GiveXp((int)GetUnitHealth());
+                ((PlayerPathFindingObject)CurrentTarget).GiveXp((int)GetModifiedBaseHealth());
 
                 m_enemyStateData.Deleted = true;
                 Running = false;
@@ -146,6 +147,10 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
 
     #region 02_PUBLIC_MEMBER_FUNCTIONS ----------------------------------------------------------------------------------------------------
     #region 02A_ANIMATION_TRIGGERS --------------------------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// Animation trigger: @frame at which the projectile is released, from an archer unit.
+    /// </summary>
     void AnimationTriggerProjectileFired()
     {
         var newProjectile = GameObject.Instantiate(m_projectile, m_projectileTransform.position, Quaternion.identity) as GameObject;
@@ -157,12 +162,19 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
     #endregion 02A_ANIMATION_TRIGGERS -----------------------------------------------------------------------------------------------------
 
     #region 02B_EVENT_HANDLERS ------------------------------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// Apply an afflication to this unit.
+    /// </summary>
     public void OnAfflict(Enums.AFFLICTION status, float duration)
     {
         m_enemyStateData.CurrentAffliction = status;
         m_enemyStateData.AfflictionEndTime = Time.time + duration;
     }
 
+    /// <summary>
+    /// Damage this unit.
+    /// </summary>
     public void OnDamage(IAttacker attacker, float dmg, Enums.FCT_TYPE type)
     {
         if (IsDead || dmg == 0) return;
@@ -172,20 +184,22 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
 
         if (percentage)
         {
-            dmg = GetUnitHealth() * (Mathf.Abs(dmg) / 100f);
+            dmg = GetModifiedBaseHealth() * (Mathf.Abs(dmg) / 100f);
         }
 
         dmg *= ((m_enemyStateData.CurrentAffliction == Enums.AFFLICTION.STUN) ? 2 : 1);
 
         Health -= dmg;
 
+        // Find floating combat text position.
         var screenPos = Camera.main.WorldToScreenPoint(transform.position);
         var dir = screenPos - Camera.main.WorldToScreenPoint(attacker.GetPosition());
 
         FCTRenderer.AddFCT(type, dmg.ToString("F0"), transform.position + Vector3.up);
 
-        m_healthbar.UpdateHealthDisplay(Mathf.Max(Health / (int)GetUnitHealth(), 0), (int)GetUnitHealth());
+        m_healthbar.UpdateHealthDisplay(Mathf.Max(Health / (int)GetModifiedBaseHealth(), 0), (int)GetModifiedBaseHealth());
 
+        // Handle unit death.
         if (Health <= 0)
         {
             if (m_psDeath) Instantiate(m_psDeath, transform.position + Vector3.up, Quaternion.identity);
@@ -199,7 +213,7 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
 
             attacker.OnTargetDied(this, isBoss);
 
-            int xp = (int)GetUnitHealth();
+            int xp = (int)GetModifiedBaseHealth();
 
             xp = (m_enemyType > Enums.ENEMY_TYPE.BOW) ? xp * 2 : xp;
 
@@ -209,6 +223,9 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
         }
     }
 
+    /// <summary>
+    /// Apply a knockback to this unit.
+    /// </summary>
     public void OnKnockBack(Vector2 sourcePos, float strength)
     {
         if (m_enemyType > Enums.ENEMY_TYPE.BOW) return;
@@ -217,6 +234,9 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
         m_rb.AddForce(forceVec);
     }
 
+    /// <summary>
+    /// Set this unit as the enemy icon render target.
+    /// </summary>
     public void OnSetAsRenderTarget(bool on)
     {
         GetComponentInChildren<Camera>().enabled = on;
@@ -224,7 +244,7 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
         if (on)
         {
             gameObject.SetLayerRecursively(12);
-            m_healthbar.UpdateHealthDisplay(Health / GetUnitHealth(), (int)GetUnitHealth());
+            m_healthbar.UpdateHealthDisplay(Health / GetModifiedBaseHealth(), (int)GetModifiedBaseHealth());
             m_enemyTextField.UpdateTextData(m_unitName[0], m_unitName[1]);
         }
         else
@@ -233,6 +253,9 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
         }
     }
 
+    /// <summary>
+    /// Not implemented for this unit. Will throw a NotImplementedException.
+    /// </summary>
     public void OnTargetDied(IAttackable target, bool boss = false)
     {
         throw new NotImplementedException();
@@ -240,6 +263,9 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
     #endregion 02B_EVENT_HANDLERS ---------------------------------------------------------------------------------------------------------
 
     #region 02C_UPDATERS_AND_SETTERS ------------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Set this unit's level.
+    /// </summary>
     public void SetLevel(int level)
     {
         m_level = level;
@@ -248,16 +274,28 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
     #endregion 02C_UPDATERS_AND_SETTERS ---------------------------------------------------------------------------------------------------
 
     #region 02D_GETTERS -------------------------------------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// Returns this units position.
+    /// </summary>
     public Vector3 GetPosition()
     {
         return transform.position;
     }
 
+    /// <summary>
+    /// Returns a reference to this unit's ITargetable interface.
+    /// </summary>
+    /// <returns></returns>
     public ITargetable GetTargetableInterface()
     {
         return this;
     }
 
+    /// <summary>
+    /// Returns a reference to this unit's transform.
+    /// </summary>
+    /// <returns></returns>
     public Transform GetTransform()
     {
         return transform;
@@ -267,6 +305,9 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
     #endregion 02_PUBLIC_MEMBER_FUNCTIONS -------------------------------------------------------------------------------------------------
 
     #region 02_PRIVATE_MEMBER_FUNCTIONS ---------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// This units attack routine. Behaviour differs, depending on the unit type.
+    /// </summary>
     void AttackSequence(IAttackable target)
     {
         int rand = UnityEngine.Random.Range(0, 30);
@@ -343,16 +384,26 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
         }
     }
 
+    /// <summary>
+    /// Prompts this unit to attempt to get in range of the target unit.
+    /// </summary>
     void GetInRange(ITargetable target)
     {
         UpdatePathTarget(PathingTarget);
     }
 
-    float GetUnitHealth()
+    /// <summary>
+    /// Returns this units base health, after level scaling.
+    /// </summary>
+    /// <returns></returns>
+    float GetModifiedBaseHealth()
     {
         return LevelScaling.GetScaledHealth(m_level, (int)m_baseHealth);
     }
 
+    /// <summary>
+    /// Cancel the attached animators current animation, if one exists. Also resets all triggers on the animator.
+    /// </summary>
     void InterruptAnimator()
     {
         m_animator.SetTrigger("Interrupt");
@@ -363,6 +414,9 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
         m_animator.ResetTrigger("DeathStart");
     }
 
+    /// <summary>
+    /// Perform an attack, moving towards the target if required.
+    /// </summary>
     void PerformAttack(IAttackable target)
     {
         var distanceToTarget = Vector3.Distance(transform.position, target.GetPosition());
@@ -391,6 +445,10 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
         }
     }
 
+    /// <summary>
+    /// Trigger an animation on this units attached animator. Will cancel any existing animations before playing.
+    /// </summary>
+    /// Note: Death animation trigger includes post-death behaviour triggers.
     void TriggerAnimation(Enums.ANIMATION anim)
     {
         switch (anim)
@@ -438,6 +496,10 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
     #endregion 02_PRIVATE_MEMBER_FUNCTIONS ------------------------------------------------------------------------------------------------
 
     #region 03_OVERRIDE_MEMBER_FUNCTIONS --------------------------------------------------------------------------------------------------
+
+    /// <summary>
+    /// Called by this units base class, and is used for updating movement related behaviour such as walking animation.
+    /// </summary>
     public override void OnFollowPath(float speedPercent)
     {
         if (speedPercent > 0) speedPercent = Mathf.Clamp01(speedPercent + 0.5f);
@@ -445,6 +507,11 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
         m_animator.SetFloat("MovementBlend", 1 - speedPercent);
     }
 
+    /// <summary>
+    /// Register this to the GameManager.OnStartRun event. Add all initialisation behaviour.
+    /// </summary>
+    /// Note: This is done via an event, rather than the Awake function to avoid issues arising from
+    /// attempting to access components that arent initialised at runtime etc.
     public override void OnStartLevel()
     {
         PreviousPos = transform.position;
@@ -455,9 +522,9 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
 
         m_healthbar = GameUIManager.GetEnemyHealthBarReference();
 
-        m_enemyTextField = GameUIManager.GetEnemyTextField();
+        m_enemyTextField = GameUIManager.GetEnemyNameField();
 
-        Health = GetUnitHealth();
+        Health = GetModifiedBaseHealth();
 
         StartCoroutine(RefreshPath());
 
@@ -466,6 +533,9 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
     #endregion 03_OVERRIDE_MEMBER_FUNCTIONS -----------------------------------------------------------------------------------------------
 
     #region 04_MEMBER_IENUMERATORS --------------------------------------------------------------------------------------------------------
+    /// <summary>
+    /// Asynchronously apply damage to the target unit, with a delay to simulate weapon swing time etc.
+    /// </summary>
     IEnumerator ApplyDamageDelayed(int dmgMultiplier, int frameDelay, IAttackable target)
     {
         yield return new WaitForSeconds(Time.fixedDeltaTime * frameDelay);
@@ -474,6 +544,5 @@ public class EnemyPathFindingObject : PathFindingObject, ITargetable, IAttackabl
 
         AudioManager.PlayFX(Enums.SFX_TYPE.ENEMY_ATTACK_IMPACT, transform.position);
     }
-
     #endregion 04_MEMBER_IENUMERATORS -----------------------------------------------------------------------------------------------------
 }
