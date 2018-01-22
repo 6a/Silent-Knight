@@ -1,9 +1,9 @@
 ﻿using System.Collections;
 using UnityEngine;
-using SilentKnight.Entities;
 using SilentKnight.Utility;
+using SilentKnight.PathFinding;
 
-namespace SilentKnight.PathFinding
+namespace SilentKnight.Entities
 {
     /// <summary>
     /// Abstract object for units that will use the AStar pathfinding tools in this project.

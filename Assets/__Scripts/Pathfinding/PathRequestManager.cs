@@ -1,48 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using System.Threading;
 
 namespace SilentKnight.PathFinding
 {
-    /// <summary>
-    /// Container for pathfinding requests.
-    /// </summary>
-    public struct PathRequest
-    {
-        // Start and destination. Transforms are used in as these will track any changes to their parent objects.
-        // Vectors become inaccurate the moment that the parent objects are manipulated.
-        public Transform Start { get; set; }
-        public Transform End { get; set; }
-
-        // Callback to call once pathfinding has been completed.
-        public Action<Vector2[], bool> Callback { get; set; }
-
-        public PathRequest(Transform start, Transform end, Action<Vector2[], bool> callback)
-        {
-            Start = start;
-            End = end;
-            Callback = callback;
-        }
-    }
-
-    /// <summary>
-    /// Represents the result of a pathfinding search, including the path itself.
-    /// </summary>
-    public struct PathResult
-    {
-        public Vector2[] Path { get; set; }
-        public bool Success { get; set; }
-        public Action<Vector2[], bool> Callback { get; set; }
-
-        public PathResult(Vector2[] path, bool success, Action<Vector2[], bool> callback)
-        {
-            Path = path;
-            Success = success;
-            Callback = callback;
-        }
-    }
-
     /// <summary>
     /// Requests paths and starts new threads to process these requests.
     /// </summary>
