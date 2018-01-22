@@ -6,7 +6,7 @@ Material:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: mat_vfx-inf_particle_spritesheet_embers3-add-[3.0]
+  m_Name: mat_vfx-inf_particle_sprite_glowSphere-add-[3.0]
   m_Shader: {fileID: 200, guid: 0000000000000000f000000000000000, type: 0}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
@@ -39,7 +39,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 38699766fa7bc414db4c8a82f60a7dc9, type: 3}
+        m_Texture: {fileID: 2800000, guid: 6600bf6c140ba40409791e8360c69c14, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
