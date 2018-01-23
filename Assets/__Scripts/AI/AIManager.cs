@@ -50,7 +50,6 @@ namespace SilentKnight.AI
                 {
                     if (enemy == null) continue;
                     ((PathFindingObject)enemy).GetComponent<Animator>().enabled = false;
-
                 }
             }
         }
@@ -67,8 +66,20 @@ namespace SilentKnight.AI
                 {
                     if (enemy == null) continue;
                     ((PathFindingObject)enemy).GetComponent<Animator>().enabled = true;
-
                 }
+            }
+        }
+
+        /// <summary>
+        /// Adjusts the Animations for all units on a specific platform. Set to 0 to pause, 1 to unpause.
+        /// </summary>    
+        public static void AdjustUnitAnimationSpeed(int platform, float speed)
+        {
+            // Note: Iterates through all registered enemies and disables the attached animator component.
+            foreach (var enemy in m_instance.m_enemySet.Enemies[platform])
+            {
+                if (enemy == null) continue;
+                ((PathFindingObject)enemy).GetComponent<Animator>().speed = speed;
             }
         }
 

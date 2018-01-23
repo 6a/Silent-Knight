@@ -4,7 +4,7 @@ using UnityEngine;
 namespace SilentKnight.PathFinding
 {
     /// <summary>
-    /// Generates and handles the Astart navmesh.
+    /// Generates and handles the Astar navmesh.
     /// </summary>
     class ASGrid : MonoBehaviour
     {
@@ -148,7 +148,7 @@ namespace SilentKnight.PathFinding
         }
 
         /// <summary>
-        /// Creates a grid for the current dungeon layout.
+        /// Creates a pathfinding grid for the current dungeon layout.
         /// </summary>
         public void CreateGrid()
         {

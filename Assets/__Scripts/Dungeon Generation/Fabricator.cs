@@ -10,7 +10,7 @@ using SilentKnight.Utility;
 namespace SilentKnight.DungeonGeneration
 {
     /// <summary>
-    /// Converts in-memory dungeon data into physical in-game objects. Initialise a new instance for each dungeon.
+    /// Converts in-memory dungeon data into physical in-game objects and handles placement of game-units. Initialise a new instance for each dungeon.
     /// </summary>
     public class Fabricator
     {
@@ -273,7 +273,7 @@ namespace SilentKnight.DungeonGeneration
             }
 
             // Remove the platform manager's reference to the player.
-            Platforms.UnregisterPlayer();
+            PlatformManager.UnregisterPlayer();
 
             // Create a new empty GameObject to store tiles.
             var container = new GameObject("Tiles");
@@ -553,7 +553,7 @@ namespace SilentKnight.DungeonGeneration
             var container = new GameObject("Enemies");
 
             // Read current platform data, for later positioning validity checks.
-            var platformData = Platforms.GetPlatformData();
+            var platformData = PlatformManager.GetPlatformData();
 
             // Create a container for the enemy units that will be spawned. This is later passed to
             // the AIManager.
@@ -711,7 +711,6 @@ namespace SilentKnight.DungeonGeneration
         /// <summary>
         /// Scales a coordinate based on the dungeon scaling value.
         /// </summary>
-        /// <param name="i"></param>
         int Scale(int i)
         {
             return (i * m_dungeonScale) - m_positionOffset + (m_dungeonScale / 2);

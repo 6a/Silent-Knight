@@ -31,14 +31,18 @@ namespace SilentKnight.Tutorial
             m_demoIndex = 0;
 
             // If this is the first run, set the correct flag for the default language.
-            if ((Enums.LANGUAGE)PersistentData.LoadInt(PersistentData.KEY_INT.LANGUAGE) == Enums.LANGUAGE.EN)
-            {
-                OnClickENFlag();
-            }
-            else
-            {
-                OnClickJPFlag();
-            }
+
+            //if ((Enums.LANGUAGE)PersistentData.LoadInt(PersistentData.KEY_INT.LANGUAGE) == Enums.LANGUAGE.EN)
+            //{
+            //    OnClickENFlag();
+            //}
+            //else
+            //{
+            //    OnClickJPFlag();
+            //}
+
+            // As this version of the game is for marking purposes, the default langauge is English.
+            OnClickENFlag();
         }
 
         /// <summary>

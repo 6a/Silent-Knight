@@ -4,7 +4,7 @@ using UnityEngine;
 namespace SilentKnight.DungeonGeneration
 {
     /// <summary>
-    /// Dungeon data storage type. Inherites from string List&lt;string&gt;
+    /// Dungeon data storage container. Inherits from string List&lt;string&gt;
     /// </summary>
     public class Dungeon : List<string>
     {

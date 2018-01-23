@@ -40,7 +40,7 @@ namespace SilentKnight.UI.Settings
         Settings m_previousSettings, m_currentSettings;
 
         // Default values for the settings. Used for resetting to default.
-        readonly Settings m_defaults = new Settings(0.8f, 0.8f, 0.8f, 2, true, Enums.LANGUAGE.JP);
+        readonly Settings m_defaults = new Settings(0.8f, 0.8f, 0.8f, 2, true, Enums.LANGUAGE.EN);
 
         public static SettingsManager m_instance;
 

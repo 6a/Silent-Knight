@@ -3,7 +3,7 @@
 namespace SilentKnight.Entities
 {
     /// <summary>
-    /// Storage class for player cooldown base values
+    /// Storage class for player cooldown base values.
     /// </summary>
     public class PlayerCooldownConstants
     {

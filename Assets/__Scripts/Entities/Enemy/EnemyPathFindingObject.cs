@@ -115,7 +115,7 @@ namespace SilentKnight.Entities
                     Running = false;
                     IsDead = true;
 
-                    AIManager.RemoveUnit(Platforms.PlayerPlatform, this);
+                    AIManager.RemoveUnit(PlatformManager.PlayerPlatform, this);
 
                     Disposal.Dispose(gameObject);
                 }
@@ -166,7 +166,7 @@ namespace SilentKnight.Entities
 
             var refToScript = newProjectile.GetComponent<Projectile>();
 
-            refToScript.Init(CurrentTarget, this, 2, 5, LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage));
+            refToScript.Init(CurrentTarget, this, 2, 5, LevelScaling.GetScaledDamage(m_level, LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage)));
         }
         #endregion 02A_ANIMATION_TRIGGERS -----------------------------------------------------------------------------------------------------
 
@@ -489,7 +489,7 @@ namespace SilentKnight.Entities
                     }
                     else
                     {
-                        AIManager.RemoveUnit(Platforms.PlayerPlatform, this);
+                        AIManager.RemoveUnit(PlatformManager.PlayerPlatform, this);
 
                         transform.position = new Vector3(0, -1000, 0);
 

@@ -2671,7 +2671,7 @@ MonoBehaviour:
   m_attackRange: 1
   m_attacksPerSecond: 1
   m_baseDamage: 30
-  m_baseHealth: 300
+  m_baseHealth: 200
   m_critChance: 0.1
   m_critMultiplier: 2
   m_damageboost: 1

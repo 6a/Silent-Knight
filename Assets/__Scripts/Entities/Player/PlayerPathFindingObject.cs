@@ -8,7 +8,6 @@ using SilentKnight.CameraTools;
 using SilentKnight.DungeonGeneration;
 using SilentKnight.Utility;
 using SilentKnight.Engine;
-using SilentKnight.PathFinding;
 using SilentKnight.FCT;
 using SilentKnight.UI.Bonus;
 using SilentKnight.UI.Game;
@@ -425,7 +424,7 @@ namespace SilentKnight.Entities
         {
             IAttackable nextTarget;
 
-            nextTarget = AIManager.GetNewTarget(transform.position, Platforms.PlayerPlatform);
+            nextTarget = AIManager.GetNewTarget(transform.position, PlatformManager.PlayerPlatform);
 
             if (nextTarget == null)
             {
@@ -458,7 +457,7 @@ namespace SilentKnight.Entities
         {
             if (boss)
             {
-                if ((FindObjectOfType<DungeonGenerator>().IsFinalLevel()))
+                if ((FindObjectOfType<DungeonRequestManager>().IsFinalLevel()))
                 {
                     Running = false;
                     OnFollowPath(0);
@@ -847,7 +846,7 @@ namespace SilentKnight.Entities
                 {
                     if (CurrentTarget == null || distanceToTarget > m_attackRange * 2 || Time.time - m_playerStateData.PreviousAttackTime > attackDelay + 0.2f)
                     {
-                        CurrentTarget = AIManager.GetNewTarget(transform.position, Platforms.PlayerPlatform);
+                        CurrentTarget = AIManager.GetNewTarget(transform.position, PlatformManager.PlayerPlatform);
 
                         if (CurrentTarget == null)
                         {
@@ -1077,7 +1076,7 @@ namespace SilentKnight.Entities
         /// attempting to access components that arent initialised at runtime etc.
         public override void OnStartLevel()
         {
-            Platforms.RegisterPlayer(this);
+            PlatformManager.RegisterPlayer(this);
 
             GameUIManager.Visible(true);
 
@@ -1123,6 +1122,8 @@ namespace SilentKnight.Entities
             // if android.
             if (SettingsManager.Haptic())
             {
+                if (buff) AIManager.AdjustUnitAnimationSpeed(CurrentPlatformIndex, 0.01f);
+
                 Time.timeScale = 0.01f;
                 float pauseEndTime = Time.realtimeSinceStartup + duration;
                 while (PauseManager.IsPaused() || Time.realtimeSinceStartup < pauseEndTime)
@@ -1131,13 +1132,15 @@ namespace SilentKnight.Entities
                 }
                 Time.timeScale = 1;
                 if (vibrate) Vibration.Vibrate(Vibration.GenVibratorPattern(0.2f, 50), -1);
+
+                Sparky.ResetIntensity();
+                if (buff) AIManager.AdjustUnitAnimationSpeed(CurrentPlatformIndex, 1f);
             }
 
             // If this is during a buff sequence, perform ultimate related behaviour such as triggering the
             // particle system.
             if (buff)
             {
-                Sparky.ResetIntensity();
                 Sparky.IncreaseIntensity();
                 m_particleBuff.SetActive(true);
                 AudioManager.PlayFX(Enums.SFX_TYPE.BIG_IMPACT);
@@ -1164,7 +1167,7 @@ namespace SilentKnight.Entities
         /// <returns></returns>
         IEnumerator UltimateSequence(float duration)
         {
-            Sparky.DisableLight();
+            if (SettingsManager.Haptic()) Sparky.DisableLight();
 
             m_playerStateData.ShouldApplyUltiDamage = true;
 

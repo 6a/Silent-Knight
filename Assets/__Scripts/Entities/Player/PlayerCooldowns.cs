@@ -3,7 +3,7 @@
 namespace SilentKnight.Entities
 {
     /// <summary>
-    /// Storage class for player cooldown current live values
+    /// Storage class for player cooldown current live values.
     /// </summary>
     public class PlayerCooldowns
     {

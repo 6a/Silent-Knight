@@ -6,7 +6,7 @@ using SilentKnight.Utility;
 namespace SilentKnight.PathFinding
 {
     /// <summary>
-    /// Handles calculation of A* paths.
+    /// Handles pathfinding calculations.
     /// </summary>
     public class ASPathFinder : MonoBehaviour
     {
@@ -45,7 +45,6 @@ namespace SilentKnight.PathFinding
             // While there are still nodes in the openSet, and a valid path has not been found, search for one.
             while (openSet.Count > 0)
             {
-
                 // Get a node from the openSet.
                 currentNode = openSet.RemoveFirst();
 

@@ -3,7 +3,7 @@
 namespace SilentKnight.Entities
 {
     /// <summary>
-    /// Data container for player unit state information
+    /// Data container for player unit state information.
     /// </summary>
     struct PlayerStateData
     {

@@ -8,7 +8,7 @@ namespace SilentKnight.DungeonGeneration
     /// <summary>
     /// Handles requests for dungeon generation and validation.
     /// </summary>
-    public class DungeonGenerator : MonoBehaviour
+    public class DungeonRequestManager : MonoBehaviour
     {
         [SerializeField] int m_maxDungeonWidth;
         [SerializeField] int m_maxDungeonHeight;
@@ -73,20 +73,18 @@ namespace SilentKnight.DungeonGeneration
 
                 if (i > 0 && Generator.CurrentDungeon.Nodes.Count == nodes && Generator.CurrentDungeon.Platforms.Count == platforms)
                 {
-                    UnityEngine.Debug.Log("Suitable dungeon: " + i);
                     validLevels.Add(i);
                 }
 
                 yield return null;
             }
 
-            UnityEngine.Debug.ClearDeveloperConsole();
-            print("SEARCH COMPLETE ------------------------------------");
-            print("SUITABLE LEVELS ------------------------------------");
+            Debug.ClearDeveloperConsole();
+            Debug.Log("SEARCH COMPLETE. SUITABLE LEVELS FOUND: " + validLevels.Count + " --------------------------");
 
             var nextT = 0f;
 
-            // Looping once per set interval (nexttT), generate each valid dungeon found during the test and fabricate (if set) it
+            // Looping once per set interval (nextT), generate each valid dungeon found during the test and fabricate (if set) it
             // so that it can be seen within the test scene.
             foreach (var lvl in validLevels)
             {
@@ -129,9 +127,6 @@ namespace SilentKnight.DungeonGeneration
             // Update the current dungeon in memory
             UpdateDungeon(m_levelSeeds[m_currentLevel]);
 
-            // Update the preview texture.
-            UpdatePreviewTexture();
-
             // Fabricate the dungeon
             Generator.Fabricate();
 
@@ -153,7 +148,6 @@ namespace SilentKnight.DungeonGeneration
         public void LoadNext()
         {
             UpdateDungeon(m_levelSeeds[m_currentLevel]);
-            UpdatePreviewTexture();
 
             Generator.Fabricate();
             m_grid.CreateGrid();
@@ -163,13 +157,6 @@ namespace SilentKnight.DungeonGeneration
         void UpdateDungeon(int seed)
         {
             Generator.GenerateNewDungeon(seed);
-        }
-
-        // Updates the preview texture for debugging purposes.
-        void UpdatePreviewTexture()
-        {
-            var t = Generator.CurrentDungeon.Texture;
-            m_previewPlane.GetComponent<MeshRenderer>().material.mainTexture = t;
         }
     }
 }

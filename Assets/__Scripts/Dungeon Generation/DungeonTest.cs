@@ -3,7 +3,7 @@
 namespace SilentKnight.DungeonGeneration
 {
     /// <summary>
-    /// Function used for various dungeon tests, and also for discovering valid levels.
+    /// Function used for various dungeon tests, and for discovering valid levels.
     /// </summary>
     public class DungeonTest : MonoBehaviour
     {
@@ -17,7 +17,7 @@ namespace SilentKnight.DungeonGeneration
 
         void Start()
         {
-            GetComponent<DungeonGenerator>().DiscoverValidLevels(m_iterations, m_start, m_fabricate, m_platforms, m_nodes, m_wait);
+            GetComponent<DungeonRequestManager>().DiscoverValidLevels(m_iterations, m_start, m_fabricate, m_platforms, m_nodes, m_wait);
         }
     }
 }

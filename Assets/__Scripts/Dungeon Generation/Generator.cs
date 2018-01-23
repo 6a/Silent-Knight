@@ -6,7 +6,7 @@ using SilentKnight.Utility;
 namespace SilentKnight.DungeonGeneration
 {
     /// <summary>
-    /// Performs dungeon generation and fabrication.
+    /// Performs dungeon generation and interacts with fabricator.
     /// </summary>
     public static class Generator
     {
@@ -121,7 +121,7 @@ namespace SilentKnight.DungeonGeneration
             }
 
             // Updates the platform class instance with the new platform data.
-            Platforms.Update(platformBounds);
+            PlatformManager.Update(platformBounds);
 
             // Sets up a List of points representing the centers of each platform.
             List<Vector2> centers = new List<Vector2>();

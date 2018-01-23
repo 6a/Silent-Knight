@@ -26,7 +26,7 @@ namespace SilentKnight.Engine
         public static event LevelLoadTrigger OnStartRun;
 
         // Reference to the dungeon generator helper.
-        DungeonGenerator m_generator;
+        DungeonRequestManager m_dungeonRequestManager;
 
         // References to in-game UI objects
         [SerializeField] GameObject m_loadingBlockTopParent, m_loadingBlockBottomParent;
@@ -48,10 +48,12 @@ namespace SilentKnight.Engine
 
         void Awake()
         {
+            Time.timeScale = 1;
+
             m_loadingBlocksBottom = m_loadingBlockBottomParent.GetComponentsInChildren<Image>(true);
             m_loadingBlocksTop = m_loadingBlockTopParent.GetComponentsInChildren<Image>(true);
 
-            m_generator = FindObjectOfType<DungeonGenerator>();
+            m_dungeonRequestManager = FindObjectOfType<DungeonRequestManager>();
             m_instance = this;
         }
 
@@ -179,14 +181,14 @@ namespace SilentKnight.Engine
             }
 
             // Begind asynchronous load operation in DungeonGenerator.
-            m_generator.IsLoadingAsync = true;
-            StartCoroutine(m_generator.LoadNextAsync());
+            m_dungeonRequestManager.IsLoadingAsync = true;
+            StartCoroutine(m_dungeonRequestManager.LoadNextAsync());
 
             // Wait until ready, then update the progress bar, and perform the shatter effect if required.
             int index = 10;
-            while (m_generator.IsLoadingAsync || index < (10 + m_loadDelay / 0.1f) || (!Shatter.ShatterFinished && shatter))
+            while (m_dungeonRequestManager.IsLoadingAsync || index < (10 + m_loadDelay / 0.1f) || (!Shatter.ShatterFinished && shatter))
             {
-                if (!m_generator.IsLoadingAsync)
+                if (!m_dungeonRequestManager.IsLoadingAsync)
                 {
                     if (shatter)
                     {
@@ -252,7 +254,7 @@ namespace SilentKnight.Engine
         {
             OnStartRun = null;
 
-            m_instance.m_generator.NextLevelSetup();
+            m_instance.m_dungeonRequestManager.NextLevelSetup();
 
             m_instance.StartCoroutine(m_instance.LevelStart(true));
         }
@@ -313,7 +315,7 @@ namespace SilentKnight.Engine
                 }
             }
 
-            Time.timeScale = 1;
+
             AudioManager.CrossFadeBGM(Enums.BGM_VARIATION.QUIET, 2);
 
             SceneManager.LoadSceneAsync(1);
@@ -329,7 +331,7 @@ namespace SilentKnight.Engine
             PersistentData.SaveInt(PersistentData.KEY_INT.XP, 0);
             PersistentData.SaveInt(PersistentData.KEY_INT.LEVEL, 0);
 
-            Time.timeScale = 1;
+
             AudioManager.CrossFadeBGM(Enums.BGM_VARIATION.QUIET, 2);
             SceneManager.LoadSceneAsync(1);
         }
@@ -341,7 +343,7 @@ namespace SilentKnight.Engine
         {
             OnStartRun = null;
 
-            Time.timeScale = 1;
+
             AudioManager.CrossFadeBGM(Enums.BGM_VARIATION.QUIET, 2);
             SceneManager.LoadSceneAsync(1);
         }
