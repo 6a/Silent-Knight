@@ -49,7 +49,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1698814058488624}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c0bc86ea73f456144b80548b70604eb5, type: 3}
+  m_Script: {fileID: 11500000, guid: 28f0385988aadbb4cbb10ba22b1a5caa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   m_maxDungeonWidth: 32
@@ -61,13 +61,14 @@ MonoBehaviour:
   m_cycles: 1000
   m_padding: 1
   m_minPlatforms: 10
+  m_emptyChar: 46
+  m_platformChar: 35
+  m_nodeChar: 88
+  m_pathChar: 37
   m_scale: 2
   m_offset: 32
   m_levelSeeds: 91020000060200004b030000e002000007000000
   m_previewPlane: {fileID: 0}
-  <IsLoadingAsync>k__BackingField: 0
-  m_currentLevel: 0
-  m_grid: {fileID: 0}
 --- !u!114 &114628855262200358
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -76,7 +77,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 1698814058488624}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1ab7ea327bb70874580d9e5db0e7a977, type: 3}
+  m_Script: {fileID: 11500000, guid: 39ed2e68dd6043a41bc5aed66495e082, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_player: {fileID: 0}

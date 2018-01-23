@@ -52,7 +52,7 @@ namespace SilentKnight.DungeonGeneration
     }
 
     /// <summary>
-    /// Container class for a list of platform data.
+    /// Handles platform behaviours such as player entering/exiting a platform.
     /// </summary>
     public class Platforms : MonoBehaviour
     {
