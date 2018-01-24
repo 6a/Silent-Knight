@@ -139,8 +139,6 @@ namespace SilentKnight.Entities
                 IsChangingView = false;
                 (CurrentTarget as PlayerPathFindingObject).IsChangingView = false;
                 (CurrentTarget as PlayerPathFindingObject).SetAttackRange(1.5f);
-
-                return;
             }
 
             // If this point is reached, the unit is clear to perform an attack (normal, spin or kick)
@@ -167,6 +165,14 @@ namespace SilentKnight.Entities
             var refToScript = newProjectile.GetComponent<Projectile>();
 
             refToScript.Init(CurrentTarget, this, 2, 5, LevelScaling.GetScaledDamage(m_level, LevelScaling.GetScaledDamage(m_level, (int)m_baseDamage)));
+        }
+
+        /// <summary>
+        /// Animation trigger: @frame at which the boss attack connects with the player.
+        /// </summary>
+        void AnimationTriggerBossAttack(int multiplier)
+        {
+            StartCoroutine(ApplyDamageDelayed(multiplier, 0, CurrentTarget));
         }
         #endregion 02A_ANIMATION_TRIGGERS -----------------------------------------------------------------------------------------------------
 
