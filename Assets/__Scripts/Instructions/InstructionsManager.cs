@@ -26,7 +26,7 @@ namespace SilentKnight.Tutorial
         void Awake()
         {
             // If this is not the first run, skip this process and load the main game.
-            if (!PersistentData.FirstRun()) SceneManager.LoadSceneAsync(1);
+            //if (!PersistentData.FirstRun()) SceneManager.LoadSceneAsync(1);
 
             m_demoIndex = 0;
 
@@ -93,9 +93,13 @@ namespace SilentKnight.Tutorial
         {
             m_demoIndex++;
 
-            if (m_demoIndex >= m_demoSlides.Length)
+            if (m_demoIndex == m_demoSlides.Length)
             {
                 SceneManager.LoadSceneAsync(1);
+                return;
+            }
+            else if (m_demoIndex > m_demoSlides.Length)
+            {
                 return;
             }
 
