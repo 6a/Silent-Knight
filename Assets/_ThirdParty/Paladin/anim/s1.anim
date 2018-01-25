@@ -31102,9 +31102,9 @@ AnimationClip:
   m_GenerateMotionCurves: 0
   m_Events:
   - time: 0.24
-    functionName: ApplyDamage
+    functionName: AnimationTriggerBossAttack
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
-    intParameter: 3
+    intParameter: 2
     messageOptions: 0
